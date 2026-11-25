@@ -59,7 +59,7 @@ warunkiem wytopu adamantu. T6 wzrósł z 2,5 h do 3,7 h.
 | **Razem** | **40** | **40,4** | | |
 
 Monte Carlo (200 profili): **P10 33,5 h · P50 41,3 h · P90 55,2 h**.
-Na ścieżce ukończenia leży 93 ze 133 węzłów badań; pozostałe służą wydajności, wygodzie i wymaksowaniu.
+Na ścieżce ukończenia leży 93 ze 134 węzłów badań; pozostałe służą wydajności, wygodzie i wymaksowaniu.
 
 ## Wymaksowanie (~120 h)
 Wszystkie badania i poziomy budowli po drodze (≈60 h), a potem faza końcowa:

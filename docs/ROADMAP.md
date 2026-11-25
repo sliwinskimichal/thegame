@@ -1,75 +1,53 @@
-# Roadmapa — Underhearth (plan na ~30 dni pracy)
+# Roadmapa — Underhearth (pełna gra: ~40 h ukończenia, ~120 h wymaksowania)
 
-Praca idzie **w głąb, nie wszerz**: element przechodzi dalej dopiero po spełnieniu bramki
-z `docs/QUALITY.md`. Kolejność faz wynika z zależności (światło → materiały → postacie → ...).
-Sesje wznawiają się automatycznie co 5 h (zaplanowane zadanie) — każda sesja zaczyna od
-pierwszego niezaznaczonego punktu poniżej.
+Zasady pracy: głębia ponad tempo, bramki jakości (`QUALITY.md`), **turnieje min. 10 wariantów** dla
+wszystkiego, co gracz widzi/słyszy/czuje, symulacje Monte Carlo dla balansu. Sesje wznawiane
+automatycznie co 5 h. Każda sesja zaczyna od pierwszego niezaznaczonego punktu.
 
-## Faza A — Świat, który zachwyca sam w sobie (dni 1–7)
-- [x] A0. Szkielet projektu: Vite 8 + TypeScript 7 + Three.js r187 + Preact, CI → GitHub Pages
-- [x] A1. ~~Prototyp: model świata, generator, światło~~ (zarchiwizowany w `4416b41`)
-- [x] A2. ~~Prototyp renderera 2.5D~~ (zarchiwizowany — wystartuje jako jeden z wariantów)
-- [ ] A2.5. **Laboratorium turniejów**: arena, scenariusze, automat zrzutów, plansze, metryki
-- [ ] A2.6. **Turniej nr 1 — styl wizualny** (12 stylów renderowania areny)
-- [ ] A3. **Galeria materiałów** i dopracowanie każdego z 25 materiałów (E2)
-- [ ] A4. Przekrój bez „klocków”: fazowane krawędzie, czytelność skała/wnętrze/nieodkryte (E5)
-- [ ] A5. Światło bez pasm, kolorowe źródła, światło nieba w szybach, okluzja latarni (E4)
-- [ ] A6. Generator 2.0: fałdy i uskoki warstw, żyły rud, geody, typy jaskiń, wejście do jaskini,
-      miejsca specjalne (E3)
-- [ ] A7. Powierzchnia i niebo: góry, chmury, drzewa w tle, cykl dnia (E6)
-- [ ] A8. Dekoracje: stalaktyty, stalagmity, grzyby (także olbrzymie), kryształy, korzenie, kości,
-      kolumny, trawa i kwiaty z wiatrem (E7)
-- [ ] A9. Płyny: woda (półprzezroczysta, kaustyki, powierzchnia z falą), lawa (żar, bąble) (E8)
-- [ ] A10. Post-processing i kamera: bloom, grading, tilt-shift do trybu zdjęć, kamera z paralaksą (E9, E10)
+## Faza A — Fundamenty projektu i kierunek wizualny
+- [x] A0. Szkielet: Vite 8 + TypeScript 7 + Three.js r187 + Preact, CI → GitHub Pages
+- [x] A1. Czysta karta (prototyp w historii gita `4416b41`), biblioteki techniczne z testami
+- [x] A2. **Biblia treści** jako dane (`src/content/`): 9 biomów, 15 zagrożeń, 26 złóż, 27 surowców
+      kopalnych, 47 dropów, 81 materiałów, 91 przedmiotów, 24 budowle × 3, 36 elementów infrastruktury,
+      187 receptur, 134 węzły badań, 34 stworzenia (9 bossów), 8 Wielkich Dzieł × 3 → `docs/CONTENT.md`
+- [x] A3. Analiza progresji + 19 testów spójności grafu treści
+- [x] A4. **Model balansu** + Monte Carlo + turniej 64 wariantów krzywej → `docs/BALANCE.md` (40,4 h)
+- [ ] A5. Laboratorium turniejów wizualnych: arena (gotowa), scenariusze, automat zrzutów, plansze, metryki
+- [ ] A6. **Turniej nr 1 — styl wizualny** (12 stylów renderowania areny), finaliści do akceptacji właściciela
+- [ ] A7. Turnieje materiałów skał (paleta i wzory), światła, nieba, dekoracji, płynów, post-processingu, kamery
 
-## Faza B — Krasnoludy (dni 8–12)
-- [ ] B1. Proceduralny model krasnoluda: brody, hełmy, ubrania, narzędzia, latarnia; LOD
-- [ ] B2. Animacje proceduralne: chód, wspinaczka, kopanie, noszenie, sen, jedzenie, walka, upadek
-- [ ] B3. Nawigacja z grawitacją: chodzenie, stopnie, zeskoki, drabiny, platformy (+ testy)
-- [ ] B4. System zadań: kopanie, szyb z drabiną, noszenie, budowa; priorytety i rezerwacje
-- [ ] B5. Osobowości: imiona (PL), cechy, umiejętności, nastrój, relacje; portrety 3D
-- [ ] B6. Przedmioty i magazyny: wypadanie łupu, odłamki skał, transport, wóz startowy
+## Faza B — Świat i symulacja
+- [ ] B1. Generator świata 2.0 dla 9 biomów (złoża wg biblii, jaskinie wg typów, miejsca specjalne, bossowie)
+      — turniej wariantów generatora oceniany metrykami (dostępność złóż, łączność, różnorodność)
+- [ ] B2. Model świata w grze: kopanie, zawały i podpory, płyny (woda, lawa, obsydian), temperatura, gazy, groza
+- [ ] B3. Krasnoludy: model i animacje (turniej), potrzeby, cechy, umiejętności, ekwipunek w slotach
+- [ ] B4. Nawigacja z grawitacją (drabiny, schody, platformy, windy, tory) + testy
+- [ ] B5. Zadania i priorytety, magazyny, transport, produkcja w budynkach, energia
+- [ ] B6. Badania: Sala Wiedzy, księgi z próbek, zakryte drzewko z licznikami
 
-## Faza C — Gród (dni 13–17)
-- [ ] C1. Budowanie: plany, dostarczanie materiałów, postęp budowy, rozbiórka
-- [ ] C2. Konstrukcje: drabiny, platformy, schody, drzwi, pochodnie, podpory, mury
-- [ ] C3. Pomieszczenia: sypialnie, jadalnia, magazyny; Palenisko (serce grodu) i jego ulepszenia
-- [ ] C4. Produkcja: kamieniarz, huta, kuźnia, browar, kuchnia, farma grzybów, stolarnia
-- [ ] C5. Potrzeby: głód, pragnienie (piwo!), sen, nastrój; konsekwencje zaniedbań
-- [ ] C6. Interfejs: pasek zasobów, narzędzia, panel krasnoluda, powiadomienia, minimapa głębokości
+## Faza C — Gra
+- [ ] C1. Budowanie 24 budowli × 3 poziomy (modele proceduralne — turniej stylu budynków) + infrastruktura
+- [ ] C2. Ekonomia wg biblii treści, wszystkie 187 receptur
+- [ ] C3. Stworzenia i bossowie (AI, walka, łup), najazdy, reżyser zdarzeń
+- [ ] C4. Interfejs (turniej układu HUD), drzewko technologii, kronika, zlecenia
+- [ ] C5. Samouczek ~1 h płynnie przechodzący w grę swobodną
 
-## Faza D — Zagrożenia (dni 18–21)
-- [ ] D1. Potwory per warstwa (pełzacze, pająki, gobliny, trolle, ogniste chochliki, koszmary głębin)
-- [ ] D2. Walka, rany, śmierć, groby i żałoba; straż i uzbrojenie z kuźni
-- [ ] D3. Obrona: drzwi, pułapki, mury, światło jako broń
-- [ ] D4. Reżyser zdarzeń (tempo zagrożeń wg bogactwa i głębokości), kronika grodu
-
-## Faza E — Głębia i cel gry (dni 22–25)
-- [ ] E1. Postęp przez warstwy: nowe surowce, technologie, wyzwania środowiskowe
-- [ ] E2. Płyny symulowane: zalewanie tuneli, lawa + woda = obsydian, pompy
-- [ ] E3. Zawały i podpory (integralność stropów)
-- [ ] E4. Serce Góry: finał, starożytny strażnik, zakończenie; tryb nieskończony
-
-## Faza F — Szlif i dostępność (dni 26–30)
-- [ ] F1. Dźwięk: proceduralne efekty, przestrzenny pogłos jaskiń, generatywna muzyka zależna od głębokości
-- [ ] F2. Zapis/wczytanie (IndexedDB + eksport pliku), autozapis
-- [ ] F3. Menu główne z żywą makietą świata, ustawienia (grafika, dźwięk, język PL/EN, skala UI)
-- [ ] F4. Samouczek przez cele, podpowiedzi kontekstowe
-- [ ] F5. Wydajność (Web Worker dla symulacji/świateł), sterowanie dotykiem, PWA offline
-- [ ] F6. Balans, testy gry, poprawki — drugie przeglądy wszystkich bramek jakości
+## Faza D — Treść końcowa i szlif
+- [ ] D1. Wielkie Dzieła (8 × 3 etapy)
+- [ ] D2. Kręgi Otchłani (gra po ukończeniu) — dociągnięcie wymaksowania do ~120 h
+- [ ] D3. Dźwięk i muzyka generatywna (turnieje), zapis/wczytanie, ustawienia, PL/EN
+- [ ] D4. Bot grający w prawdziwą symulację → rekalibracja balansu; wydajność, dotyk, PWA
+- [ ] D5. Drugie przeglądy wszystkich bramek jakości
 
 ---
 
 ## Dziennik pracy
-Każda sesja dopisuje: datę, co zrobiono, co zostało, decyzje.
-
-- **2026-11-25 (dzień 1)** — Szkielet projektu, generator świata (7 warstw, rudy, jaskinie, płyny,
-  ruiny, Serce Góry), pole światła (pochodnie, niebo), renderer 2.5D (gładkie ściany jaskiń,
-  proceduralne materiały), niebo z cyklem dnia i krajobrazem w tle, post-processing.
-  Zmiana procesu na bramki jakości po uwadze, że tempo szło kosztem detalu.
-  Wznawianie pracy: zaplanowane zadanie co 5 h.
-- **2026-11-25 (dzień 1, cd.)** — Nowe ustalenia: każdy element widoczny/słyszalny/odczuwalny
-  powstaje przez **turniej min. 10 wariantów** (plansze porównawcze + rubryka + metryki), balans
-  przez symulacje Monte Carlo. **Czysta karta**: prototyp usunięty z drzewa roboczego (zostaje w
-  historii gita, commit `4416b41`); zachowane tylko biblioteki techniczne (RNG, szum, zdarzenia),
-  konfiguracja, CI i dokumentacja. Plan faz poniżej zostaje, ale każdy punkt przechodzi przez turniej.
+- **2026-11-25 (dzień 1)** — Szkielet projektu, prototyp renderera (później zarchiwizowany).
+  Nowe ustalenia: bramki jakości, turnieje min. 10 wariantów, czysta karta, praca od limitu do limitu
+  (zaplanowane wznawianie co 5 h).
+- **2026-11-25 (dzień 1, wieczór)** — Sesja kilkukrotnie restartowana (~3,5 h przerwy, pliki ocalały).
+  Nowe wymagania właściciela: pełnoprawna gra 40 h / 120 h, ≥15 budowli × 3 poziomy, ~80 przedmiotów,
+  ≥20 złóż, ≥30 dropów, 60–80 materiałów, zakryte drzewko technologii, samouczek ~1 h, balans,
+  inspiracje Factorio/Satisfactory/Return to Moria/Palworld (bez oswajania stworzeń — decyzja właściciela).
+  Zrobione: arena laboratorium, biblia treści z analizą progresji i testami, model balansu z Monte Carlo
+  i turniejem krzywej kosztów (wynik 40,4 h), Wielkie Dzieła, projekt Kręgów Otchłani.

@@ -6,7 +6,7 @@
  * (and tournamented) without touching the algorithm.
  */
 import { MATERIALS, SOLID } from './materials';
-import { FLUID, PROP, PROP_GLOW, type World } from './world';
+import { FLUID, PROP, PROP_GLOW, TF, type World } from './world';
 
 export interface LightParams {
   decayAir: number;
@@ -78,6 +78,12 @@ export class LightField {
         g[i] = glow[1];
         b[i] = glow[2];
       } else r[i] = g[i] = b[i] = 0;
+      if (!(world.flags[i]! & TF.EXPLORED)) {
+        // unknown emitters only hint at themselves
+        r[i] = r[i]! * 0.15;
+        g[i] = g[i]! * 0.15;
+        b[i] = b[i]! * 0.15;
+      }
       sky[i] = 0;
     }
     for (const p of world.props) {
@@ -87,6 +93,7 @@ export class LightField {
       const ty = Math.floor(-p.y + (p.attach === 'floor' || p.attach === 'ground' ? -0.01 : 0.01));
       if (tx < 0 || ty < 0 || tx >= w || ty >= h) continue;
       const i = ty * w + tx;
+      if (!(world.flags[i]! & TF.EXPLORED)) continue;
       const s = p.type === PROP.TORCH ? 1 : Math.min(1.3, p.scale);
       r[i] = Math.max(r[i]!, L[0] * s);
       g[i] = Math.max(g[i]!, L[1] * s);

@@ -67,6 +67,11 @@ tests/                 Vitest; worldmap.test.ts = narzędzie podglądu mapy (WOR
 scripts/               shot.mjs (zrzuty), contact-sheet.py, metrics.py
 docs/                  GDD.md, ROADMAP.md, QUALITY.md, variants/, progress/
 ```
+**Kierunek wizualny (turniej nr 1):** R2B „Sylwetki czytelne” — `src/lab/styles/round2.ts`
+(baza: makieta `s01-diorama.ts` + ciemniejsza skała z poświatą krawędzi, iskrzące rudy, świecące powietrze).
+Laboratorium: `lab.html?style=<id>&scenario=<id>`; turniej: `node scripts/tournament.mjs <url> <out> [style,...]`,
+potem `python3 scripts/contact-sheet.py <out> [names.json]` i `python3 scripts/metrics.py <out>`.
+
 Model renderingu: płyta skalna oglądana z przodu. Lita skała = płaszczyzna cięcia z=0, wnętrza
 jaskiń/tuneli = wgłębienia (gładka tylna ściana z uśrednionych głębokości narożników), na
 powierzchni pas gruntu o głębokości `CONFIG.slabDepth` przechodzi w krajobraz w tle.

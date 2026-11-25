@@ -12,8 +12,9 @@ automatycznie co 5 h. Każda sesja zaczyna od pierwszego niezaznaczonego punktu.
       187 receptur, 134 węzły badań, 34 stworzenia (9 bossów), 8 Wielkich Dzieł × 3 → `docs/CONTENT.md`
 - [x] A3. Analiza progresji + 19 testów spójności grafu treści
 - [x] A4. **Model balansu** + Monte Carlo + turniej 64 wariantów krzywej → `docs/BALANCE.md` (40,4 h)
-- [ ] A5. Laboratorium turniejów wizualnych: arena (gotowa), scenariusze, automat zrzutów, plansze, metryki
-- [ ] A6. **Turniej nr 1 — styl wizualny** (12 stylów renderowania areny), finaliści do akceptacji właściciela
+- [x] A5. Laboratorium turniejów wizualnych: arena, 8 scenariuszy, automat zrzutów, plansze, metryki
+- [x] A6. **Turniej nr 1 — styl wizualny**: 12 stylów + 3 finalistów → zwycięzca **R2B „Sylwetki czytelne”**
+      (`docs/variants/01-render-style.md`); finaliści pokazani właścicielowi do ewentualnej zmiany
 - [ ] A7. Turnieje materiałów skał (paleta i wzory), światła, nieba, dekoracji, płynów, post-processingu, kamery
 
 ## Faza B — Świat i symulacja
@@ -51,3 +52,5 @@ automatycznie co 5 h. Każda sesja zaczyna od pierwszego niezaznaczonego punktu.
   inspiracje Factorio/Satisfactory/Return to Moria/Palworld (bez oswajania stworzeń — decyzja właściciela).
   Zrobione: arena laboratorium, biblia treści z analizą progresji i testami, model balansu z Monte Carlo
   i turniejem krzywej kosztów (wynik 40,4 h), Wielkie Dzieła, projekt Kręgów Otchłani.
+  Laboratorium wizualne i turniej nr 1 (12 stylów, 2 rundy, 15 wariantów, 120 renderów): zwycięża
+  „Sylwetki czytelne” (8,4/10) — kontrast przekroju 0,55, rudy ΔE 28 (iskrzenie), mocny nastrój.

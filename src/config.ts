@@ -5,8 +5,8 @@ export const CONFIG = {
   worldH: 480,
   /** Terrain chunk size in tiles (render + dirty tracking). */
   chunk: 32,
-  /** How far the outdoor ground extends back from the cut plane (world units). */
-  slabDepth: 3,
+  /** Depth of the walkable outdoor ground strip behind the cut plane (world units). */
+  groundDepth: 3,
   /** Simulation ticks per second at 1x speed. */
   tickRate: 20,
   /** Length of a full day/night cycle in seconds of game time at 1x. */

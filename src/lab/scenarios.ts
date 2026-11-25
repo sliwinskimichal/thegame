@@ -1,3 +1,6 @@
+import { BIOMES } from '../content/biomes';
+import { BLOCK_SIZE, blockOrigin, GALLERY_H, GALLERY_W } from './gallery';
+
 /** Fixed camera scenarios: every variant is judged on exactly these shots. */
 
 export interface Scenario {
@@ -21,4 +24,13 @@ export const SCENARIOS: readonly Scenario[] = [
   { id: 'lava', namePl: 'Kieszeń lawy', x: 51, y: -39.5, d: 22, t: 0.42 },
   { id: 'dusk', namePl: 'Zmierzch nad grodem', x: 34, y: -11, d: 42, t: 0.74 },
   { id: 'fog', namePl: 'Granica nieznanego', x: 12, y: -31, d: 28, t: 0.42 },
+];
+
+/** Material gallery shots (see gallery.ts): the whole wall by day, then every biome block by torchlight. */
+export const GALLERY_SCENARIOS: readonly Scenario[] = [
+  { id: 'g_all', namePl: 'Galeria — całość', x: GALLERY_W / 2, y: -GALLERY_H / 2, d: 160, t: 0.42 },
+  ...BIOMES.map((b, k) => {
+    const o = blockOrigin(k);
+    return { id: `g_${b.id}`, namePl: `Galeria — ${b.namePl}`, x: o.x + BLOCK_SIZE.w / 2, y: -(o.y + BLOCK_SIZE.h / 2), d: 50, t: 0.0 };
+  }),
 ];

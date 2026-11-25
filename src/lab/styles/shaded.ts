@@ -21,7 +21,7 @@ import { buildFluids, buildMannequins, buildProps, litMaterial, updateWorldUnifo
 import type { RenderStyle } from '../style';
 
 const ORE = new Set<number>(MATERIALS.filter((m) => m.cls === 'ore' || m.cls === 'gem').map((m) => m.id));
-const GLOW = new Set<number>([M.CRYSTAL, M.AMETHYST, M.MAGMA_ROCK, M.MYCELIUM, M.EMBERITE, M.GLIMMERITE]);
+const GLOW = new Set<number>([M.FROST_CRYSTAL, M.AMETHYST, M.MAGMA_ROCK, M.MYCELIUM, M.EMBERITE, M.GLIMMERITE]);
 
 const HF_VERT = /* glsl */ `
 attribute float aMatFlags;

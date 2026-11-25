@@ -14,7 +14,7 @@ import { CAV, TF } from '../../world/world';
 import { buildFluids, buildMannequins, buildProps, litMaterial, updateWorldUniforms, WINDY, worldUniforms } from '../common';
 import type { RenderStyle, StyleContext } from '../style';
 
-const GLOW = new Set<number>([M.CRYSTAL, M.AMETHYST, M.MAGMA_ROCK, M.MYCELIUM, M.EMBERITE, M.GLIMMERITE]);
+const GLOW = new Set<number>([M.FROST_CRYSTAL, M.AMETHYST, M.MAGMA_ROCK, M.MYCELIUM, M.EMBERITE, M.GLIMMERITE]);
 const ORE = new Set<number>(MATERIALS.filter((m) => m.cls === 'ore' || m.cls === 'gem').map((m) => m.id));
 
 function withAttrs(geo: THREE.BufferGeometry, emissive: number): THREE.BufferGeometry {

@@ -15,7 +15,15 @@ Projekt: **Underhearth** — przeglądarkowa gra o krasnoludzkiej kolonii w prze
   (biomy kopalni, wyzwania środowiskowe, rzemiosło), Palworld — WYŁĄCZNIE najazdy na gród i bossowie
   strzegący biomów. **ZAKAZ: żadnego oswajania stworzeń ani stworzeń-pracowników** (decyzja właściciela).
   Pracują tylko krasnoludy i maszyny; stworzenia to zwierzyna i potwory (źródło dropu).
-- **Samouczek ~1 h** na starcie, płynnie przechodzący w grę swobodną.
+- **Samouczek ~1 h** na starcie, płynnie przechodzący w grę swobodną. Przewodnikiem jest **stary król**, który
+  ginie w zawale tunelu na końcu samouczka i przekazuje władzę następcy (graczowi) — decyzja właściciela.
+- **Główny przeciwnik**: oryginalny demon cienia i ognia z głębin, *na wzór* archetypu balroga — bez nazw
+  i szczegółów z Tolkiena (decyzja właściciela; nazwy własne wymyślamy sami).
+- **Warstwa drużyny (RPG)** inspirowana Dragon Age: Origins / Mass Effect 2: nazwani towarzysze w kolonii
+  (frakcja, klasa społeczna, światopogląd), misje rekrutacyjne i lojalnościowe, konflikty w drużynie, finał,
+  w którym stawką jest przeżycie drużyny. Biblia narracyjna: `docs/narrative/`.
+- **Gnomy** to sojuszniczy lud wynalazców (mogą prowadzić badania i budować wynalazki) — ludzie, nie stworzenia;
+  zakaz oswajania stworzeń obowiązuje dalej. Pracują krasnoludy, sojusznicze ludy i maszyny.
 - **Drzewko technologii** (badania odblokowują budowle i przedmioty): węzły ukryte, dopóki gracz nie odkryje
   kluczowego surowca, ale skala i liczba zakrytych węzłów są widoczne.
 - **Balans** całości — weryfikowany symulacjami progresji (docs/BALANCE.md).
@@ -33,6 +41,8 @@ Projekt: **Underhearth** — przeglądarkowa gra o krasnoludzkiej kolonii w prze
    Zapisz wynik w `docs/variants/<element>.md` (tabela ocen + uzasadnienie + plansza).
    Dla kodu niewidocznego: benchmark 2–3 algorytmów tam, gdzie liczy się wydajność, i testy.
    Dla balansu/trudności/generatora: symulacje Monte Carlo wielu kolonii na wariant.
+   **Darmowe biblioteki zewnętrzne** (np. post-processing, AO, shadery) wolno wprowadzić, jeśli wygrają turniej
+   z naszym rozwiązaniem w identycznych scenariuszach (licencja MIT/BSD/Apache/CC0, rozmiar paczki w ocenie).
 4. Po każdym ukończonym kroku: `npm test`, `npm run build`, commit, push na
    `claude/fervent-ptolemy-fv7lmn`, wpis w dzienniku `docs/ROADMAP.md`.
 
@@ -67,6 +77,10 @@ tests/                 Vitest; worldmap.test.ts = narzędzie podglądu mapy (WOR
 scripts/               shot.mjs (zrzuty), contact-sheet.py, metrics.py
 docs/                  GDD.md, ROADMAP.md, QUALITY.md, variants/, progress/
 ```
+**Materiały (turniej nr 2):** 44 materiały (26 złóż z biblii treści + skały 9 biomów) w `src/world/materials.ts`,
+wygląd w `src/render/palette.ts` (paleta per biom + forma minerału + kolor połysku), reguły w
+`docs/variants/02-materials.md`; galeria `lab.html?world=gallery[&flood=1]`, metryki `scripts/galmetrics.py`,
+strażnik palety `tests/palette.test.ts`.
 **Kierunek wizualny (turniej nr 1):** R2B „Sylwetki czytelne” — `src/lab/styles/round2.ts`
 (baza: makieta `s01-diorama.ts` + ciemniejsza skała z poświatą krawędzi, iskrzące rudy, świecące powietrze).
 Laboratorium: `lab.html?style=<id>&scenario=<id>`; turniej: `node scripts/tournament.mjs <url> <out> [style,...]`,

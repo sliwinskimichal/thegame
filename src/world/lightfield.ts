@@ -154,7 +154,7 @@ export class LightField {
     }
   }
 
-  private pack(): void {
+  pack(): void {
     const { r, g, b, sky, packed } = this;
     const k = 1 / LIGHT_MAX;
     for (let i = 0, n = this.w * this.h; i < n; i++) {

@@ -17,7 +17,7 @@ describe('arena', () => {
   it('contains every feature a variant must render', () => {
     const has = (m: number) => world.mat.some((v) => v === m);
     for (const m of [M.SOIL, M.CLAY, M.LIMESTONE, M.SANDSTONE, M.SHALE, M.GRANITE, M.SLATE, M.BASALT,
-      M.OBSIDIAN, M.MAGMA_ROCK, M.BEDROCK, M.COAL, M.COPPER, M.IRON, M.SILVER, M.GOLD, M.CRYSTAL,
+      M.OBSIDIAN, M.MAGMA_ROCK, M.BEDROCK, M.COAL, M.COPPER, M.IRON, M.SILVER, M.GOLD, M.FROST_CRYSTAL,
       M.AMETHYST, M.MYCELIUM, M.EMBERITE]) expect(has(m), `material ${m}`).toBe(true);
     expect(world.cav.some((c) => c === CAV.DUG)).toBe(true);
     expect(world.cav.some((c) => c === CAV.NATURAL)).toBe(true);
@@ -54,7 +54,7 @@ describe('arena', () => {
       [M.SHALE]: 0x63666c, [M.GRANITE]: 0x837a77, [M.SLATE]: 0x48525f, [M.BASALT]: 0x34353c,
       [M.OBSIDIAN]: 0x211832, [M.MAGMA_ROCK]: 0x6b2a16, [M.BEDROCK]: 0x111015, [M.COAL]: 0x111111,
       [M.COPPER]: 0xe07b3c, [M.IRON]: 0xa4523a, [M.SILVER]: 0xeef3ff, [M.GOLD]: 0xffc23d,
-      [M.CRYSTAL]: 0x52d6ff, [M.AMETHYST]: 0xb46cff, [M.MYCELIUM]: 0x45e6c0, [M.EMBERITE]: 0xff8a26,
+      [M.FROST_CRYSTAL]: 0x52d6ff, [M.AMETHYST]: 0xb46cff, [M.MYCELIUM]: 0x45e6c0, [M.EMBERITE]: 0xff8a26,
     };
     for (let y = 0; y < world.h; y++)
       for (let x = 0; x < world.w; x++) {

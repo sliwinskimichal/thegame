@@ -8,9 +8,11 @@ import { daylightAt } from '../render/daylight';
 import { WorldTex } from '../render/worldTex';
 import { LightField } from '../world/lightfield';
 import { SOLID } from '../world/materials';
-import { CAV, FLUID, TF } from '../world/world';
+import { CAV, FLUID, PROP, PROP_GLOW, TF } from '../world/world';
 import { buildArena } from './arena';
-import { SCENARIOS, type Scenario } from './scenarios';
+import { buildGallery } from './gallery';
+import { applyMaterialVariant } from './materialVariants';
+import { GALLERY_SCENARIOS, SCENARIOS, type Scenario } from './scenarios';
 import type { StyleContext, StyleInstance } from './style';
 import { STYLES } from './styles';
 
@@ -19,10 +21,24 @@ const canvas = document.getElementById('c') as HTMLCanvasElement;
 const hud = document.getElementById('hud')!;
 if (params.get('hud') === '0') hud.style.display = 'none';
 
-const arena = buildArena();
+applyMaterialVariant(params.get('mat'));
+if (params.has('torch')) {
+  const [r, g, b] = params.get('torch')!.split(',').map(Number);
+  PROP_GLOW[PROP.TORCH] = [r!, g!, b!];
+}
+const worldKind = params.get('world') === 'gallery' ? 'gallery' : 'arena';
+const arena = worldKind === 'gallery' ? buildGallery() : buildArena();
+const SCEN = worldKind === 'gallery' ? GALLERY_SCENARIOS : SCENARIOS;
 const world = arena.world;
 const light = new LightField(world.w, world.h);
 light.compute(world);
+if (params.get('flood') === '1') {
+  // neutral work light everywhere: judges the palette itself, not the lighting
+  light.r.fill(0.9);
+  light.g.fill(0.9);
+  light.b.fill(0.9);
+  light.pack();
+}
 const tex = new WorldTex(world, light);
 
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance', preserveDrawingBuffer: true });
@@ -34,7 +50,7 @@ const H = () => canvas.clientHeight || innerHeight;
 renderer.setSize(W(), H(), false);
 const camera = new THREE.PerspectiveCamera(30, W() / H(), 0.5, 1200);
 
-let scenario: Scenario = SCENARIOS.find((s) => s.id === params.get('scenario')) ?? SCENARIOS[0]!;
+let scenario: Scenario = SCEN.find((s) => s.id === params.get('scenario')) ?? SCEN[0]!;
 function placeCamera(s: Scenario): void {
   camera.position.set(s.x, s.y + s.d * 0.07, s.d);
   camera.lookAt(s.x, s.y, -0.5);
@@ -62,8 +78,8 @@ function frame(): void {
 requestAnimationFrame(frame);
 
 /** Screen-space samples of tile categories for automated readability metrics. */
-function probes(): { x: number; y: number; cat: string; mat: number }[] {
-  const out: { x: number; y: number; cat: string; mat: number }[] = [];
+function probes(): { x: number; y: number; tx: number; ty: number; cat: string; mat: number }[] {
+  const out: { x: number; y: number; tx: number; ty: number; cat: string; mat: number }[] = [];
   const v = new THREE.Vector3();
   const w = W();
   const h = H();
@@ -83,20 +99,21 @@ function probes(): { x: number; y: number; cat: string; mat: number }[] {
       const sx = (v.x * 0.5 + 0.5) * w;
       const sy = (1 - (v.y * 0.5 + 0.5)) * h;
       if (sx < 2 || sy < 2 || sx > w - 2 || sy > h - 2) continue;
-      out.push({ x: Math.round(sx), y: Math.round(sy), cat, mat: world.mat[i]! });
+      out.push({ x: Math.round(sx), y: Math.round(sy), tx: x, ty: y, cat, mat: world.mat[i]! });
     }
   return out;
 }
 
 (window as unknown as { __lab: unknown }).__lab = {
   styles: STYLES.map((s) => s.id),
-  scenarios: SCENARIOS.map((s) => s.id),
+  scenarios: SCEN.map((s) => s.id),
   style: styleDef.id,
+  mat: params.get('mat') ?? 'm13-designed',
   get frameMs() {
     return frameMs;
   },
   async setScenario(id: string, settleFrames = 4): Promise<void> {
-    scenario = SCENARIOS.find((s) => s.id === id) ?? scenario;
+    scenario = SCEN.find((s) => s.id === id) ?? scenario;
     placeCamera(scenario);
     const start = frames;
     await new Promise<void>((res) => {
@@ -105,4 +122,5 @@ function probes(): { x: number; y: number; cat: string; mat: number }[] {
     });
   },
   probes,
+  layout: 'swatches' in arena ? arena.swatches : null,
 };

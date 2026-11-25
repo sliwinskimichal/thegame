@@ -2,7 +2,7 @@
 // Usage: node scripts/tournament.mjs <baseUrl> <outDir> [styleIdsCsv] [width] [height] [concurrency]
 // Example: node scripts/tournament.mjs http://localhost:5174 /tmp/t1
 import { createRequire } from 'node:module';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
 
@@ -12,31 +12,42 @@ const browser = await chromium.launch({
   args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'],
 });
 
-async function openLab(style) {
+// Entries: a JSON file [{id, query}] or a comma-separated list of style ids.
+let entries = null;
+if (only.endsWith('.json')) entries = JSON.parse(readFileSync(only, 'utf8'));
+
+async function openLab(query) {
   const page = await browser.newPage({ viewport: { width: Number(W), height: Number(H) }, deviceScaleFactor: 1 });
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   page.on('console', (m) => m.type() === 'error' && errors.push(m.text().slice(0, 2000)));
-  await page.goto(`${base}/lab.html?hud=0${style ? `&style=${style}` : ''}`, { waitUntil: 'load' });
+  await page.goto(`${base}/lab.html?hud=0${query ? `&${query}` : ''}`, { waitUntil: 'load' });
   await page.waitForFunction(() => !!window.__lab, null, { timeout: 120000 });
   return { page, errors };
 }
 
-const probe = await openLab('');
-const styles = only ? only.split(',') : await probe.page.evaluate(() => window.__lab.styles);
+const probe = await openLab(entries ? entries[0].query : '');
+if (!entries) {
+  const ids = only ? only.split(',') : await probe.page.evaluate(() => window.__lab.styles);
+  entries = ids.map((id) => ({ id, query: `style=${id}` }));
+}
+const styles = entries.map((e) => e.id);
+const queryOf = Object.fromEntries(entries.map((e) => [e.id, e.query]));
 const scenarios = await probe.page.evaluate(() => window.__lab.scenarios);
 const probes = {};
 for (const sc of scenarios) {
   await probe.page.evaluate((id) => window.__lab.setScenario(id, 2), sc);
   probes[sc] = await probe.page.evaluate(() => window.__lab.probes());
 }
+const layout = await probe.page.evaluate(() => window.__lab.layout);
 await probe.page.close();
 writeFileSync(`${out}/probes.json`, JSON.stringify(probes));
+if (layout) writeFileSync(`${out}/layout.json`, JSON.stringify(layout));
 
 const manifest = { width: Number(W), height: Number(H), scenarios, styles: {} };
 async function runStyle(style) {
   const t0 = Date.now();
-  const { page, errors } = await openLab(style);
+  const { page, errors } = await openLab(queryOf[style]);
   const info = await page.evaluate(() => ({ id: window.__lab.style }));
   mkdirSync(`${out}/${style}`, { recursive: true });
   const times = {};

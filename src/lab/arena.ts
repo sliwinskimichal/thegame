@@ -182,14 +182,14 @@ export function buildArena(seed = 777): ArenaInfo {
       const above = I(x, y - 1);
       const side = mat[I(x - 1, y)] === M.AIR || mat[I(x + 1, y)] === M.AIR;
       if (cav[above] === CAV.NATURAL && !SOLID[mat[above]!]) mat[i] = M.MYCELIUM;
-      else if (side && rng.chance(0.45)) mat[i] = rng.chance(0.6) ? M.CRYSTAL : M.AMETHYST;
+      else if (side && rng.chance(0.45)) mat[i] = rng.chance(0.6) ? M.FROST_CRYSTAL : M.AMETHYST;
     }
   blob(34, 40, 1.4, 1.0, M.GOLD, 0.8);
   // crystals inside the hidden cave walls (must stay hidden)
   for (let y = 26; y < 36; y++)
     for (let x = 1; x < 10; x++) {
       const i = I(x, y);
-      if (SOLID[mat[i]!] && (mat[I(x + 1, y)] === M.AIR || mat[I(x - 1, y)] === M.AIR)) mat[i] = M.CRYSTAL;
+      if (SOLID[mat[i]!] && (mat[I(x + 1, y)] === M.AIR || mat[I(x - 1, y)] === M.AIR)) mat[i] = M.FROST_CRYSTAL;
     }
 
   // ---------------------------------------------------------- explored

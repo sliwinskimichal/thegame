@@ -36,6 +36,13 @@ uniform sampler2D uMatTex;
 uniform vec3 uCamPos;
 uniform float uCutAmbient;
 uniform float uInteriorAmbient;
+uniform float uRockExposure;
+uniform float uRockAmbient;
+uniform float uGlint;
+uniform float uGlintBase;
+uniform float uOreAura;
+uniform float uRimTint;
+uniform float uInteriorGain;
 ${GLSL_WORLD}
 ${GLSL_NOISE}
 ${GLSL_LIGHT}
@@ -55,7 +62,9 @@ void main() {
   vec4 p1 = texelFetch(uMatTex, ivec2(1, m), 0);
   vec4 p2 = texelFetch(uMatTex, ivec2(2, m), 0);
   vec4 p3 = texelFetch(uMatTex, ivec2(3, m), 0);
+  vec4 p4 = texelFetch(uMatTex, ivec2(4, m), 0);
   int pat = int(p0.a + 0.5);
+  gForm = int(texelFetch(uMatTex, ivec2(5, m), 0).x + 0.5);
   vec3 N = normalize(vNormal);
   vec3 wp = vPos;
   bool interior = flag(1.0);

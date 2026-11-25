@@ -46,6 +46,8 @@ export interface Biome {
   /** Approximate depth band, tiles below the surface. */
   depth: readonly [number, number];
   hazards: readonly HazardId[];
+  /** Host rocks (world material keys) that make up the biome, most common first. */
+  rocks: readonly string[];
   /** What the player must learn/build to thrive here (design intent). */
   approachPl: string;
   descPl: string;

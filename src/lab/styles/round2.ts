@@ -58,9 +58,10 @@ function terrainVariant(ctx: StyleContext, frag: string, ambCut: number, ambIn: 
 
 // ores sparkle a little everywhere so prospecting by eye works even in the dark
 const ORE_GLINT = `
-  if (pat == 3 || pat == 4) {
+  if (p4.a > 0.0) {
+    // a faint aura marks the whole vein in the dark; twinkles live on the mineral grains
     float tw = pow(hash12(floor(uv * 9.0) + floor(uTime * 1.5)), 12.0);
-    col += p2.rgb * (0.12 + tw * 0.9) * smoothstep(0.2, 0.8, fogAt(owner).x);
+    col += p4.rgb * p4.a * (uOreAura + sf.mask * (uGlintBase + tw * 1.4)) * uGlint * smoothstep(0.2, 0.8, fogAt(owner).x);
   }
 `;
 
@@ -98,9 +99,11 @@ const R2B_FRAG = TERRAIN_FRAG.replace(
     // rock stays a dark silhouette but keeps its material: light reveals it, rims outline it
     float occR = fogAt(wp.xy).y;
     float rimR = smoothstep(0.92, 0.55, occR);
-    col = sf.albedo * (light * 0.42 + amb * 0.55) + spec * sf.spec * 0.5 + sf.emissive * 1.6 + light * rimR * 0.35;
+    // the rim glow takes the rock's own colour (uRimTint 1) so ores next to tunnels keep their identity
+    vec3 rimC = mix(vec3(1.0), min(sf.albedo * 2.5, vec3(1.2)), uRimTint);
+    col = sf.albedo * (light * uRockExposure + amb * uRockAmbient) + spec * sf.spec * 0.5 + sf.emissive * 1.6 + light * rimR * 0.35 * rimC;
   } else {
-    col = sf.albedo * (light * 1.15 + amb) * vAo + spec * sf.spec * 0.8 + sf.emissive * 1.4;
+    col = sf.albedo * (light * uInteriorGain + amb) * vAo + spec * sf.spec * 0.8 + sf.emissive * 1.4;
   }` + ORE_GLINT,
 );
 
@@ -110,7 +113,7 @@ export const R2B: RenderStyle = {
   descPl: 'Nastrój sylwetek: ciemna skała z poświatą krawędzi, ale z widocznym materiałem i iskrzącymi rudami.',
   create(ctx) {
     const { scene, sky, u } = terrainVariant(ctx, R2B_FRAG, 0.1, 0.3);
-    scene.add(glowingAir(ctx, u, 0.14));
+    scene.add(glowingAir(ctx, u, u.uAirGlow!.value as number));
     const post = new PostFX(ctx.renderer, scene, ctx.camera, ctx.width, ctx.height);
     post.bloom.strength = 0.95;
     post.bloom.radius = 0.8;

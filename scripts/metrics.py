@@ -52,7 +52,7 @@ def sample(img, pts, r=2):
 
 rows = {}
 for st in man['styles']:
-    acc = {'C_open': [], 'C_fog': [], 'dE_ore': [], 'dE_deut': [], 'dark': []}
+    acc = {'C_open': [], 'C_fog': [], 'dE_ore': [], 'dE_deut': [], 'dark': [], 'blown': []}
     for sc, pts in probes.items():
         p = os.path.join(out, st, f'{sc}.png')
         if not os.path.exists(p):
@@ -62,6 +62,7 @@ for st in man['styles']:
         lab = lin_to_lab(lin)
         deut_lab = lin_to_lab(np.clip(lin @ DEUT.T, 0, 1))
         acc['dark'].append(float((lab[..., 0] < 6).mean()))
+        acc['blown'].append(float((lab[..., 0] > 95).mean()))
         by = {}
         for q in pts:
             by.setdefault(q['cat'], []).append(q)
@@ -101,7 +102,7 @@ for st in man['styles']:
 
 json.dump(rows, open(os.path.join(out, 'metrics.json'), 'w'), indent=2)
 fmt = lambda v, f='{:.3f}': '—' if v is None else f.format(v)
-print('| styl | C_open | C_fog | dE_ore | dE_deut | dark% | ms |')
-print('|---|---|---|---|---|---|---|')
+print('| styl | C_open | C_fog | dE_ore | dE_deut | dark% | blown% | ms |')
+print('|---|---|---|---|---|---|---|---|')
 for st, r in rows.items():
-    print(f"| {st} | {fmt(r['C_open'])} | {fmt(r['C_fog'])} | {fmt(r['dE_ore'], '{:.1f}')} | {fmt(r['dE_deut'], '{:.1f}')} | {fmt(r['dark'] * 100 if r['dark'] is not None else None, '{:.1f}')} | {fmt(r['ms'], '{:.0f}')} |")
+    print(f"| {st} | {fmt(r['C_open'])} | {fmt(r['C_fog'])} | {fmt(r['dE_ore'], '{:.1f}')} | {fmt(r['dE_deut'], '{:.1f}')} | {fmt(r['dark'] * 100 if r['dark'] is not None else None, '{:.1f}')} | {fmt(r['blown'] * 100 if r['blown'] is not None else None, '{:.1f}')} | {fmt(r['ms'], '{:.0f}')} |")

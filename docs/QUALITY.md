@@ -35,16 +35,19 @@ Statusy: `⬜ nie zaczęte` · `🟨 w pracy` · `🟦 do przeglądu` · `✅ sp
 - [ ] Serializacja i deserializacja świata (kompresja) z testem „zapisz → wczytaj → identyczny”.
 - [ ] Testy: granice świata, ujawnianie, oznaczanie chunków na krawędziach.
 
-### E2. Materiały (`src/world/materials.ts`) — 🟨
+### E2. Materiały (`src/world/materials.ts`, `src/render/palette.ts`) — 🟨 (turniej nr 2 rozstrzygnięty)
 - [ ] Każdy materiał ma: nazwę PL/EN, twardość, łup, kolorystykę, wzór, połysk, emisję, dźwięk kopania,
-      kolor odłamków, wymagane narzędzie.
-- [ ] **Galeria materiałów** (`?gallery=materials`): każdy materiał jako przekrój z tunelem
-      (czoło, ściany, podłoga, sufit) pod 3 rodzajami światła (pochodnia, niebo, ciemność).
-- [ ] Każdy materiał rozpoznawalny w 1 sekundę na widoku roboczym, bez podpisu.
-- [ ] Rudy wyraźnie odróżnialne od skały macierzystej i od siebie nawzajem (także dla daltonistów:
-      różnią się kształtem wzoru, nie tylko kolorem).
+      kolor odłamków, wymagane narzędzie. *(jest: nazwy, twardość i kilof z biblii treści, kolorystyka, wzór,
+      forma, połysk, emisja; brak: dźwięk kopania, kolor odłamków)*
+- [x] **Galeria materiałów** (`lab.html?world=gallery`): każdy materiał w bloku swojego biomu, z wykopem
+      i pochodnią; noc (pochodnie), dzień (`g_all`) i światło robocze (`&flood=1`).
+- [ ] Każdy materiał rozpoznawalny w 1 sekundę na widoku roboczym, bez podpisu. *(do testu z graczami)*
+- [~] Rudy wyraźnie odróżnialne od skały macierzystej i od siebie nawzajem (także dla daltonistów:
+      różnią się kształtem wzoru, nie tylko kolorem). *(formy minerałów unikalne w biomie; metryki
+      w `docs/variants/02-materials.md`; słabe pary: cyna, galena–kwarc (deut.), obsydian–bazalt)*
 - [ ] Brak artefaktów: pasm „desek”, wzoru „ciasteczka”, powtarzalności widocznej z dystansu 35.
-- [ ] Spójna paleta między warstwami (ziemiste u góry → chłodne → bioluminescencja → żar → mrok).
+- [x] Spójna paleta między warstwami: ciepła ziemia → krem i ochra → łososiowy granit i niebieski łupek →
+      fiolet pod turkusową grzybnią → czarno-zielona woda → zimna lawenda → czerń i ogień → śliwka i runy.
 
 ### E3. Generator świata (`src/world/worldgen.ts`) — 🟨
 - [ ] Deterministyczny (test), < 400 ms dla 224×480 (test), żadnych „pływających” kafli płynów.

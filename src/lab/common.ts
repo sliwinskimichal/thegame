@@ -35,7 +35,21 @@ export function worldUniforms(ctx: StyleContext): WorldUniforms {
     uDynCol: { value: dynCol },
     uDynCount: { value: Math.min(lanterns.length, MAX_DYN_LIGHTS) },
     uCamPos: { value: new THREE.Vector3() },
+    // look-tuning knobs used by tournament variants (lab URL: exp, amb, glint)
+    uRockExposure: { value: num('exp', 0.42) },
+    uRockAmbient: { value: num('amb', 0.55) },
+    uGlint: { value: num('glint', 1) },
+    uGlintBase: { value: num('gbase', 0.2) },
+    uOreAura: { value: num('aura', 0.08) },
+    uRimTint: { value: num('rim', 0.7) },
+    uInteriorGain: { value: num('int', 1.15) },
+    uAirGlow: { value: num('air', 0.14) },
   };
+}
+
+function num(k: string, d: number): number {
+  const v = new URLSearchParams(globalThis.location?.search ?? '').get(k);
+  return v === null ? d : Number(v);
 }
 
 export function updateWorldUniforms(u: WorldUniforms, f: FrameState, cam: THREE.Camera): void {

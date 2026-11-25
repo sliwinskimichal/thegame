@@ -15,7 +15,10 @@ automatycznie co 5 h. Każda sesja zaczyna od pierwszego niezaznaczonego punktu.
 - [x] A5. Laboratorium turniejów wizualnych: arena, 8 scenariuszy, automat zrzutów, plansze, metryki
 - [x] A6. **Turniej nr 1 — styl wizualny**: 12 stylów + 3 finalistów → zwycięzca **R2B „Sylwetki czytelne”**
       (`docs/variants/01-render-style.md`); finaliści pokazani właścicielowi do ewentualnej zmiany
-- [ ] A7. Turnieje materiałów skał (paleta i wzory), światła, nieba, dekoracji, płynów, post-processingu, kamery
+- [ ] A7. Turnieje: ~~materiałów skał~~ ✅ (`docs/variants/02-materials.md`), światła, nieba, dekoracji, płynów,
+      post-processingu (z darmowymi bibliotekami zewnętrznymi jako zawodnikami), kamery
+- [ ] A8. **Biblia narracyjna** (`docs/narrative/`): świat, frakcje, bóstwa i magia, 5 aktów, towarzysze z misjami
+      rekrutacyjnymi i lojalnościowymi, dokumenty projektowe zadań, makrostruktura świata i ekonomia ryzyka
 
 ## Faza B — Świat i symulacja
 - [ ] B1. Generator świata 2.0 dla 9 biomów (złoża wg biblii, jaskinie wg typów, miejsca specjalne, bossowie)
@@ -54,3 +57,11 @@ automatycznie co 5 h. Każda sesja zaczyna od pierwszego niezaznaczonego punktu.
   i turniejem krzywej kosztów (wynik 40,4 h), Wielkie Dzieła, projekt Kręgów Otchłani.
   Laboratorium wizualne i turniej nr 1 (12 stylów, 2 rundy, 15 wariantów, 120 renderów): zwycięża
   „Sylwetki czytelne” (8,4/10) — kontrast przekroju 0,55, rudy ΔE 28 (iskrzenie), mocny nastrój.
+- **2026-11-25 (dzień 1, noc)** — Turniej nr 2 (materiały): 6 rund, 47 wariantów, ~1300 renderów. W trakcie wyszło,
+  że tabela renderu (25 materiałów) nie pokrywa biblii treści (26 złóż) — zbudowana pełna tabela 44 materiałów
+  powiązana z danymi treści (twardość, kilof), galeria biomów, metryki per biom i test palety. Zwycięzca:
+  paleta projektowana per biom + **formy minerałów** (pokłady, dendryty, nerki, igły, sześciany, bryłki, pył;
+  pryzmaty, szczotki, heksagony) + osobny kolor połysku + poświata krawędzi w kolorze skały. Najsłabsza para
+  rud w świetle roboczym ΔE 1,0 → 8,2, skał 14,0 → 24,3. Nowe decyzje właściciela: stary król-przewodnik
+  ginie w zawale na końcu samouczka; główny przeciwnik na wzór balroga (oryginalny); warstwa drużyny RPG
+  (DA:O, ME2); gnomy-wynalazcy jako sojuszniczy lud; biblioteki zewnętrzne dopuszczone przez turnieje.

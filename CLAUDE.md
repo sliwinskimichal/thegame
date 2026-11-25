@@ -3,6 +3,24 @@
 Projekt: **Underhearth** — przeglądarkowa gra o krasnoludzkiej kolonii w przekroju 2.5D
 (Three.js). Właściciel pisze po polsku; odpowiadaj po polsku. Interfejs gry po polsku (i18n PL/EN).
 
+## Twarde wymagania zakresu gry (od właściciela, 2026-11-25)
+- **Pełnoprawna gra, nie demo** — rozbudowany tytuł: ukończenie ok. **40 h**, wymaksowanie ok. **120 h**
+  (minimum 20 h rozgrywki).
+- **≥ 15 typów budowli**, każda z **3 poziomami ulepszeń**.
+- **~80 przedmiotów użytkowych** dla krasnoludów (narzędzia, broń, pancerz, sprzęt środowiskowy, mikstury...).
+- **≥ 20 rodzajów złóż**, **≥ 30 surowców** wypadających z obiektów/stworzeń, **60–80 materiałów wytwarzanych**.
+- Wszystko osadzone w systemach (ekonomia, środowisko, zagrożenia): każdy nowy, głębszy biom wymaga
+  nowego podejścia, nowych budowli, ekwipunku i bardziej zaawansowanej produkcji.
+- Inspiracje: Factorio, Satisfactory (łańcuchy produkcji, automatyzacja), LOTR: Return to Moria
+  (biomy kopalni, wyzwania środowiskowe, rzemiosło), Palworld — WYŁĄCZNIE najazdy na gród i bossowie
+  strzegący biomów. **ZAKAZ: żadnego oswajania stworzeń ani stworzeń-pracowników** (decyzja właściciela).
+  Pracują tylko krasnoludy i maszyny; stworzenia to zwierzyna i potwory (źródło dropu).
+- **Samouczek ~1 h** na starcie, płynnie przechodzący w grę swobodną.
+- **Drzewko technologii** (badania odblokowują budowle i przedmioty): węzły ukryte, dopóki gracz nie odkryje
+  kluczowego surowca, ale skala i liczba zakrytych węzłów są widoczne.
+- **Balans** całości — weryfikowany symulacjami progresji (docs/BALANCE.md).
+- Treść jest danymi w `src/content/` (jedno źródło prawdy) + testy spójności grafu i minimów ilościowych.
+
 ## Jak pracować (wymagania właściciela — obowiązkowe)
 1. **Głębia ponad tempo.** Pracuj „od limitu do limitu”; nie kończ tury, póki jest praca.
    Sesja wznawiana jest automatycznie co 5 h (zaplanowane zadanie `trig_01Y6ieq8SwSN8YiEXGtXzHgM`).

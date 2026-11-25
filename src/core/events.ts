@@ -1,0 +1,30 @@
+/**
+ * Minimal typed event bus. The simulation emits facts ("tile dug", "item
+ * spawned", "dwarf hit rock"); renderers, audio and UI subscribe. The sim
+ * never imports render/audio code.
+ */
+export type Handler<T> = (payload: T) => void;
+
+export class EventBus<Events extends Record<string, unknown>> {
+  private handlers = new Map<keyof Events, Set<Handler<never>>>();
+
+  on<K extends keyof Events>(type: K, fn: Handler<Events[K]>): () => void {
+    let set = this.handlers.get(type);
+    if (!set) {
+      set = new Set();
+      this.handlers.set(type, set);
+    }
+    set.add(fn as Handler<never>);
+    return () => set!.delete(fn as Handler<never>);
+  }
+
+  emit<K extends keyof Events>(type: K, payload: Events[K]): void {
+    const set = this.handlers.get(type);
+    if (!set) return;
+    for (const fn of set) (fn as Handler<Events[K]>)(payload);
+  }
+
+  clear(): void {
+    this.handlers.clear();
+  }
+}

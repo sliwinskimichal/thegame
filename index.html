@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0b0908" />
+    <meta name="description" content="Underhearth — krasnoludzka kolonia w przekroju 2.5D. Kop w głąb góry, buduj podziemny gród i stawiaj czoła potworom z głębin." />
+    <title>Underhearth</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <style>
+      html, body { margin: 0; height: 100%; background: #0b0908; overflow: hidden; }
+      #game { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+      #ui { position: fixed; inset: 0; pointer-events: none; }
+      #boot { position: fixed; inset: 0; display: grid; place-items: center; color: #d9b98c;
+        font: 600 14px/1.4 system-ui, sans-serif; letter-spacing: .2em; text-transform: uppercase; }
+    </style>
+  </head>
+  <body>
+    <canvas id="game"></canvas>
+    <div id="ui"></div>
+    <div id="boot">Wykuwanie świata…</div>
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>

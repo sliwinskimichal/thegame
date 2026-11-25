@@ -1,0 +1,11 @@
+{
+  "name": "Underhearth",
+  "short_name": "Underhearth",
+  "description": "Krasnoludzka kolonia w przekroju 2.5D",
+  "start_url": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#0b0908",
+  "theme_color": "#0b0908",
+  "icons": [{ "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}

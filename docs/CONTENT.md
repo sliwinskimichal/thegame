@@ -15,9 +15,9 @@
 | Materiały wytwarzane | 81 |
 | Przedmioty użytkowe krasnoludów | 91 |
 | Typy budowli (× 3 poziomy) | 24 (72) |
-| Elementy infrastruktury | 28 |
-| Receptury | 184 |
-| Węzły drzewka technologii | 127 |
+| Elementy infrastruktury | 36 |
+| Receptury | 187 |
+| Węzły drzewka technologii | 134 |
 | Obiekty do zbierania | 16 |
 | Stworzenia (w tym bossowie) | 34 (9) |
 
@@ -190,7 +190,7 @@ Stworzenia: **Pożeracz Światła (boss)**.
 | Szafir | 5 | 24 | Geoda szafiru | Szlifowany szafir |
 | Mroźny kryształ | 5 | 18 | Kępa mroźnych kryształów, Kiść kryształów | Rdzeń mrozu, Kryształowa tabliczka |
 | Rubin | 6 | 28 | Geoda rubinu | Ognisty kodeks, Szlifowany rubin |
-| Obsydian | 6 | 8 | Zastygły obsydian, Robak magmowy | Ostrze obsydianowe, Bomba ogniowa, Ognisty kodeks, Kuźnia magmowa, Turbina magmowa, Mur obsydianowy |
+| Obsydian | 6 | 8 | Zastygły obsydian, Robak magmowy | Ostrze obsydianowe, Szkło, Bomba ogniowa, Ognisty kodeks, Kuźnia magmowa, Turbina magmowa… |
 | Ruda żarytu | 6 | 26 | Żyła żarytu | Sztabka brązu żarowego |
 | Ruda adamantytu | 7 | 40 | Żyła adamantytu | Sztabka adamantu |
 | Ruda lśnitu | 7 | 50 | Żyła lśnitu | Sztabka lśnitstali |
@@ -256,7 +256,7 @@ Stworzenia: **Pożeracz Światła (boss)**.
 | Belka | 0 | 3 | Kozioł stolarski | Szyna, Koło wodne, Kołowrót linowy, Kołowrót wiertniczy, Kratownica żelazna |
 | Lina | 0 | 3 | Warsztat rzemieślnika | Kusza drewniana, Kusza stalowa, Skórznia, Skórzany plecak, Lina z hakiem, Plecak z ramą… |
 | Węgiel drzewny | 0 | 2 | Piec glinany | Cegła, Sztabka miedzi, Atrament, Filtr węglowy, Proch górniczy |
-| Cegła | 0 | 2 | Piec glinany | Kamienne Palenisko, Kuchnia, Wielka kuchnia, Wapiennik, Huta szkła, Wielki piec… |
+| Cegła | 0 | 2 | Piec glinany, Huta szkła | Kamienne Palenisko, Kuchnia, Wielka kuchnia, Wapiennik, Huta szkła, Wielki piec… |
 | Blok kamienny | 0 | 3 | Ława kamieniarska, Szlifiernia mistrzowska | Kamienne Palenisko, Wielkie Palenisko, Kamienny skład, Skarbiec, Komnaty, Kamieniarnia… |
 | Skóra garbowana | 0 | 6 | Warsztat rzemieślnika | Hełm brązowy, Stalowy topór bojowy, Hełm stalowy, Kolczuga, Okute buty, Stalowe raki… |
 | Pergamin | 0 | 4 | Warsztat rzemieślnika | Mapy mierniczego, Plany inżyniera, Kodeks alchemiczny, Traktat hydrauliczny, Ognisty kodeks, Księga run |
@@ -271,18 +271,18 @@ Stworzenia: **Pożeracz Światła (boss)**.
 | Sztabka cyny | 1 | 9 | Dymarka | Sztabka brązu |
 | Sztabka brązu | 1 | 12 | Dymarka | Kusza drewniana, Sztabka brązu żarowego, Kilof brązowy, Brązowy topór bojowy, Brązowa siekiera, Brązowy młot budowniczego… |
 | Wapno palone | 1 | 3 | Wapiennik | Zaprawa, Szkło, Szkło hartowane, Futro wyprawione |
-| Zaprawa | 1 | 3 | Ława kamieniarska | Filar kamienny, Mur obsydianowy |
+| Zaprawa | 1 | 3 | Ława kamieniarska | Filar kamienny, Mur obsydianowy, Filar obsydianowy, Kanał lawowy |
 | Gwoździe | 1 | 1 | Kowadło | Okute buty, Izby, Stolarnia |
 | Drut miedziany | 1 | 4 | Kowadło | Miedziana różdżka, Mosiężna sonda |
 | Nawóz | 1 | 2 | Zielarnia | Grzyb jadalny, Świecące zarodniki, Jęczmień, Grzybnia |
 | Mapy mierniczego | 1 | 10 | Kącik kronikarza | badanie: Kamienne Palenisko, badanie: Wytop cyny, badanie: Węgiel kamienny, badanie: Epoka brązu, badanie: Wypał wapna, badanie: Obudowa górnicza… |
 | Koks | 2 | 4 | Wapiennik | Szkło hartowane, Sztabka żelaza, Sztabka stali, Sztabka cynku, Sztabka srebra, Sztabka niklu… |
 | Sztabka żelaza | 2 | 14 | Wielki piec | Sztabka stali, Kilof żelazny, Żelazny młot bojowy, Blacha żelazna, Łańcuch, Szyna… |
-| Sztabka stali | 2 | 22 | Wielki piec | Stal niklowa, Stal kobaltowa, Sztabka lśnitstali, Kilof stalowy, Stalowy topór drwala, Stalowy młot budowniczego… |
+| Sztabka stali | 2 | 22 | Wielki piec, Kuźnia magmowa | Stal niklowa, Stal kobaltowa, Sztabka lśnitstali, Kilof stalowy, Stalowy topór drwala, Stalowy młot budowniczego… |
 | Sztabka ołowiu | 2 | 10 | Dymarka | Rura |
 | Sztabka cynku | 2 | 11 | Wielki piec | Sztabka mosiądzu |
 | Sztabka mosiądzu | 2 | 16 | Wielki piec | Zębatka, Maska z filtrem, Mosiężna sonda, Zawór ciśnieniowy, Hełm nurka, Mechanizm zegarowy… |
-| Szkło | 2 | 6 | Wapiennik | Szkło hartowane, Maska z filtrem, Mosiężna sonda, Hełm nurka, Kodeks alchemiczny, Kryształowa tabliczka… |
+| Szkło | 2 | 6 | Wapiennik, Huta szkła | Szkło hartowane, Maska z filtrem, Mosiężna sonda, Hełm nurka, Kodeks alchemiczny, Kryształowa tabliczka… |
 | Zębatka | 2 | 10 | Pracownia mechanizmów | Kusza powtarzalna, Skarbiec, Tartak parowy, Szlifiernia mistrzowska, Fabryka parowa, Balista powtarzalna… |
 | Rura | 2 | 8 | Pracownia mechanizmów | Wymiennik ciepła, Browar, Grzybnia, Ogród świetlny, Pompa ręczna, Pompa tłokowa… |
 | Blacha żelazna | 2 | 18 | Kuźnia | Zbroja płytowa, Balista powtarzalna, Pompa tłokowa, Maszyna parowa, Stacja z dźwigiem, Drzwi żelazne… |
@@ -293,12 +293,12 @@ Stworzenia: **Pożeracz Światła (boss)**.
 | Filtr węglowy | 2 | 6 | Pracownia mechanizmów | Maska z filtrem |
 | Futro wyprawione | 2 | 10 | Pracownia mechanizmów | Futrzany płaszcz, Ocieplina |
 | Plany inżyniera | 2 | 18 | Kącik kronikarza | badanie: Koksownia, badanie: Wielki piec, badanie: Kuźnia, badanie: Stal, badanie: Uzbrojenie stalowe, badanie: Ołów i rury… |
-| Płyta grzybowa | 3 | 4 | Stolarnia, Tartak parowy | Kilof żarowy, Włócznia obsydianowa, Kilof adamantowy, Tarcza runiczna, Grzybnia |
+| Płyta grzybowa | 3 | 4 | Stolarnia, Tartak parowy | Kilof żarowy, Włócznia obsydianowa, Kilof adamantowy, Tarcza runiczna, Grzybnia, Lampa zarodnikowa… |
 | Tkanina jedwabna | 3 | 14 | Pracownia mechanizmów | Strój ze skóry węgorza, Ocieplina, Szata z łuski salamandry, Płaszcz run, Komnaty |
-| Lina jedwabna | 3 | 10 | Pracownia mechanizmów | Włócznia obsydianowa, Wędka z jedwabną żyłką |
+| Lina jedwabna | 3 | 10 | Pracownia mechanizmów | Włócznia obsydianowa, Wędka z jedwabną żyłką, Most linowy |
 | Proch górniczy | 3 | 12 | Laboratorium | Ładunek górniczy, Bomba ogniowa |
 | Ekstrakt jadu | 3 | 10 | Laboratorium | Antidotum |
-| Pasta zarodnikowa | 3 | 8 | Laboratorium | Tonik nocnego wzroku, Napój rozgrzewający, Ciemny stout grzybowy |
+| Pasta zarodnikowa | 3 | 8 | Laboratorium | Tonik nocnego wzroku, Napój rozgrzewający, Ciemny stout grzybowy, Lampa zarodnikowa |
 | Sztabka srebra | 3 | 24 | Wielki piec | Kryształowa tabliczka, Srebrny pierścień, Broszka z perłą, Amulet szafirowy, Browar mistrzowski, Laboratorium eteryczne… |
 | Kodeks alchemiczny | 3 | 28 | Biblioteka | badanie: Drewno grzybowe, badanie: Grzybnie, badanie: Laboratorium, badanie: Odtrutki, badanie: Tkactwo jedwabiu, badanie: Proch górniczy… |
 | Olej rybi | 4 | 6 | Laboratorium | Tłok |
@@ -319,9 +319,9 @@ Stworzenia: **Pożeracz Światła (boss)**.
 | Ocieplina | 5 | 20 | Pracownia mechanizmów | Hełm adamantowy, Ocieplany kubrak, Pancerz z rdzeniem mrozu |
 | Kryształowa tabliczka | 5 | 60 | Biblioteka | badanie: Optyka, badanie: Szlif klejnotów, badanie: Kobalt, badanie: Kuźnia mistrzowska, badanie: Alchemia mrozu, badanie: Ocieplenie… |
 | Szlifowany rubin | 6 | 56 | Runiczny jubiler | Amulet rubinowy |
-| Sztabka brązu żarowego | 6 | 60 | Kuźnia magmowa | Kilof żarowy, Żarowy młot, Runiczny jubiler, Wiertło magmowe |
+| Sztabka brązu żarowego | 6 | 60 | Kuźnia magmowa | Kilof żarowy, Żarowy młot, Runiczny jubiler, Wiertło magmowe, Zasuwa lawowa, Pułapka ogniowa… |
 | Ostrze obsydianowe | 6 | 24 | Szlifiernia mistrzowska | Włócznia obsydianowa |
-| Esencja ognia | 6 | 30 | Laboratorium eteryczne | Żarowy młot, Bełty ogniste, Mikstura ognioodporności, Bomba ogniowa, Działo runiczne |
+| Esencja ognia | 6 | 30 | Laboratorium eteryczne | Żarowy młot, Bełty ogniste, Mikstura ognioodporności, Bomba ogniowa, Działo runiczne, Pułapka ogniowa |
 | Skóra łuskowa | 6 | 40 | Fabryka parowa | Adamantowy topór bojowy, Zbroja adamantowa, Szata z łuski salamandry |
 | Wymiennik ciepła | 6 | 70 | Fabryka parowa | Turbina magmowa, Wiertło magmowe |
 | Ognisty kodeks | 6 | 80 | Archiwum | badanie: Kuźnia magmowa, badanie: Narzędzia żarowe, badanie: Obsydian, badanie: Alchemia ognia, badanie: Garbowanie łusek, badanie: Wymienniki ciepła… |
@@ -696,12 +696,20 @@ Automatyczne wydobycie złóż w zasięgu, bez krasnoluda przy przodku — jak k
 | Tory | 1× Szyna | 2 | Droga dla wagoników. |
 | Rurociąg | 1× Rura | 2 | Prowadzi wodę, parę i lawę. |
 | Szyb wentylacyjny | 4× Deska, 1× Zębatka | 3 | Wyciąga zarodniki i opary z wyrobisk. |
+| Lampa zarodnikowa | 1× Pasta zarodnikowa, 1× Płyta grzybowa | 3 | Zielonkawe światło bez ognia; zarodniki odnawiają się same. |
+| Most linowy | 2× Lina jedwabna, 2× Płyta grzybowa | 3 | Przeprawa nad rozpadlinami grot. |
 | Kocioł grzewczy | 2× Sztabka mosiądzu, 2× Rura | 4 | Ogrzewa pomieszczenie parą lub węglem. |
 | Przenośnik łańcuchowy | 2× Łańcuch, 1× Zębatka | 4 | Automatycznie przenosi towary (wymaga energii). |
 | Pułapka ostrzowa | 2× Sztabka stali, 1× Sprężyna | 4 | Ciężkie ostrza na sprężynach. |
 | Latarnia kryształowa | 1× Soczewka, 1× Sztabka mosiądzu | 5 | Świeci bez paliwa, chłodnym blaskiem. |
 | Chłodnica | 1× Rdzeń mrozu, 1× Stal niklowa | 5 | Mroźny rdzeń chłodzi pomieszczenia w Pasie Magmy. |
 | Mur obsydianowy | 3× Obsydian, 1× Zaprawa | 6 | Lawa się o niego rozbija. |
+| Filar obsydianowy | 3× Obsydian, 1× Zaprawa | 6 | Podpora, która nie mięknie od żaru. |
+| Kanał lawowy | 2× Obsydian, 1× Zaprawa | 6 | Prowadzi lawę do turbin i kuźni, z dala od tuneli. |
+| Zasuwa lawowa | 1× Sztabka brązu żarowego, 2× Obsydian | 6 | Otwiera i zamyka przepływ lawy. |
+| Rura chłodząca | 2× Rura, 1× Stal niklowa | 6 | Rozprowadza chłód rdzeni mrozu po korytarzach. |
+| Pułapka ogniowa | 1× Sztabka brązu żarowego, 1× Esencja ognia | 6 | Bucha płomieniem na intruzów. |
+| Lampa żarowa | 1× Sztabka brązu żarowego, 1× Szkło | 6 | Świeci ciepłem lawy płynącej w kanałach. |
 | Latarnia lśnitu | 1× Sztabka lśnitstali, 1× Soczewka | 7 | Światło, którego nie pożera prastary mrok. |
 | Kamień ochronny | 1× Tablica runiczna, 2× Blok kamienny | 7 | Runy odpędzające grozę w promieniu kilku kafli. |
 
@@ -730,148 +738,155 @@ Węzły są ukryte („???”), dopóki gracz nie odkryje surowca z kolumny „U
 
 | Badanie | Koszt | Wymaga | Ujawnia | Odblokowuje |
 |---|---|---|---|---|
-| **Kamienne Palenisko** — Gród przestaje być obozem. Wymaga trofeum Wilczego Herszta. | 14× Mapy mierniczego, 8× Notatki górnicze, 1× Futro Wilczego Herszta | Kamieniarstwo, Wytop miedzi | Węgiel, Wapień | Kamienne Palenisko |
-| **Wytop cyny** — Cyna i wytop na węglu kamiennym. | 5× Mapy mierniczego, 3× Notatki górnicze | Wytop miedzi | Ruda cyny | Sztabka cyny |
-| **Węgiel kamienny** — Kosze żarowe, zsypy i wytop na węglu. | 5× Mapy mierniczego, 3× Notatki górnicze | Wytop miedzi | Węgiel | Sztabka miedzi, Kosz żarowy, Zsyp |
-| **Epoka brązu** — Brąz: kilof, który kruszy granit. | 14× Mapy mierniczego, 8× Notatki górnicze | Wytop cyny, Kowalstwo | Ruda cyny | Sztabka brązu, Kilof brązowy, Brązowy topór bojowy, Brązowa siekiera, Brązowy młot budowniczego, Hełm brązowy |
-| **Wypał wapna** — Wapno palone i zaprawa; kamienne filary. | 9× Mapy mierniczego, 5× Notatki górnicze | Wypał w glinie, Kamieniarstwo | Wapień | Wapiennik, Wapno palone, Zaprawa, Filar kamienny |
-| **Obudowa górnicza** — Stemple, mury i schody — koniec z zawałami. | 5× Mapy mierniczego, 3× Notatki górnicze | Kamieniarstwo | Wapień, Węgiel | Stempel drewniany, Mur kamienny, Schody |
-| **Kamieniarnia** — Większa wydajność i posągi. | 9× Mapy mierniczego, 5× Notatki górnicze | Kamieniarstwo, Epoka brązu | Wapień | Kamieniarnia, Posąg |
-| **Stolarnia** — Szybsza obróbka drewna. | 9× Mapy mierniczego, 5× Notatki górnicze | Epoka brązu | Ruda cyny | Stolarnia |
-| **Ciągnienie drutu** — Drut, gwoździe i miedziana różdżka do szukania rud. | 5× Mapy mierniczego, 3× Notatki górnicze | Kowalstwo | Węgiel, Ruda cyny | Drut miedziany, Gwoździe, Miedziana różdżka |
-| **Kusze** — Broń dystansowa i bełty. | 9× Mapy mierniczego, 5× Notatki górnicze | Epoka brązu, Stolarnia | Pióro, Ruda cyny | Kusza drewniana, Bełty |
-| **Zielarstwo** — Zielarnia: klej, nawóz i napój leczniczy. | 5× Mapy mierniczego, 3× Notatki górnicze | Gotowanie | Mech jaskiniowy, Guano | Zielarnia, Klej kostny, Nawóz, Napój leczniczy |
-| **Izby i składy** — Prawdziwe łóżka i kamienne magazyny. | 9× Mapy mierniczego, 5× Notatki górnicze | Ciągnienie drutu, Kamieniarstwo | Węgiel | Izby, Kamienny skład |
-| **Kuchnia** — Lepsza kuchnia i miód jagodowy. | 5× Mapy mierniczego, 3× Notatki górnicze | Gotowanie, Warzenie | Węgiel | Kuchnia, Miód jagodowy |
-| **Straż grodu** — Ćwiczebnia, pułapki i sztandary. | 9× Mapy mierniczego, 5× Notatki górnicze | Balista, Łowiectwo | Kieł, Węgiel | Ćwiczebnia, Pułapka z kolcami, Sztandar |
-| **Uzdrowiciele** — Posłanie zielarza dla rannych. | 5× Mapy mierniczego, 3× Notatki górnicze | Zielarstwo | Mech jaskiniowy | Posłanie zielarza |
-| **Szynk** — Miejsce, gdzie krasnolud odpoczywa przy kuflu. | 5× Mapy mierniczego, 3× Notatki górnicze | Warzenie | Węgiel | Szynk |
-| **Kołowrót** — Pierwsza winda: towary w górę i w dół szybu. | 9× Mapy mierniczego, 5× Notatki górnicze | Obudowa górnicza | Węgiel | Kołowrót linowy |
-| **Latarnie smolne** — Jaśniejsze, mocniejsze światło na ramieniu. | 5× Mapy mierniczego, 3× Notatki górnicze | Kaganki, Epoka brązu | Węgiel | Latarnia smolna |
-| **Kreślarstwo** — Plany inżyniera z próbek rudy żelaza — klucz do badań granitu. | 9× Mapy mierniczego, 5× Notatki górnicze | Miernictwo, Epoka brązu | Ruda żelaza | Plany inżyniera |
+| **Kamienne Palenisko** — Gród przestaje być obozem. Wymaga trofeum Wilczego Herszta. | 17× Mapy mierniczego, 10× Notatki górnicze, 1× Futro Wilczego Herszta | Kamieniarstwo, Wytop miedzi | Węgiel, Wapień | Kamienne Palenisko |
+| **Wytop cyny** — Cyna i wytop na węglu kamiennym. | 6× Mapy mierniczego, 4× Notatki górnicze | Wytop miedzi | Ruda cyny | Sztabka cyny |
+| **Węgiel kamienny** — Kosze żarowe, zsypy i wytop na węglu. | 6× Mapy mierniczego, 4× Notatki górnicze | Wytop miedzi | Węgiel | Sztabka miedzi, Kosz żarowy, Zsyp |
+| **Epoka brązu** — Brąz: kilof, który kruszy granit. | 17× Mapy mierniczego, 10× Notatki górnicze | Wytop cyny, Kowalstwo | Ruda cyny | Sztabka brązu, Kilof brązowy, Brązowy topór bojowy, Brązowa siekiera, Brązowy młot budowniczego, Hełm brązowy |
+| **Wypał wapna** — Wapno palone i zaprawa; kamienne filary. | 11× Mapy mierniczego, 7× Notatki górnicze | Wypał w glinie, Kamieniarstwo | Wapień | Wapiennik, Wapno palone, Zaprawa, Filar kamienny |
+| **Obudowa górnicza** — Stemple, mury i schody — koniec z zawałami. | 6× Mapy mierniczego, 4× Notatki górnicze | Kamieniarstwo | Wapień, Węgiel | Stempel drewniany, Mur kamienny, Schody |
+| **Kamieniarnia** — Większa wydajność i posągi. | 11× Mapy mierniczego, 7× Notatki górnicze | Kamieniarstwo, Epoka brązu | Wapień | Kamieniarnia, Posąg |
+| **Stolarnia** — Szybsza obróbka drewna. | 11× Mapy mierniczego, 7× Notatki górnicze | Epoka brązu | Ruda cyny | Stolarnia |
+| **Ciągnienie drutu** — Drut, gwoździe i miedziana różdżka do szukania rud. | 6× Mapy mierniczego, 4× Notatki górnicze | Kowalstwo | Węgiel, Ruda cyny | Drut miedziany, Gwoździe, Miedziana różdżka |
+| **Kusze** — Broń dystansowa i bełty. | 11× Mapy mierniczego, 7× Notatki górnicze | Epoka brązu, Stolarnia | Pióro, Ruda cyny | Kusza drewniana, Bełty |
+| **Zielarstwo** — Zielarnia: klej, nawóz i napój leczniczy. | 6× Mapy mierniczego, 4× Notatki górnicze | Gotowanie | Mech jaskiniowy, Guano | Zielarnia, Klej kostny, Nawóz, Napój leczniczy |
+| **Izby i składy** — Prawdziwe łóżka i kamienne magazyny. | 11× Mapy mierniczego, 7× Notatki górnicze | Ciągnienie drutu, Kamieniarstwo | Węgiel | Izby, Kamienny skład |
+| **Kuchnia** — Lepsza kuchnia i miód jagodowy. | 6× Mapy mierniczego, 4× Notatki górnicze | Gotowanie, Warzenie | Węgiel | Kuchnia, Miód jagodowy |
+| **Straż grodu** — Ćwiczebnia, pułapki i sztandary. | 11× Mapy mierniczego, 7× Notatki górnicze | Balista, Łowiectwo | Kieł, Węgiel | Ćwiczebnia, Pułapka z kolcami, Sztandar |
+| **Uzdrowiciele** — Posłanie zielarza dla rannych. | 6× Mapy mierniczego, 4× Notatki górnicze | Zielarstwo | Mech jaskiniowy | Posłanie zielarza |
+| **Szynk** — Miejsce, gdzie krasnolud odpoczywa przy kuflu. | 6× Mapy mierniczego, 4× Notatki górnicze | Warzenie | Węgiel | Szynk |
+| **Kołowrót** — Pierwsza winda: towary w górę i w dół szybu. | 11× Mapy mierniczego, 7× Notatki górnicze | Obudowa górnicza | Węgiel | Kołowrót linowy |
+| **Latarnie smolne** — Jaśniejsze, mocniejsze światło na ramieniu. | 6× Mapy mierniczego, 4× Notatki górnicze | Kaganki, Epoka brązu | Węgiel | Latarnia smolna |
+| **Kreślarstwo** — Plany inżyniera z próbek rudy żelaza — klucz do badań granitu. | 11× Mapy mierniczego, 7× Notatki górnicze | Miernictwo, Epoka brązu | Ruda żelaza | Plany inżyniera |
 
 ### Poziom 2 — Granitowe Korzenie (26 węzłów)
 
 | Badanie | Koszt | Wymaga | Ujawnia | Odblokowuje |
 |---|---|---|---|---|
-| **Koksownia** — Koks: czystsze i gorętsze paliwo. | 6× Plany inżyniera, 4× Mapy mierniczego | Wypał wapna | Ruda żelaza | Koks |
-| **Wielki piec** — Żelazo. Wymaga Serca Królowej Nietoperzy do miechów. | 17× Plany inżyniera, 10× Mapy mierniczego, 1× Serce Królowej Nietoperzy | Koksownia, Epoka brązu | Ruda żelaza | Wielki piec, Sztabka żelaza |
-| **Kuźnia** — Blachy, łańcuchy i młot bojowy. | 11× Plany inżyniera, 7× Mapy mierniczego | Wielki piec | Ruda żelaza | Kuźnia, Blacha żelazna, Łańcuch, Żelazny młot bojowy |
-| **Stal** — Stalowe kilofy, siekiery i młoty budowniczego. | 17× Plany inżyniera, 10× Mapy mierniczego | Wielki piec | Ruda żelaza | Sztabka stali, Kilof żelazny, Kilof stalowy, Stalowy topór drwala, Stalowy młot budowniczego |
-| **Uzbrojenie stalowe** — Stalowe topory, tarcze, hełmy i kolczugi. | 11× Plany inżyniera, 7× Mapy mierniczego | Stal, Kuźnia | Ruda żelaza | Stalowy topór bojowy, Tarcza stalowa, Hełm stalowy, Kolczuga, Bełty przebijające |
-| **Ołów i rury** — Rury z ołowiu i rurociągi. | 6× Plany inżyniera, 4× Mapy mierniczego | Wytop miedzi | Galena | Sztabka ołowiu, Rura, Rurociąg |
-| **Mosiądz** — Cynk i mosiądz na mechanizmy. | 11× Plany inżyniera, 7× Mapy mierniczego | Wielki piec | Sfaleryt | Sztabka cynku, Sztabka mosiądzu |
-| **Szkło** — Szkło z piasku i kwarcu; latarnie olejne. | 11× Plany inżyniera, 7× Mapy mierniczego | Wypał wapna | Kwarc, Piasek | Szkło, Latarnia olejna |
-| **Mechanizmy** — Zębatki i sprężyny; pracownia mechanizmów. | 11× Plany inżyniera, 7× Mapy mierniczego | Mosiądz, Kuźnia | Sfaleryt | Pracownia mechanizmów, Zębatka, Sprężyna |
-| **Pompy** — Pompy ręczne i tłokowe, grodzie przeciw zalaniom. | 11× Plany inżyniera, 7× Mapy mierniczego | Ołów i rury, Mechanizmy | Galena, Ruda żelaza | Pompa ręczna, Pompa tłokowa, Gródź |
-| **Koło wodne** — Pierwsza energia z podziemnego strumienia. | 11× Plany inżyniera, 7× Mapy mierniczego | Mechanizmy | Sfaleryt | Koło wodne |
-| **Winda zębata** — Szybsza winda napędzana kołem wodnym. | 11× Plany inżyniera, 7× Mapy mierniczego | Mechanizmy, Kołowrót | Sfaleryt | Winda zębata |
-| **Kolej kopalniana** — Szyny, tory i zajezdnia wagoników. | 11× Plany inżyniera, 7× Mapy mierniczego | Kuźnia | Ruda żelaza | Zajezdnia, Szyna, Tory |
-| **Wiertnictwo** — Kołowrót wiertniczy wydobywa złoża bez krasnoluda. | 11× Plany inżyniera, 7× Mapy mierniczego | Mechanizmy, Kolej kopalniana | Ruda żelaza | Kołowrót wiertniczy |
-| **Kratownice** — Żelazne podpory i drzwi. | 6× Plany inżyniera, 4× Mapy mierniczego | Kuźnia | Ruda żelaza | Kratownica żelazna, Drzwi żelazne |
-| **Biblioteka** — Szybsze badania i kodeksy wyższych warstw. | 11× Plany inżyniera, 7× Mapy mierniczego | Szkło, Mosiądz | Kwarc | Biblioteka |
-| **Szlifiernia** — Szlifowanie kwarcu. | 6× Plany inżyniera, 4× Mapy mierniczego | Szkło, Kuźnia | Kwarc | Szlifiernia |
-| **Chityna** — Lekkie pancerze z chityny pełzaczy. | 6× Plany inżyniera, 4× Mapy mierniczego | Zielarstwo | Chityna | Płytka chitynowa, Kamizela chitynowa, Rękawice kowalskie |
-| **Kuśnierstwo** — Wyprawione futra i ciepłe płaszcze. | 6× Plany inżyniera, 4× Mapy mierniczego | Wypał wapna, Łowiectwo | Futro | Futro wyprawione, Futrzany płaszcz |
-| **Maski z filtrem** — Węglowe filtry chroniące przed zarodnikami. | 11× Plany inżyniera, 7× Mapy mierniczego | Szkło, Mosiądz | Świecące zarodniki | Filtr węglowy, Maska z filtrem |
-| **Poszukiwania** — Sonda, plecak z ramą, okute buty i raki. | 11× Plany inżyniera, 7× Mapy mierniczego | Mosiądz, Stal | Sfaleryt, Kwas pełzacza | Mosiężna sonda, Plecak z ramą, Okute buty, Stalowe raki |
-| **Koszary** — Koszary i stalowe kusze. | 11× Plany inżyniera, 7× Mapy mierniczego | Uzbrojenie stalowe, Straż grodu | Ruda żelaza | Koszary, Kusza stalowa |
-| **Balista powtarzalna** — Szybkostrzelna obrona korytarzy. | 11× Plany inżyniera, 7× Mapy mierniczego | Mechanizmy | Sfaleryt | Balista powtarzalna |
-| **Browar** — Większy browar z rurociągiem. | 6× Plany inżyniera, 4× Mapy mierniczego | Ołów i rury | Galena | Browar |
-| **Karczma** — Prawdziwa karczma przyciąga osadników. | 6× Plany inżyniera, 4× Mapy mierniczego | Szynk, Kuźnia | Ruda żelaza | Karczma |
-| **Kodeksy alchemiczne** — Próbki jadu i zarodników — klucz do badań grot. | 11× Plany inżyniera, 7× Mapy mierniczego | Kreślarstwo, Szkło | Gruczoł jadowy, Świecące zarodniki | Kodeks alchemiczny |
+| **Koksownia** — Koks: czystsze i gorętsze paliwo. | 12× Plany inżyniera, 7× Mapy mierniczego | Wypał wapna | Ruda żelaza | Koks |
+| **Wielki piec** — Żelazo. Wymaga Serca Królowej Nietoperzy do miechów. | 37× Plany inżyniera, 22× Mapy mierniczego, 1× Serce Królowej Nietoperzy | Koksownia, Epoka brązu | Ruda żelaza | Wielki piec, Sztabka żelaza |
+| **Kuźnia** — Blachy, łańcuchy i młot bojowy. | 25× Plany inżyniera, 15× Mapy mierniczego | Wielki piec | Ruda żelaza | Kuźnia, Blacha żelazna, Łańcuch, Żelazny młot bojowy |
+| **Stal** — Stalowe kilofy, siekiery i młoty budowniczego. | 37× Plany inżyniera, 22× Mapy mierniczego | Wielki piec | Ruda żelaza | Sztabka stali, Kilof żelazny, Kilof stalowy, Stalowy topór drwala, Stalowy młot budowniczego |
+| **Uzbrojenie stalowe** — Stalowe topory, tarcze, hełmy i kolczugi. | 25× Plany inżyniera, 15× Mapy mierniczego | Stal, Kuźnia | Ruda żelaza | Stalowy topór bojowy, Tarcza stalowa, Hełm stalowy, Kolczuga, Bełty przebijające |
+| **Ołów i rury** — Rury z ołowiu i rurociągi. | 12× Plany inżyniera, 7× Mapy mierniczego | Wytop miedzi | Galena | Sztabka ołowiu, Rura, Rurociąg |
+| **Mosiądz** — Cynk i mosiądz na mechanizmy. | 25× Plany inżyniera, 15× Mapy mierniczego | Wielki piec | Sfaleryt | Sztabka cynku, Sztabka mosiądzu |
+| **Szkło** — Szkło z piasku i kwarcu; latarnie olejne. | 25× Plany inżyniera, 15× Mapy mierniczego | Wypał wapna | Kwarc, Piasek | Szkło, Latarnia olejna |
+| **Mechanizmy** — Zębatki i sprężyny; pracownia mechanizmów. | 25× Plany inżyniera, 15× Mapy mierniczego | Mosiądz, Kuźnia | Sfaleryt | Pracownia mechanizmów, Zębatka, Sprężyna |
+| **Pompy** — Pompy ręczne i tłokowe, grodzie przeciw zalaniom. | 25× Plany inżyniera, 15× Mapy mierniczego | Ołów i rury, Mechanizmy | Galena, Ruda żelaza | Pompa ręczna, Pompa tłokowa, Gródź |
+| **Koło wodne** — Pierwsza energia z podziemnego strumienia. | 25× Plany inżyniera, 15× Mapy mierniczego | Mechanizmy | Sfaleryt | Koło wodne |
+| **Winda zębata** — Szybsza winda napędzana kołem wodnym. | 25× Plany inżyniera, 15× Mapy mierniczego | Mechanizmy, Kołowrót | Sfaleryt | Winda zębata |
+| **Kolej kopalniana** — Szyny, tory i zajezdnia wagoników. | 25× Plany inżyniera, 15× Mapy mierniczego | Kuźnia | Ruda żelaza | Zajezdnia, Szyna, Tory |
+| **Wiertnictwo** — Kołowrót wiertniczy wydobywa złoża bez krasnoluda. | 25× Plany inżyniera, 15× Mapy mierniczego | Mechanizmy, Kolej kopalniana | Ruda żelaza | Kołowrót wiertniczy |
+| **Kratownice** — Żelazne podpory i drzwi. | 12× Plany inżyniera, 7× Mapy mierniczego | Kuźnia | Ruda żelaza | Kratownica żelazna, Drzwi żelazne |
+| **Biblioteka** — Szybsze badania i kodeksy wyższych warstw. | 25× Plany inżyniera, 15× Mapy mierniczego | Szkło, Mosiądz | Kwarc | Biblioteka |
+| **Szlifiernia** — Szlifowanie kwarcu. | 12× Plany inżyniera, 7× Mapy mierniczego | Szkło, Kuźnia | Kwarc | Szlifiernia |
+| **Chityna** — Lekkie pancerze z chityny pełzaczy. | 12× Plany inżyniera, 7× Mapy mierniczego | Zielarstwo | Chityna | Płytka chitynowa, Kamizela chitynowa, Rękawice kowalskie |
+| **Kuśnierstwo** — Wyprawione futra i ciepłe płaszcze. | 12× Plany inżyniera, 7× Mapy mierniczego | Wypał wapna, Łowiectwo | Futro | Futro wyprawione, Futrzany płaszcz |
+| **Maski z filtrem** — Węglowe filtry chroniące przed zarodnikami. | 25× Plany inżyniera, 15× Mapy mierniczego | Szkło, Mosiądz | Świecące zarodniki | Filtr węglowy, Maska z filtrem |
+| **Poszukiwania** — Sonda, plecak z ramą, okute buty i raki. | 25× Plany inżyniera, 15× Mapy mierniczego | Mosiądz, Stal | Sfaleryt, Kwas pełzacza | Mosiężna sonda, Plecak z ramą, Okute buty, Stalowe raki |
+| **Koszary** — Koszary i stalowe kusze. | 25× Plany inżyniera, 15× Mapy mierniczego | Uzbrojenie stalowe, Straż grodu | Ruda żelaza | Koszary, Kusza stalowa |
+| **Balista powtarzalna** — Szybkostrzelna obrona korytarzy. | 25× Plany inżyniera, 15× Mapy mierniczego | Mechanizmy | Sfaleryt | Balista powtarzalna |
+| **Browar** — Większy browar z rurociągiem. | 12× Plany inżyniera, 7× Mapy mierniczego | Ołów i rury | Galena | Browar |
+| **Karczma** — Prawdziwa karczma przyciąga osadników. | 12× Plany inżyniera, 7× Mapy mierniczego | Szynk, Kuźnia | Ruda żelaza | Karczma |
+| **Kodeksy alchemiczne** — Próbki jadu i zarodników — klucz do badań grot. | 25× Plany inżyniera, 15× Mapy mierniczego | Kreślarstwo, Szkło | Gruczoł jadowy, Świecące zarodniki | Kodeks alchemiczny |
 
-### Poziom 3 — Grzybowe Groty (14 węzłów)
+### Poziom 3 — Grzybowe Groty (16 węzłów)
 
 | Badanie | Koszt | Wymaga | Ujawnia | Odblokowuje |
 |---|---|---|---|---|
-| **Drewno grzybowe** — Płyty z olbrzymich grzybów — drewno głębin. | 7× Kodeks alchemiczny, 4× Plany inżyniera | Stolarnia | Drewno grzybowe | Płyta grzybowa |
-| **Grzybnie** — Uprawy pod ziemią. Wymaga pancerza Matki Pełzaczy na skrzynie. | 20× Kodeks alchemiczny, 12× Plany inżyniera, 1× Pancerz Matki Pełzaczy | Zielarstwo, Drewno grzybowe | Grzyb jadalny | Grzybnia, Grzyb jadalny, Świecące zarodniki |
-| **Laboratorium** — Ekstrakty jadu i pasta zarodnikowa. | 13× Kodeks alchemiczny, 8× Plany inżyniera | Zielarstwo, Szkło | Gruczoł jadowy | Laboratorium, Ekstrakt jadu, Pasta zarodnikowa |
-| **Odtrutki** — Antidotum i tonik nocnego wzroku. | 7× Kodeks alchemiczny, 4× Plany inżyniera | Laboratorium | Gruczoł jadowy | Antidotum, Tonik nocnego wzroku |
-| **Tkactwo jedwabiu** — Jedwabna tkanina i lina. | 13× Kodeks alchemiczny, 8× Plany inżyniera | Rzemiosło obozowe | Jedwab pajęczy | Tkanina jedwabna, Lina jedwabna |
-| **Proch górniczy** — Ładunki kruszące skałę w promieniu. | 13× Kodeks alchemiczny, 8× Plany inżyniera | Laboratorium | Siarka | Proch górniczy, Ładunek górniczy |
-| **Srebro** — Srebrne sztabki, jubiler i pierścienie. | 13× Kodeks alchemiczny, 8× Plany inżyniera | Wielki piec, Szlifiernia | Ruda srebra | Pracownia jubilerska, Sztabka srebra, Srebrny pierścień |
-| **Wentylacja** — Szyby wyciągające zarodniki. | 7× Kodeks alchemiczny, 4× Plany inżyniera | Mechanizmy | Świecące zarodniki | Szyb wentylacyjny |
-| **Komnaty** — Jedwab i mosiądz w sypialniach. | 7× Kodeks alchemiczny, 4× Plany inżyniera | Tkactwo jedwabiu, Izby i składy | Jedwab pajęczy | Komnaty |
-| **Browar mistrzowski** — Ciemny stout grzybowy. | 13× Kodeks alchemiczny, 8× Plany inżyniera | Browar, Srebro | Grzyb jadalny | Browar mistrzowski, Ciemny stout grzybowy |
-| **Kuchnia grzybowa** — Gulasz grzybowy. | 7× Kodeks alchemiczny, 4× Plany inżyniera | Kuchnia | Grzyb jadalny | Gulasz grzybowy |
-| **Lecznica** — Lecznica ze srebrnymi narzędziami. | 7× Kodeks alchemiczny, 4× Plany inżyniera | Uzdrowiciele, Srebro | Ruda srebra | Lecznica |
-| **Stacja z dźwigiem** — Automatyczny załadunek wagoników. | 13× Kodeks alchemiczny, 8× Plany inżyniera | Kolej kopalniana, Mechanizmy | Drewno grzybowe | Stacja z dźwigiem |
-| **Traktaty hydrauliczne** — Próbki pereł i skór węgorzy — klucz do badań zatopionych głębi. | 13× Kodeks alchemiczny, 8× Plany inżyniera | Kodeksy alchemiczne, Pompy | Perła, Skóra węgorza | Traktat hydrauliczny |
+| **Drewno grzybowe** — Płyty z olbrzymich grzybów — drewno głębin. | 16× Kodeks alchemiczny, 10× Plany inżyniera | Stolarnia | Drewno grzybowe | Płyta grzybowa |
+| **Grzybnie** — Uprawy pod ziemią. Wymaga pancerza Matki Pełzaczy na skrzynie. | 49× Kodeks alchemiczny, 29× Plany inżyniera, 1× Pancerz Matki Pełzaczy | Zielarstwo, Drewno grzybowe | Grzyb jadalny | Grzybnia, Grzyb jadalny, Świecące zarodniki |
+| **Laboratorium** — Ekstrakty jadu i pasta zarodnikowa. | 33× Kodeks alchemiczny, 20× Plany inżyniera | Zielarstwo, Szkło | Gruczoł jadowy | Laboratorium, Ekstrakt jadu, Pasta zarodnikowa |
+| **Odtrutki** — Antidotum i tonik nocnego wzroku. | 16× Kodeks alchemiczny, 10× Plany inżyniera | Laboratorium | Gruczoł jadowy | Antidotum, Tonik nocnego wzroku |
+| **Tkactwo jedwabiu** — Jedwabna tkanina i lina. | 33× Kodeks alchemiczny, 20× Plany inżyniera | Rzemiosło obozowe | Jedwab pajęczy | Tkanina jedwabna, Lina jedwabna |
+| **Proch górniczy** — Ładunki kruszące skałę w promieniu. | 33× Kodeks alchemiczny, 20× Plany inżyniera | Laboratorium | Siarka | Proch górniczy, Ładunek górniczy |
+| **Srebro** — Srebrne sztabki, jubiler i pierścienie. | 33× Kodeks alchemiczny, 20× Plany inżyniera | Wielki piec, Szlifiernia | Ruda srebra | Pracownia jubilerska, Sztabka srebra, Srebrny pierścień |
+| **Wentylacja** — Szyby wyciągające zarodniki. | 16× Kodeks alchemiczny, 10× Plany inżyniera | Mechanizmy | Świecące zarodniki | Szyb wentylacyjny |
+| **Komnaty** — Jedwab i mosiądz w sypialniach. | 16× Kodeks alchemiczny, 10× Plany inżyniera | Tkactwo jedwabiu, Izby i składy | Jedwab pajęczy | Komnaty |
+| **Browar mistrzowski** — Ciemny stout grzybowy. | 33× Kodeks alchemiczny, 20× Plany inżyniera | Browar, Srebro | Grzyb jadalny | Browar mistrzowski, Ciemny stout grzybowy |
+| **Kuchnia grzybowa** — Gulasz grzybowy. | 16× Kodeks alchemiczny, 10× Plany inżyniera | Kuchnia | Grzyb jadalny | Gulasz grzybowy |
+| **Lecznica** — Lecznica ze srebrnymi narzędziami. | 16× Kodeks alchemiczny, 10× Plany inżyniera | Uzdrowiciele, Srebro | Ruda srebra | Lecznica |
+| **Stacja z dźwigiem** — Automatyczny załadunek wagoników. | 33× Kodeks alchemiczny, 20× Plany inżyniera | Kolej kopalniana, Mechanizmy | Drewno grzybowe | Stacja z dźwigiem |
+| **Lampy zarodnikowe** — Światło głębin bez paliwa i dymu. | 16× Kodeks alchemiczny, 10× Plany inżyniera | Laboratorium | Świecące zarodniki | Lampa zarodnikowa |
+| **Mosty linowe** — Jedwabne liny nad rozpadlinami grot. | 16× Kodeks alchemiczny, 10× Plany inżyniera | Tkactwo jedwabiu, Drewno grzybowe | Jedwab pajęczy | Most linowy |
+| **Traktaty hydrauliczne** — Próbki pereł i skór węgorzy — klucz do badań zatopionych głębi. | 33× Kodeks alchemiczny, 20× Plany inżyniera | Kodeksy alchemiczne, Pompy | Perła, Skóra węgorza | Traktat hydrauliczny |
 
 ### Poziom 4 — Zatopione Głębie (18 węzłów)
 
 | Badanie | Koszt | Wymaga | Ujawnia | Odblokowuje |
 |---|---|---|---|---|
-| **Uszczelnienia** — Uszczelki i zawory. Wymaga jedwabiu Królowej Pajęczyn. | 23× Traktat hydrauliczny, 14× Kodeks alchemiczny, 1× Jedwab Królowej Pajęczyn | Mechanizmy, Tkactwo jedwabiu | Skóra węgorza | Uszczelka, Zawór ciśnieniowy |
-| **Nurkowanie** — Strój ze skóry węgorza i hełm nurka. | 16× Traktat hydrauliczny, 10× Kodeks alchemiczny | Uszczelnienia, Szkło | Skóra węgorza | Strój ze skóry węgorza, Hełm nurka |
-| **Nikiel** — Stal niklowa odporna na wilgoć i parę. | 16× Traktat hydrauliczny, 10× Kodeks alchemiczny | Stal | Ruda niklu | Sztabka niklu, Stal niklowa |
-| **Rybołówstwo** — Wędka, olej rybi, pasztet i zupa z wodorostów. | 8× Traktat hydrauliczny, 5× Kodeks alchemiczny | Kuchnia grzybowa, Tkactwo jedwabiu | Ryba jaskiniowa, Wodorost jaskiniowy | Wędka z jedwabną żyłką, Olej rybi, Pasztet rybny, Gulasz grzybowy |
-| **Fabryka parowa** — Tłoki i maszyny na parę. | 23× Traktat hydrauliczny, 14× Kodeks alchemiczny | Nikiel, Uszczelnienia, Rybołówstwo | Ruda niklu | Fabryka parowa, Tłok |
-| **Maszyna parowa** — Energia z węgla i wody — wszędzie, nie tylko przy strumieniu. | 23× Traktat hydrauliczny, 14× Kodeks alchemiczny | Fabryka parowa, Koło wodne | Ruda niklu | Maszyna parowa |
-| **Pompa parowa** — Osusza całe zatopione kawerny. | 16× Traktat hydrauliczny, 10× Kodeks alchemiczny | Maszyna parowa, Pompy | Ruda niklu | Pompa parowa |
-| **Winda parowa** — Kręgosłup głębokiego grodu. | 16× Traktat hydrauliczny, 10× Kodeks alchemiczny | Maszyna parowa, Winda zębata | Ruda niklu | Winda parowa |
-| **Parowa kolejka** — Automatyczne trasy wagoników. | 16× Traktat hydrauliczny, 10× Kodeks alchemiczny | Maszyna parowa, Stacja z dźwigiem | Ruda niklu | Parowa kolejka |
-| **Wiertło parowe** — Szybkie wydobycie bez górników. | 16× Traktat hydrauliczny, 10× Kodeks alchemiczny | Maszyna parowa, Wiertnictwo | Ruda niklu | Wiertło parowe |
-| **Tartak parowy** — Masowa produkcja desek i płyt grzybowych. | 8× Traktat hydrauliczny, 5× Kodeks alchemiczny | Fabryka parowa, Drewno grzybowe | Ruda niklu | Tartak parowy, Deska, Płyta grzybowa |
-| **Skarbiec** — Ogromny magazyn z automatycznym sortowaniem. | 16× Traktat hydrauliczny, 10× Kodeks alchemiczny | Nikiel, Mechanizmy | Ruda niklu | Skarbiec |
-| **Wielka kuchnia** — Kuchnia ze stali niklowej i krasnoludzka uczta. | 16× Traktat hydrauliczny, 10× Kodeks alchemiczny | Nikiel, Rybołówstwo | Sól kamienna | Wielka kuchnia, Krasnoludzka uczta |
-| **Złoto** — Złote sztabki i broszki z pereł. | 16× Traktat hydrauliczny, 10× Kodeks alchemiczny | Srebro | Ruda złota | Sztabka złota, Broszka z perłą |
-| **Zbroja płytowa** — Pełna zbroja, nosidło parowe i kusza powtarzalna. | 16× Traktat hydrauliczny, 10× Kodeks alchemiczny | Fabryka parowa, Uzbrojenie stalowe | Ruda niklu | Zbroja płytowa, Nosidło parowe, Kusza powtarzalna |
-| **Ogrzewanie i przenośniki** — Kotły grzewcze, przenośniki łańcuchowe i pułapki ostrzowe. | 16× Traktat hydrauliczny, 10× Kodeks alchemiczny | Fabryka parowa | Ruda niklu | Kocioł grzewczy, Przenośnik łańcuchowy, Pułapka ostrzowa |
-| **Biesiadna sala** — Złoto i srebro w największej karczmie. | 16× Traktat hydrauliczny, 10× Kodeks alchemiczny | Złoto, Karczma | Ruda złota | Biesiadna sala |
-| **Kryształowe tabliczki** — Próbki mroźnych kryształów i ametystu — klucz do badań głębi kryształów. | 16× Traktat hydrauliczny, 10× Kodeks alchemiczny | Traktaty hydrauliczne, Srebro | Mroźny kryształ, Ametyst | Kryształowa tabliczka |
+| **Uszczelnienia** — Uszczelki i zawory. Wymaga jedwabiu Królowej Pajęczyn. | 66× Traktat hydrauliczny, 40× Kodeks alchemiczny, 1× Jedwab Królowej Pajęczyn | Mechanizmy, Tkactwo jedwabiu | Skóra węgorza | Uszczelka, Zawór ciśnieniowy |
+| **Nurkowanie** — Strój ze skóry węgorza i hełm nurka. | 44× Traktat hydrauliczny, 26× Kodeks alchemiczny | Uszczelnienia, Szkło | Skóra węgorza | Strój ze skóry węgorza, Hełm nurka |
+| **Nikiel** — Stal niklowa odporna na wilgoć i parę. | 44× Traktat hydrauliczny, 26× Kodeks alchemiczny | Stal | Ruda niklu | Sztabka niklu, Stal niklowa |
+| **Rybołówstwo** — Wędka, olej rybi, pasztet i zupa z wodorostów. | 22× Traktat hydrauliczny, 13× Kodeks alchemiczny | Kuchnia grzybowa, Tkactwo jedwabiu | Ryba jaskiniowa, Wodorost jaskiniowy | Wędka z jedwabną żyłką, Olej rybi, Pasztet rybny, Gulasz grzybowy |
+| **Fabryka parowa** — Tłoki i maszyny na parę. | 66× Traktat hydrauliczny, 40× Kodeks alchemiczny | Nikiel, Uszczelnienia, Rybołówstwo | Ruda niklu | Fabryka parowa, Tłok |
+| **Maszyna parowa** — Energia z węgla i wody — wszędzie, nie tylko przy strumieniu. | 66× Traktat hydrauliczny, 40× Kodeks alchemiczny | Fabryka parowa, Koło wodne | Ruda niklu | Maszyna parowa |
+| **Pompa parowa** — Osusza całe zatopione kawerny. | 44× Traktat hydrauliczny, 26× Kodeks alchemiczny | Maszyna parowa, Pompy | Ruda niklu | Pompa parowa |
+| **Winda parowa** — Kręgosłup głębokiego grodu. | 44× Traktat hydrauliczny, 26× Kodeks alchemiczny | Maszyna parowa, Winda zębata | Ruda niklu | Winda parowa |
+| **Parowa kolejka** — Automatyczne trasy wagoników. | 44× Traktat hydrauliczny, 26× Kodeks alchemiczny | Maszyna parowa, Stacja z dźwigiem | Ruda niklu | Parowa kolejka |
+| **Wiertło parowe** — Szybkie wydobycie bez górników. | 44× Traktat hydrauliczny, 26× Kodeks alchemiczny | Maszyna parowa, Wiertnictwo | Ruda niklu | Wiertło parowe |
+| **Tartak parowy** — Masowa produkcja desek i płyt grzybowych. | 22× Traktat hydrauliczny, 13× Kodeks alchemiczny | Fabryka parowa, Drewno grzybowe | Ruda niklu | Tartak parowy, Deska, Płyta grzybowa |
+| **Skarbiec** — Ogromny magazyn z automatycznym sortowaniem. | 44× Traktat hydrauliczny, 26× Kodeks alchemiczny | Nikiel, Mechanizmy | Ruda niklu | Skarbiec |
+| **Wielka kuchnia** — Kuchnia ze stali niklowej i krasnoludzka uczta. | 44× Traktat hydrauliczny, 26× Kodeks alchemiczny | Nikiel, Rybołówstwo | Sól kamienna | Wielka kuchnia, Krasnoludzka uczta |
+| **Złoto** — Złote sztabki i broszki z pereł. | 44× Traktat hydrauliczny, 26× Kodeks alchemiczny | Srebro | Ruda złota | Sztabka złota, Broszka z perłą |
+| **Zbroja płytowa** — Pełna zbroja, nosidło parowe i kusza powtarzalna. | 44× Traktat hydrauliczny, 26× Kodeks alchemiczny | Fabryka parowa, Uzbrojenie stalowe | Ruda niklu | Zbroja płytowa, Nosidło parowe, Kusza powtarzalna |
+| **Ogrzewanie i przenośniki** — Kotły grzewcze, przenośniki łańcuchowe i pułapki ostrzowe. | 44× Traktat hydrauliczny, 26× Kodeks alchemiczny | Fabryka parowa | Ruda niklu | Kocioł grzewczy, Przenośnik łańcuchowy, Pułapka ostrzowa |
+| **Biesiadna sala** — Złoto i srebro w największej karczmie. | 44× Traktat hydrauliczny, 26× Kodeks alchemiczny | Złoto, Karczma | Ruda złota | Biesiadna sala |
+| **Kryształowe tabliczki** — Próbki mroźnych kryształów i ametystu — klucz do badań głębi kryształów. | 44× Traktat hydrauliczny, 26× Kodeks alchemiczny | Traktaty hydrauliczne, Srebro | Mroźny kryształ, Ametyst | Kryształowa tabliczka |
 
 ### Poziom 5 — Kryształowe Głębie (17 węzłów)
 
 | Badanie | Koszt | Wymaga | Ujawnia | Odblokowuje |
 |---|---|---|---|---|
-| **Optyka** — Soczewki i latarnie kryształowe bez paliwa. | 18× Kryształowa tabliczka, 11× Traktat hydrauliczny | Szlifiernia | Mroźny kryształ, Odłamek golema | Soczewka, Latarnia kryształowa |
-| **Szlif klejnotów** — Ametysty i szafiry. Wymaga łuski Lewiatana do tarczy szlifierskiej. | 27× Kryształowa tabliczka, 16× Traktat hydrauliczny, 1× Łuska Lewiatana | Srebro, Optyka | Ametyst, Szafir | Szlifowany ametyst, Szlifowany szafir |
-| **Kobalt** — Stal kobaltowa — twardsza niż wszystko dotąd. | 18× Kryształowa tabliczka, 11× Traktat hydrauliczny | Nikiel, Maszyna parowa | Ruda kobaltu | Sztabka kobaltu, Stal kobaltowa |
-| **Kuźnia mistrzowska** — Kobaltowe kilofy i topory — przebiją obsydian. | 27× Kryształowa tabliczka, 16× Traktat hydrauliczny | Kobalt, Szlif klejnotów | Ruda kobaltu | Kuźnia mistrzowska, Kilof kobaltowy, Kobaltowy topór bojowy |
-| **Alchemia mrozu** — Rdzenie mrozu, napój rozgrzewający i chłodnice. | 18× Kryształowa tabliczka, 11× Traktat hydrauliczny | Laboratorium | Mroźny kryształ, Pył mroźnej ćmy | Rdzeń mrozu, Napój rozgrzewający, Chłodnica |
-| **Ocieplenie** — Ocieplina i kubrak przeciw mrozowi. | 18× Kryształowa tabliczka, 11× Traktat hydrauliczny | Kuśnierstwo, Tkactwo jedwabiu | Mroźny kryształ, Skóra trolla | Ocieplina, Ocieplany kubrak |
-| **Pancerz mrozu** — Chłód kryształów jako tarcza przed żarem głębin. | 18× Kryształowa tabliczka, 11× Traktat hydrauliczny | Alchemia mrozu, Fabryka parowa | Mroźny kryształ | Pancerz z rdzeniem mrozu |
-| **Lampy kryształowe** — Lampa, wykrywacz złóż i maska z kryształowym filtrem. | 18× Kryształowa tabliczka, 11× Traktat hydrauliczny | Optyka, Szlif klejnotów | Odłamek golema | Lampa kryształowa, Kryształowy wykrywacz, Maska z kryształowym filtrem |
-| **Wielkie Palenisko** — Trzecia epoka grodu: limit mieszkańców 50. | 27× Kryształowa tabliczka, 16× Traktat hydrauliczny | Szlif klejnotów, Kobalt, Kamienne Palenisko | Szafir | Wielkie Palenisko |
-| **Archiwum** — Najszybsze badania i kodeksy najgłębszych warstw. | 18× Kryształowa tabliczka, 11× Traktat hydrauliczny | Szlif klejnotów, Biblioteka | Szafir | Archiwum |
-| **Huta szkła** — Szkło hartowane. | 18× Kryształowa tabliczka, 11× Traktat hydrauliczny | Optyka, Nikiel | Mroźny kryształ | Huta szkła, Szkło hartowane |
-| **Ogród świetlny** — Uprawy w każdej głębi pod sztucznym słońcem. | 18× Kryształowa tabliczka, 11× Traktat hydrauliczny | Huta szkła, Grzybnie | Mroźny kryształ | Ogród świetlny, Jęczmień |
-| **Szlifiernia mistrzowska** — Masowa produkcja bloków. | 9× Kryształowa tabliczka, 5× Traktat hydrauliczny | Kobalt, Kamieniarnia | Ruda kobaltu | Szlifiernia mistrzowska, Blok kamienny |
-| **Sala bohaterów** — Elitarna straż. | 18× Kryształowa tabliczka, 11× Traktat hydrauliczny | Kuźnia mistrzowska, Koszary | Ruda kobaltu | Sala bohaterów |
-| **Sanktuarium** — Leczy nawet najcięższe rany. | 9× Kryształowa tabliczka, 5× Traktat hydrauliczny | Szlif klejnotów, Lecznica | Ametyst | Sanktuarium |
-| **Amulety** — Amulet szafirowy i talizman ametystowy. | 9× Kryształowa tabliczka, 5× Traktat hydrauliczny | Szlif klejnotów, Złoto | Szafir, Ametyst | Amulet szafirowy, Talizman ametystowy |
-| **Ogniste kodeksy** — Próbki obsydianu i rubinów — klucz do badań Pasa Magmy. | 18× Kryształowa tabliczka, 11× Traktat hydrauliczny | Kryształowe tabliczki, Huta szkła | Obsydian, Rubin | Ognisty kodeks |
+| **Optyka** — Soczewki i latarnie kryształowe bez paliwa. | 58× Kryształowa tabliczka, 35× Traktat hydrauliczny | Szlifiernia | Mroźny kryształ, Odłamek golema | Soczewka, Latarnia kryształowa |
+| **Szlif klejnotów** — Ametysty i szafiry. Wymaga łuski Lewiatana do tarczy szlifierskiej. | 87× Kryształowa tabliczka, 52× Traktat hydrauliczny, 1× Łuska Lewiatana | Srebro, Optyka | Ametyst, Szafir | Szlifowany ametyst, Szlifowany szafir |
+| **Kobalt** — Stal kobaltowa — twardsza niż wszystko dotąd. | 58× Kryształowa tabliczka, 35× Traktat hydrauliczny | Nikiel, Maszyna parowa | Ruda kobaltu | Sztabka kobaltu, Stal kobaltowa |
+| **Kuźnia mistrzowska** — Kobaltowe kilofy i topory — przebiją obsydian. | 87× Kryształowa tabliczka, 52× Traktat hydrauliczny | Kobalt, Szlif klejnotów | Ruda kobaltu | Kuźnia mistrzowska, Kilof kobaltowy, Kobaltowy topór bojowy |
+| **Alchemia mrozu** — Rdzenie mrozu, napój rozgrzewający i chłodnice. | 58× Kryształowa tabliczka, 35× Traktat hydrauliczny | Laboratorium | Mroźny kryształ, Pył mroźnej ćmy | Rdzeń mrozu, Napój rozgrzewający, Chłodnica |
+| **Ocieplenie** — Ocieplina i kubrak przeciw mrozowi. | 58× Kryształowa tabliczka, 35× Traktat hydrauliczny | Kuśnierstwo, Tkactwo jedwabiu | Mroźny kryształ, Skóra trolla | Ocieplina, Ocieplany kubrak |
+| **Pancerz mrozu** — Chłód kryształów jako tarcza przed żarem głębin. | 58× Kryształowa tabliczka, 35× Traktat hydrauliczny | Alchemia mrozu, Fabryka parowa | Mroźny kryształ | Pancerz z rdzeniem mrozu |
+| **Lampy kryształowe** — Lampa, wykrywacz złóż i maska z kryształowym filtrem. | 58× Kryształowa tabliczka, 35× Traktat hydrauliczny | Optyka, Szlif klejnotów | Odłamek golema | Lampa kryształowa, Kryształowy wykrywacz, Maska z kryształowym filtrem |
+| **Wielkie Palenisko** — Trzecia epoka grodu: limit mieszkańców 50. | 87× Kryształowa tabliczka, 52× Traktat hydrauliczny | Szlif klejnotów, Kobalt, Kamienne Palenisko | Szafir | Wielkie Palenisko |
+| **Archiwum** — Najszybsze badania i kodeksy najgłębszych warstw. | 58× Kryształowa tabliczka, 35× Traktat hydrauliczny | Szlif klejnotów, Biblioteka | Szafir | Archiwum |
+| **Huta szkła** — Szkło hartowane. | 58× Kryształowa tabliczka, 35× Traktat hydrauliczny | Optyka, Nikiel | Mroźny kryształ | Huta szkła, Szkło hartowane |
+| **Ogród świetlny** — Uprawy w każdej głębi pod sztucznym słońcem. | 58× Kryształowa tabliczka, 35× Traktat hydrauliczny | Huta szkła, Grzybnie | Mroźny kryształ | Ogród świetlny, Jęczmień |
+| **Szlifiernia mistrzowska** — Masowa produkcja bloków. | 29× Kryształowa tabliczka, 17× Traktat hydrauliczny | Kobalt, Kamieniarnia | Ruda kobaltu | Szlifiernia mistrzowska, Blok kamienny |
+| **Sala bohaterów** — Elitarna straż. | 58× Kryształowa tabliczka, 35× Traktat hydrauliczny | Kuźnia mistrzowska, Koszary | Ruda kobaltu | Sala bohaterów |
+| **Sanktuarium** — Leczy nawet najcięższe rany. | 29× Kryształowa tabliczka, 17× Traktat hydrauliczny | Szlif klejnotów, Lecznica | Ametyst | Sanktuarium |
+| **Amulety** — Amulet szafirowy i talizman ametystowy. | 29× Kryształowa tabliczka, 17× Traktat hydrauliczny | Szlif klejnotów, Złoto | Szafir, Ametyst | Amulet szafirowy, Talizman ametystowy |
+| **Ogniste kodeksy** — Próbki obsydianu i rubinów — klucz do badań Pasa Magmy. | 58× Kryształowa tabliczka, 35× Traktat hydrauliczny | Kryształowe tabliczki, Huta szkła | Obsydian, Rubin | Ognisty kodeks |
 
-### Poziom 6 — Pas Magmy (10 węzłów)
+### Poziom 6 — Pas Magmy (15 węzłów)
 
 | Badanie | Koszt | Wymaga | Ujawnia | Odblokowuje |
 |---|---|---|---|---|
-| **Kuźnia magmowa** — Lawa zamiast węgla; brąz żarowy. Wymaga Rdzenia Kolosa. | 32× Ognisty kodeks, 19× Kryształowa tabliczka, 1× Rdzeń Kolosa | Kobalt, Alchemia mrozu | Ruda żarytu | Kuźnia magmowa, Sztabka brązu żarowego |
-| **Narzędzia żarowe** — Kilof żarowy i żarowy młot. | 22× Ognisty kodeks, 13× Kryształowa tabliczka | Kuźnia magmowa, Alchemia ognia | Ruda żarytu | Kilof żarowy, Żarowy młot |
-| **Obsydian** — Ostrza, włócznie i mury obsydianowe. | 22× Ognisty kodeks, 13× Kryształowa tabliczka | Kuźnia mistrzowska | Obsydian | Ostrze obsydianowe, Włócznia obsydianowa, Mur obsydianowy |
-| **Alchemia ognia** — Esencja ognia, ognioodporność, bomby i bełty ogniste. | 22× Ognisty kodeks, 13× Kryształowa tabliczka | Laboratorium, Proch górniczy | Gruczoł ognisty | Laboratorium eteryczne, Esencja ognia, Mikstura ognioodporności, Bomba ogniowa, Bełty ogniste |
-| **Garbowanie łusek** — Skóra łuskowa i szata z łuski salamandry. | 22× Ognisty kodeks, 13× Kryształowa tabliczka | Fabryka parowa, Łowiectwo | Łuska salamandry | Skóra łuskowa, Szata z łuski salamandry |
-| **Wymienniki ciepła** — Mróz kryształów okiełznuje żar lawy. | 22× Ognisty kodeks, 13× Kryształowa tabliczka | Alchemia mrozu, Fabryka parowa | Rdzeń magmowy, Obsydian | Wymiennik ciepła |
-| **Turbina magmowa** — Ogromna energia z lawy. | 32× Ognisty kodeks, 19× Kryształowa tabliczka | Wymienniki ciepła, Maszyna parowa | Rdzeń magmowy | Turbina magmowa |
-| **Wiertło magmowe** — Najszybsze automatyczne wydobycie. | 22× Ognisty kodeks, 13× Kryształowa tabliczka | Wymienniki ciepła, Kuźnia magmowa, Wiertło parowe | Rdzeń magmowy | Wiertło magmowe |
-| **Rubiny** — Szlif rubinów, amulet rubinowy, runiczny jubiler. | 22× Ognisty kodeks, 13× Kryształowa tabliczka | Szlif klejnotów, Kuźnia magmowa | Rubin | Runiczny jubiler, Szlifowany rubin, Amulet rubinowy |
-| **Księgi run** — Próbki runokamienia i pyłu runicznego — klucz do badań prastarych głębin. | 22× Ognisty kodeks, 13× Kryształowa tabliczka | Ogniste kodeksy, Archiwum | Runokamień, Pył runiczny | Księga run |
+| **Kuźnia magmowa** — Lawa zamiast węgla; brąz żarowy. Wymaga Rdzenia Kolosa. | 116× Ognisty kodeks, 70× Kryształowa tabliczka, 1× Rdzeń Kolosa | Kobalt, Alchemia mrozu | Ruda żarytu | Kuźnia magmowa, Sztabka brązu żarowego |
+| **Narzędzia żarowe** — Kilof żarowy i żarowy młot. | 77× Ognisty kodeks, 46× Kryształowa tabliczka | Kuźnia magmowa, Alchemia ognia | Ruda żarytu | Kilof żarowy, Żarowy młot |
+| **Obsydian** — Ostrza, włócznie i mury obsydianowe. | 77× Ognisty kodeks, 46× Kryształowa tabliczka | Kuźnia mistrzowska | Obsydian | Ostrze obsydianowe, Włócznia obsydianowa, Mur obsydianowy |
+| **Alchemia ognia** — Esencja ognia, ognioodporność, bomby i bełty ogniste. | 77× Ognisty kodeks, 46× Kryształowa tabliczka | Laboratorium, Proch górniczy | Gruczoł ognisty | Laboratorium eteryczne, Esencja ognia, Mikstura ognioodporności, Bomba ogniowa, Bełty ogniste |
+| **Garbowanie łusek** — Skóra łuskowa i szata z łuski salamandry. | 77× Ognisty kodeks, 46× Kryształowa tabliczka | Fabryka parowa, Łowiectwo | Łuska salamandry | Skóra łuskowa, Szata z łuski salamandry |
+| **Wymienniki ciepła** — Mróz kryształów okiełznuje żar lawy. | 77× Ognisty kodeks, 46× Kryształowa tabliczka | Alchemia mrozu, Fabryka parowa | Rdzeń magmowy, Obsydian | Wymiennik ciepła |
+| **Inżynieria lawy** — Kanały i zasuwy: lawa płynie tam, gdzie chce krasnolud. | 77× Ognisty kodeks, 46× Kryształowa tabliczka | Obsydian, Wymienniki ciepła | Obsydian, Rdzeń magmowy | Kanał lawowy, Zasuwa lawowa |
+| **Sieć chłodząca** — Rury rozprowadzające chłód rdzeni mrozu. | 77× Ognisty kodeks, 46× Kryształowa tabliczka | Wymienniki ciepła | Rdzeń magmowy | Rura chłodząca |
+| **Architektura obsydianowa** — Filary, które nie mięknieją od żaru. | 39× Ognisty kodeks, 23× Kryształowa tabliczka | Obsydian | Obsydian | Filar obsydianowy |
+| **Turbina magmowa** — Ogromna energia z lawy doprowadzonej kanałami. | 116× Ognisty kodeks, 70× Kryształowa tabliczka | Wymienniki ciepła, Maszyna parowa, Inżynieria lawy | Rdzeń magmowy | Turbina magmowa |
+| **Hartowanie w magmie** — Stal bez koksu, szkło z obsydianu, cegły hurtem — żar lawy zastępuje paliwo. | 116× Ognisty kodeks, 70× Kryształowa tabliczka | Kuźnia magmowa, Inżynieria lawy, Huta szkła | Ruda żarytu, Obsydian | Sztabka stali, Szkło, Cegła |
+| **Obrona ogniowa** — Pułapki ogniowe i lampy żarowe. | 77× Ognisty kodeks, 46× Kryształowa tabliczka | Alchemia ognia, Kuźnia magmowa | Gruczoł ognisty | Pułapka ogniowa, Lampa żarowa |
+| **Wiertło magmowe** — Najszybsze automatyczne wydobycie. | 77× Ognisty kodeks, 46× Kryształowa tabliczka | Wymienniki ciepła, Kuźnia magmowa, Wiertło parowe | Rdzeń magmowy | Wiertło magmowe |
+| **Rubiny** — Szlif rubinów, amulet rubinowy, runiczny jubiler. | 77× Ognisty kodeks, 46× Kryształowa tabliczka | Szlif klejnotów, Kuźnia magmowa | Rubin | Runiczny jubiler, Szlifowany rubin, Amulet rubinowy |
+| **Księgi run** — Próbki runokamienia i pyłu runicznego — klucz do badań prastarych głębin. | 77× Ognisty kodeks, 46× Kryształowa tabliczka | Ogniste kodeksy, Archiwum | Runokamień, Pył runiczny | Księga run |
 
 ### Poziom 7 — Prastare Głębiny (11 węzłów)
 
 | Badanie | Koszt | Wymaga | Ujawnia | Odblokowuje |
 |---|---|---|---|---|
-| **Esencja eteryczna** — To, z czego zbudowane są upiory. Wymaga Serca Robaka Magmowego. | 38× Księga run, 23× Ognisty kodeks, 1× Serce Robaka Magmowego | Alchemia ognia | Ektoplazma | Esencja eteryczna |
-| **Atrament runiczny** — Pył runiczny w atramencie. | 25× Księga run, 15× Ognisty kodeks | Laboratorium, Pismo | Pył runiczny | Atrament runiczny |
-| **Tablice runiczne** — Tablice i kamienie ochronne odpędzające grozę. | 38× Księga run, 23× Ognisty kodeks | Atrament runiczny, Szlifiernia mistrzowska | Runokamień | Tablica runiczna, Kamień ochronny |
-| **Adamant** — Najtwardszy metal świata, wytapiany na rdzeniach magmy. | 38× Księga run, 23× Ognisty kodeks | Kuźnia magmowa | Ruda adamantytu | Sztabka adamantu |
-| **Oręż adamantowy** — Kilof, topór, hełm i zbroja z adamantu. | 38× Księga run, 23× Ognisty kodeks | Adamant, Garbowanie łusek, Ocieplenie | Ruda adamantytu | Kilof adamantowy, Adamantowy topór bojowy, Hełm adamantowy, Zbroja adamantowa |
-| **Lśnitstal** — Metal, który świeci — mrok go nie pożera. | 38× Księga run, 23× Ognisty kodeks | Esencja eteryczna, Adamant | Ruda lśnitu | Sztabka lśnitstali, Latarnia lśnitu |
-| **Dzieła z lśnitu** — Lśniący kilof, lampa i amulet lśnitu. | 38× Księga run, 23× Ognisty kodeks | Lśnitstal, Rubiny, Atrament runiczny | Ruda lśnitu | Lśniący kilof, Lampa lśnitowa, Amulet lśnitu |
-| **Mechanizmy zegarowe** — Odtworzone mechanizmy prastarych. | 25× Księga run, 15× Ognisty kodeks | Mechanizmy | Prastary tryb | Mechanizm zegarowy |
-| **Oręż runiczny** — Runiczny młot, tarcza i płaszcz run. | 38× Księga run, 23× Ognisty kodeks | Tablice runiczne, Adamant, Esencja eteryczna | Runokamień | Runiczny młot, Tarcza runiczna, Płaszcz run |
-| **Działo runiczne** — Obrona, która rozbija konstrukty. | 38× Księga run, 23× Ognisty kodeks | Tablice runiczne, Mechanizmy zegarowe, Alchemia ognia | Prastary tryb | Działo runiczne |
-| **Klucz Serca** — Pieczęć Strażnika, relikwie, adamant i lśnitstal otwierają Serce Góry. | 38× Księga run, 23× Ognisty kodeks | Lśnitstal, Tablice runiczne, Wielkie Palenisko | Relikwia, Pieczęć Strażnika | Klucz Serca |
+| **Esencja eteryczna** — To, z czego zbudowane są upiory. Wymaga Serca Robaka Magmowego. | 155× Księga run, 93× Ognisty kodeks, 1× Serce Robaka Magmowego | Alchemia ognia | Ektoplazma | Esencja eteryczna |
+| **Atrament runiczny** — Pył runiczny w atramencie. | 103× Księga run, 62× Ognisty kodeks | Laboratorium, Pismo | Pył runiczny | Atrament runiczny |
+| **Tablice runiczne** — Tablice i kamienie ochronne odpędzające grozę. | 155× Księga run, 93× Ognisty kodeks | Atrament runiczny, Szlifiernia mistrzowska | Runokamień | Tablica runiczna, Kamień ochronny |
+| **Adamant** — Najtwardszy metal świata, wytapiany na rdzeniach magmy przy mocy turbiny. | 155× Księga run, 93× Ognisty kodeks | Kuźnia magmowa, Turbina magmowa | Ruda adamantytu | Sztabka adamantu |
+| **Oręż adamantowy** — Kilof, topór, hełm i zbroja z adamantu. | 155× Księga run, 93× Ognisty kodeks | Adamant, Garbowanie łusek, Ocieplenie | Ruda adamantytu | Kilof adamantowy, Adamantowy topór bojowy, Hełm adamantowy, Zbroja adamantowa |
+| **Lśnitstal** — Metal, który świeci — mrok go nie pożera. | 155× Księga run, 93× Ognisty kodeks | Esencja eteryczna, Adamant | Ruda lśnitu | Sztabka lśnitstali, Latarnia lśnitu |
+| **Dzieła z lśnitu** — Lśniący kilof, lampa i amulet lśnitu. | 155× Księga run, 93× Ognisty kodeks | Lśnitstal, Rubiny, Atrament runiczny | Ruda lśnitu | Lśniący kilof, Lampa lśnitowa, Amulet lśnitu |
+| **Mechanizmy zegarowe** — Odtworzone mechanizmy prastarych. | 103× Księga run, 62× Ognisty kodeks | Mechanizmy | Prastary tryb | Mechanizm zegarowy |
+| **Oręż runiczny** — Runiczny młot, tarcza i płaszcz run. | 155× Księga run, 93× Ognisty kodeks | Tablice runiczne, Adamant, Esencja eteryczna | Runokamień | Runiczny młot, Tarcza runiczna, Płaszcz run |
+| **Działo runiczne** — Obrona, która rozbija konstrukty. | 155× Księga run, 93× Ognisty kodeks | Tablice runiczne, Mechanizmy zegarowe, Alchemia ognia | Prastary tryb | Działo runiczne |
+| **Klucz Serca** — Pieczęć Strażnika, relikwie, adamant i lśnitstal otwierają Serce Góry. | 155× Księga run, 93× Ognisty kodeks | Lśnitstal, Tablice runiczne, Wielkie Palenisko | Relikwia, Pieczęć Strażnika | Klucz Serca |

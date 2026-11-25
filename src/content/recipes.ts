@@ -44,6 +44,8 @@ make('coke', 1, 'kiln', 2, [s('coal', 2)], 12);
 make('glass', 2, 'kiln', 2, [s('sand', 2), s('quicklime'), s('coal')], 14);
 r('glass_quartz', 'kiln', 2, [s('quartz'), s('coal')], [s('glass', 2)], 12);
 make('tempered_glass', 1, 'kiln', 3, [s('glass', 2), s('quicklime'), s('coke')], 20, 3);
+r('glass_obsidian', 'kiln', 3, [s('obsidian')], [s('glass', 3)], 10, 3);
+r('brick_magma', 'kiln', 3, [s('clay', 3)], [s('brick', 8)], 12, 3);
 
 // --------------------------------------------------------------- smelter
 make('copper_bar', 1, 'smelter', 1, [s('copper_ore', 2), s('charcoal')], 16);
@@ -64,6 +66,7 @@ make('cobalt_steel', 2, 'smelter', 2, [s('steel_bar', 2), s('cobalt_bar')], 36, 
 make('emberbronze_bar', 2, 'smelter', 3, [s('bronze_bar', 2), s('emberite_ore')], 36, 6);
 make('adamant_bar', 1, 'smelter', 3, [s('adamantite_ore', 3), s('magma_core')], 60, 6);
 make('glimmersteel_bar', 1, 'smelter', 3, [s('glimmerite_ore', 2), s('steel_bar'), s('ether_essence')], 70, 6);
+r('steel_bar_magma', 'smelter', 3, [s('iron_bar', 2)], [s('steel_bar', 2)], 20, 6);
 
 // ----------------------------------------------------------------- forge
 make('copper_pick', 1, 'forge', 1, [s('copper_bar', 3), s('wood')], 20);

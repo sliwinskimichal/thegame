@@ -13,11 +13,23 @@ const PACKS = [
 ] as const;
 export const RESEARCH_PACKS: readonly string[] = PACKS;
 
+/** Pack cost curve (tuned by the balance simulator, see docs/BALANCE.md). */
+export interface PackCurve {
+  base: number;
+  growth: number;
+  prevShare: number;
+  /** Multiplier for tiers 0-1 (the settling phase right after the tutorial). */
+  early?: number;
+}
+/** Chosen by the curve tournament (docs/BALANCE.md): base 7, growth 1.33, early 0.6. */
+export const PACK_CURVE: PackCurve = { base: 7, growth: 1.33, prevShare: 0.6, early: 0.6 };
+
 /** Research cost of a node of `tier` and relative `size` (1 small .. 3 keystone). */
-export function packCost(tier: number, size: number): Stack[] {
-  const main = Math.round(4 * size * Math.pow(1.18, tier));
+export function packCost(tier: number, size: number, curve: PackCurve = PACK_CURVE): Stack[] {
+  const early = tier <= 1 ? (curve.early ?? 1) : 1;
+  const main = Math.max(1, Math.round(curve.base * size * Math.pow(curve.growth, tier) * early));
   const out: Stack[] = [{ id: PACKS[tier]!, n: main }];
-  if (tier > 0) out.push({ id: PACKS[tier - 1]!, n: Math.round(main * 0.6) });
+  if (tier > 0 && curve.prevShare > 0) out.push({ id: PACKS[tier - 1]!, n: Math.max(1, Math.round(main * curve.prevShare)) });
   return out;
 }
 
@@ -27,7 +39,7 @@ function node(
   id: string, tier: number, size: number, namePl: string, nameEn: string, descPl: string,
   requires: string[], revealBy: string[], unlocks: U, extra: Stack[] = [],
 ): void {
-  T.push({ id, tier, namePl, nameEn, descPl, cost: [...packCost(tier, size), ...extra], requires, revealBy, unlocks });
+  T.push({ id, tier, size, namePl, nameEn, descPl, cost: [...packCost(tier, size), ...extra], requires, revealBy, unlocks });
 }
 const B = (id: string, l: 1 | 2 | 3) => [id, l] as const;
 
@@ -108,6 +120,8 @@ node('fine_brewing', 3, 2, 'Browar mistrzowski', 'Master brewing', 'Ciemny stout
 node('stews', 3, 1, 'Kuchnia grzybowa', 'Mushroom cuisine', 'Gulasz grzybowy.', ['kitchen_2'], ['mushroom'], { recipes: ['mushroom_stew'] });
 node('infirmary_2', 3, 1, 'Lecznica', 'Infirmary', 'Lecznica ze srebrnymi narzędziami.', ['healers', 'silver_working'], ['silver_ore'], { buildings: [B('infirmary', 2)] });
 node('crane_station', 3, 2, 'Stacja z dźwigiem', 'Crane station', 'Automatyczny załadunek wagoników.', ['rails', 'mechanisms'], ['mushroom_timber'], { buildings: [B('rail_depot', 2)] });
+node('spore_lamps', 3, 1, 'Lampy zarodnikowe', 'Spore lamps', 'Światło głębin bez paliwa i dymu.', ['laboratory'], ['glow_spores'], { infra: ['spore_lamp'] });
+node('silk_bridges', 3, 1, 'Mosty linowe', 'Rope bridges', 'Jedwabne liny nad rozpadlinami grot.', ['silk_weaving', 'fungal_carpentry'], ['spider_silk'], { infra: ['rope_bridge'] });
 node('treatise_lore', 3, 2, 'Traktaty hydrauliczne', 'Hydraulic treatises', 'Próbki pereł i skór węgorzy — klucz do badań zatopionych głębi.', ['codex_lore', 'pumps'], ['pearl', 'eel_skin'], { recipes: ['hydraulic_treatise'] });
 
 // =========================================== T4 — Zatopione Głębie
@@ -156,7 +170,12 @@ node('obsidian_craft', 6, 2, 'Obsydian', 'Obsidian craft', 'Ostrza, włócznie i
 node('fire_alchemy', 6, 2, 'Alchemia ognia', 'Fire alchemy', 'Esencja ognia, ognioodporność, bomby i bełty ogniste.', ['laboratory', 'blasting'], ['fire_gland'], { buildings: [B('alchemy', 3)], recipes: ['fire_essence', 'fire_ward_potion', 'fire_bomb', 'fire_bolts'] });
 node('scale_tanning', 6, 2, 'Garbowanie łusek', 'Scale tanning', 'Skóra łuskowa i szata z łuski salamandry.', ['steam_works', 'hunting'], ['salamander_scale'], { recipes: ['scale_leather', 'scale_robe'] });
 node('heat_exchange', 6, 2, 'Wymienniki ciepła', 'Heat exchange', 'Mróz kryształów okiełznuje żar lawy.', ['frost_alchemy', 'steam_works'], ['magma_core', 'obsidian'], { recipes: ['heat_exchanger'] });
-node('magma_turbine', 6, 3, 'Turbina magmowa', 'Magma turbine', 'Ogromna energia z lawy.', ['heat_exchange', 'steam_engine'], ['magma_core'], { buildings: [B('power_plant', 3)] });
+node('lava_engineering', 6, 2, 'Inżynieria lawy', 'Lava engineering', 'Kanały i zasuwy: lawa płynie tam, gdzie chce krasnolud.', ['obsidian_craft', 'heat_exchange'], ['obsidian', 'magma_core'], { infra: ['lava_channel', 'lava_gate'] });
+node('cooling_grid', 6, 2, 'Sieć chłodząca', 'Cooling grid', 'Rury rozprowadzające chłód rdzeni mrozu.', ['heat_exchange'], ['magma_core'], { infra: ['cooling_pipe'] });
+node('obsidian_architecture', 6, 1, 'Architektura obsydianowa', 'Obsidian architecture', 'Filary, które nie mięknieją od żaru.', ['obsidian_craft'], ['obsidian'], { infra: ['obsidian_pillar'] });
+node('magma_turbine', 6, 3, 'Turbina magmowa', 'Magma turbine', 'Ogromna energia z lawy doprowadzonej kanałami.', ['heat_exchange', 'steam_engine', 'lava_engineering'], ['magma_core'], { buildings: [B('power_plant', 3)] });
+node('magma_forging', 6, 3, 'Hartowanie w magmie', 'Magma forging', 'Stal bez koksu, szkło z obsydianu, cegły hurtem — żar lawy zastępuje paliwo.', ['magma_smeltery', 'lava_engineering', 'glassworks'], ['emberite_ore', 'obsidian'], { recipes: ['steel_bar_magma', 'glass_obsidian', 'brick_magma'] });
+node('fire_defense', 6, 2, 'Obrona ogniowa', 'Fire defence', 'Pułapki ogniowe i lampy żarowe.', ['fire_alchemy', 'magma_smeltery'], ['fire_gland'], { infra: ['fire_trap', 'ember_lamp'] });
 node('magma_drill', 6, 2, 'Wiertło magmowe', 'Magma drill', 'Najszybsze automatyczne wydobycie.', ['heat_exchange', 'magma_smeltery', 'steam_drill'], ['magma_core'], { buildings: [B('drill_rig', 3)] });
 node('rune_jeweler', 6, 2, 'Rubiny', 'Rubies', 'Szlif rubinów, amulet rubinowy, runiczny jubiler.', ['gem_cutting', 'magma_smeltery'], ['ruby'], { buildings: [B('jeweler', 3)], recipes: ['cut_ruby', 'ruby_amulet'] });
 node('rune_lore', 6, 2, 'Księgi run', 'Rune tomes', 'Próbki runokamienia i pyłu runicznego — klucz do badań prastarych głębin.', ['ember_lore', 'archive'], ['runestone', 'rune_dust'], { recipes: ['rune_tome'] });
@@ -165,7 +184,7 @@ node('rune_lore', 6, 2, 'Księgi run', 'Rune tomes', 'Próbki runokamienia i py�
 node('ether', 7, 3, 'Esencja eteryczna', 'Ether essence', 'To, z czego zbudowane są upiory. Wymaga Serca Robaka Magmowego.', ['fire_alchemy'], ['ectoplasm'], { recipes: ['ether_essence'] }, [{ id: 'wyrm_heart', n: 1 }]);
 node('rune_ink_t', 7, 2, 'Atrament runiczny', 'Rune ink', 'Pył runiczny w atramencie.', ['laboratory', 'scribing'], ['rune_dust'], { recipes: ['rune_ink'] });
 node('rune_carving', 7, 3, 'Tablice runiczne', 'Rune carving', 'Tablice i kamienie ochronne odpędzające grozę.', ['rune_ink_t', 'master_stoneworks'], ['runestone'], { recipes: ['rune_tablet'], infra: ['ward_stone'] });
-node('adamant', 7, 3, 'Adamant', 'Adamant', 'Najtwardszy metal świata, wytapiany na rdzeniach magmy.', ['magma_smeltery'], ['adamantite_ore'], { recipes: ['adamant_bar'] });
+node('adamant', 7, 3, 'Adamant', 'Adamant', 'Najtwardszy metal świata, wytapiany na rdzeniach magmy przy mocy turbiny.', ['magma_smeltery', 'magma_turbine'], ['adamantite_ore'], { recipes: ['adamant_bar'] });
 node('adamant_arms', 7, 3, 'Oręż adamantowy', 'Adamant arms', 'Kilof, topór, hełm i zbroja z adamantu.', ['adamant', 'scale_tanning', 'insulation'], ['adamantite_ore'], { recipes: ['adamant_pick', 'adamant_axe', 'adamant_helm', 'adamant_armor'] });
 node('glimmersteel', 7, 3, 'Lśnitstal', 'Glimmersteel', 'Metal, który świeci — mrok go nie pożera.', ['ether', 'adamant'], ['glimmerite_ore'], { recipes: ['glimmersteel_bar'], infra: ['glimmer_beacon'] });
 node('glimmer_crafts', 7, 3, 'Dzieła z lśnitu', 'Glimmer crafts', 'Lśniący kilof, lampa i amulet lśnitu.', ['glimmersteel', 'rune_jeweler', 'rune_ink_t'], ['glimmerite_ore'], { recipes: ['glimmer_pick', 'glimmer_lamp', 'glimmer_amulet'] });

@@ -224,6 +224,8 @@ export interface Recipe {
 export interface TechNode {
   id: string;
   tier: number;
+  /** Relative size 1 (small) .. 3 (keystone); drives the pack cost curve. */
+  size: number;
   namePl: string;
   nameEn: string;
   descPl: string;

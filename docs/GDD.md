@@ -1,107 +1,92 @@
-# Underhearth — dokument projektowy gry (GDD)
+# Underhearth — dokument projektowy gry (GDD v2)
 
 > Robocza nazwa. „Under-hearth” = palenisko pod ziemią: serce krasnoludzkiego grodu.
+> Szczegółowe listy treści (generowane z danych): [CONTENT.md](CONTENT.md).
+> Balans i symulacje: [BALANCE.md](BALANCE.md). Kryteria jakości: [QUALITY.md](QUALITY.md).
 
 ## 1. Wizja
-Strategiczna symulacja kolonii w przekroju góry, widzianym jak żywa makieta 2.5D. Prowadzisz
-garstkę krasnoludów, które zaczynają od wozu u podnóża góry, a kończą jako gród sięgający
-Serca Góry, setki kafli pod powierzchnią. Każdy wykopany kafel to decyzja: odsłania rudy,
-jaskinie, wodę, ruiny — i rzeczy, które powinny były pozostać pogrzebane.
+Pełnoprawna strategiczna symulacja krasnoludzkiej kolonii w przekroju góry, oglądana jak żywa makieta 2.5D.
+Gracz prowadzi garstkę krasnoludów od wozu u podnóża góry, przez dziewięć coraz głębszych biomów, aż do
+Serca Góry, gdzie śpi Pożeracz Światła. **Ukończenie: ok. 40 h. Wymaksowanie: ok. 120 h.**
 
-Gra należy do gatunku kolonii z widokiem z boku (kopanie, budowanie, zarządzanie postaciami),
-ale jest **oryginalna**: własny świat, postacie, grafika i mechaniki. Nie kopiujemy żadnej
-istniejącej gry — ani jej nazw, postaci, wyglądu, ani poziomów.
+Gra jest oryginalna w swoim gatunku (kolonia + produkcja + eksploracja w widoku z boku).
+Inspiracje mechaniczne: łańcuchy produkcji i automatyzacja (Factorio, Satisfactory), biomy kopalni
+wymagające nowego podejścia i rzemiosła (Return to Moria), najazdy na bazę i bossowie strzegący terenów
+(Palworld — tylko te elementy). **Bez oswajania stworzeń** — pracują wyłącznie krasnoludy i maszyny.
 
 ## 2. Filary
-1. **Przekrój, który żyje** — świat jest dioramą: tunele wykute w głąb płyty skalnej, światło
-   pochodni rozlewa się po ścianach, w głębi pulsują kryształy i lawa, na powierzchni mija dzień i noc.
-2. **Kopanie to decyzja** — nie widzisz, co kryje skała. Kopiesz po rudę, ale możesz przebić się
-   do zalanej groty albo gniazda pająków. Ryzyko rośnie z głębokością, nagrody też.
-3. **Światło kontra mrok** — światło to bezpieczeństwo, wydajność i nastrój. Potwory lubią ciemność.
-   Pochodnie, kryształowe lampy i ogień paleniska to infrastruktura, nie ozdoba.
-4. **Krasnoludy z charakterem** — każdy ma imię, brodę, cechy, umiejętności, nastrój i relacje.
-   Z ich działań rodzi się kronika grodu — historie, które gracz opowiada potem znajomym.
-5. **Głębia jako opowieść** — siedem warstw to siedem rozdziałów, każdy z własną paletą,
-   muzyką, surowcami i zagrożeniami. Na dnie czeka finał.
+1. **Przekrój, który żyje** — makieta z dynamicznym światłem, cyklem dnia, żywymi tunelami.
+2. **Głębia wymusza postęp** — każdy biom stawia nowe wyzwanie środowiskowe (mrok, zawały, zalania,
+   zarodniki, głęboka woda, mróz, żar, groza), którego nie da się przejść tym, co już masz.
+3. **Produkcja ma sens** — każdy surowiec ma źródło i zastosowanie; nowe budowle i ekwipunek wynikają
+   z potrzeb kolejnych biomów (pilnują tego testy grafu treści).
+4. **Odkrywanie, nie lista zakupów** — drzewko technologii jest zakryte; węzły ujawniają się, gdy
+   krasnoludy znajdą kluczowy surowiec. Gracz widzi skalę („jeszcze 23 ukryte badania”), ale nie treść.
+5. **Krasnoludy z charakterem** — imiona, cechy, umiejętności, nastrój, piwo; kronika ich losów.
 
-## 3. Co robimy nowocześnie (względem klasyki gatunku z lat 90.)
-- Dynamiczne światło i cienie w czasie rzeczywistym, bloom, cykl dnia, makieta 3D zamiast płaskich sprite'ów.
-- Zero mikrozarządzania: przeciągasz obszary, krasnoludy same dzielą się pracą wg priorytetów i umiejętności.
-- Czytelność: nakładki (światło, pokoje, ścieżki), podpowiedzi, kolejka rozkazów w pauzie, przyspieszanie czasu.
-- Emergentne historie (kronika), reżyser zdarzeń dopasowujący tempo zagrożeń do sytuacji gracza.
-- Seed świata do udostępniania, wyzwanie dnia (ten sam świat dla wszystkich).
-- Przeglądarka bez instalacji, PWA offline, zapis lokalny, sterowanie myszą, klawiaturą i dotykiem.
-- Dostępność: rudy rozróżnialne kształtem wzoru (nie tylko kolorem), skalowanie UI, język PL/EN.
+## 3. Pętle rozgrywki
+- **Sekundy**: wyznacz kopanie → krasnolud kuje → kafel pęka → łup wypada.
+- **Minuty**: zbieraj → przetwarzaj (piec, huta, kuźnia, warsztat) → buduj → wyposażaj → zaspokajaj potrzeby.
+- **Godziny**: odkryj nowy biom → poznaj jego zagrożenie → zdobądź próbki → napisz nowe księgi badań →
+  odblokuj technologię → zbuduj przeciwdziałanie → pokonaj bossa warstwy → zejdź głębiej.
 
-## 4. Pętle rozgrywki
-- **Sekundy**: wyznacz kopanie → krasnolud idzie, kuje (iskry, pył, odłamki) → kafel znika → łup wypada.
-- **Minuty**: zbieraj surowce → buduj warsztaty i pomieszczenia → produkuj (sztabki, narzędzia, piwo, posiłki)
-  → zaspokajaj potrzeby → przyciągaj nowych osadników.
-- **Godziny**: schodź coraz głębiej → odblokowuj technologie i surowce warstw → broń gród przed
-  coraz groźniejszymi potworami → dotrzyj do Serca Góry.
+## 4. Struktura progresji (9 biomów)
+| # | Biom | Nowe wyzwanie | Odpowiedź gracza | Boss (trofeum otwiera kluczowe badanie) |
+|---|------|---------------|------------------|------------------------------------------|
+| 0 | Podgórze | noc, gobliny | obóz, drzwi, balista, miedź | Wilczy Herszt → Kamienne Palenisko |
+| 1 | Wapienne Progi | mrok, zawały | pochodnie, stemple, zaprawa, brąz | Królowa Nietoperzy → Wielki piec |
+| 2 | Granitowe Korzenie | twarda skała, zalania | żelazo/stal, pompy, koło wodne, kolej | Matka Pełzaczy → Grzybnie |
+| 3 | Grzybowe Groty | zarodniki, jad | maski, wentylacja, antidotum, jedwab, proch | Królowa Pajęczyn → Uszczelnienia |
+| 4 | Zatopione Głębie | głęboka woda | para: pompy, windy, kolejka; stroje nurków | Lewiatan Jeziora → Szlif klejnotów |
+| 5 | Kryształowe Głębie | mróz, mrok | ogrzewanie, ocieplina, optyka, kobalt | Kryształowy Kolos → Kuźnia magmowa |
+| 6 | Pas Magmy | żar, lawa, opary | chłodzenie rdzeniami mrozu, obsydian, turbina magmowa | Robak Magmowy → Esencja eteryczna |
+| 7 | Prastare Głębiny | groza, konstrukty | runy, lśnit, adamant | Strażnik Ruin → Klucz Serca |
+| 8 | Serce Góry | finał | wszystko powyżej | Pożeracz Światła |
 
-## 5. Świat — warstwy
-| # | Warstwa | Skały | Surowce | Zagrożenia | Nastrój |
-|---|---------|-------|---------|------------|---------|
-| 0 | Podgórze | gleba, glina, piasek | miedź (rzadko), drewno z drzew na powierzchni | dzikie zwierzęta, gobliny z powierzchni | ciepło, zieleń, słońce |
-| 1 | Wapienne Progi | wapień, piaskowiec, łupek | węgiel, miedź, żelazo | nietoperze, zawały | ziemiste, przytulne |
-| 2 | Granitowe Korzenie | granit, łupek ilasty | żelazo, srebro, miedź | pełzacze jaskiniowe | chłodne, twarde |
-| 3 | Grzybowe Groty | wapień, łupek, grzybnia | srebro, złoto, drewno grzybowe | pająki, grzybowi strażnicy | bioluminescencja, turkus |
-| 4 | Kryształowe Głębie | łupek, bazalt | kryształy, ametyst, złoto | trolle | zimny blask, fiolet i błękit |
-| 5 | Pas Magmy | bazalt, obsydian, skała magmowa | żaryt, złoto | ogniste chochliki, wylewy lawy | żar, czerwień |
-| 6 | Prastare Głębiny | bazalt, łupek, starożytna cegła | lśnit (legendarny metal) | koszmary głębin | mrok, runy, cisza |
-| — | Serce Góry | skała macierzysta | — | Strażnik | finał |
+Synergie międzywarstwowe (przykłady): futro kretów z granitu ociepla w kryształach; mroźne rdzenie
+z kryształów chłodzą w magmie; rdzenie magmy wytapiają adamant w prastarych głębinach.
 
-## 6. Krasnoludy
-- **Potrzeby**: sen, jedzenie, picie (piwo daje bonus nastroju), towarzystwo, światło, piękno otoczenia.
-- **Umiejętności** (rosną z praktyką): górnictwo, budownictwo, kowalstwo, warzenie, gotowanie,
-  uprawa, walka.
-- **Cechy** (2–3 na osobę), np. Pracowity, Leniwy, Odważny, Tchórzliwy, Piwosz, Klaustrofob,
-  Ciemnolubny, Śpiewak, Mruk, Złotoręki.
-- **Imiona**: brzmienie krasnoludzkie + polski przydomek („Borin Żelaznobrody”, „Thrain Kamienioręki”).
-- **Nastrój** wpływa na tempo pracy; skrajny prowadzi do załamań (odmowa pracy, pijaństwo, ucieczka).
+## 5. Badania
+- 127 węzłów w 8 poziomach. Koszt: **księgi badań** pisane w Sali Wiedzy z **próbek najnowszego biomu**
+  (np. Mapy mierniczego = pergamin + atrament + węgiel + wapień) — badania ciągną gród w głąb.
+- Węzeł ukryty do odkrycia surowca z listy „ujawnia”. Interfejs pokazuje liczbę ukrytych węzłów per poziom.
+- Jeden węzeł-klucz na poziom wymaga trofeum bossa poprzedniej warstwy.
 
-## 7. Ekonomia i produkcja
-Kamień → bloki (kamieniarz) · Ruda + węgiel → sztabki (huta) · Sztabki → narzędzia, broń, zbroje (kuźnia) ·
-Grzyby → posiłki (kuchnia), piwo (browar) · Drewno / drewno grzybowe → drabiny, platformy, łóżka, stoły.
-Bogactwo grodu (wartość wydobycia, budowli i wyrobów) przyciąga osadników i … uwagę potworów.
+## 6. Ekonomia i logistyka
+- 26 złóż, 27 surowców kopalnych, 47 surowców z obiektów i stworzeń, 81 materiałów, 91 przedmiotów,
+  24 budowle × 3 poziomy, 28 elementów infrastruktury, 184 receptury.
+- Logistyka rośnie z głębią: noszenie → zsypy i kołowrót → tory i wagoniki → winda zębata → para
+  (winda, kolejka, przenośniki) → wiertła automatyczne na złożach.
+- Energia: koło wodne (wymaga strumienia) → maszyna parowa (węgiel + woda) → turbina magmowa (lawa).
 
-## 8. Budowle
-Infrastruktura: drabina, platforma, schody, drzwi, pochodnia, kryształowa lampa, podpora, mur.
-Pomieszczenia: magazyn, sypialnia, jadalnia, sala Paleniska. Warsztaty: kamieniarz, huta, kuźnia,
-browar, kuchnia, farma grzybów, stolarnia. Obrona: kolce, zapadnie, balista, runy ochronne.
-**Palenisko** — serce grodu; jego ulepszenia wyznaczają poziomy rozwoju i odblokowania.
+## 7. Krasnoludy
+Potrzeby (sen, jedzenie, piwo, towarzystwo, światło, piękno), umiejętności rosnące z praktyką
+(górnictwo, budownictwo, kowalstwo, warzenie, gotowanie, uprawa, walka, nauka), 2–3 cechy na osobę,
+ekwipunek w slotach (kilof, narzędzie, broń, tarcza, głowa, tułów, nogi, ręce, plecy, sprzęt, amulet),
+nastrój wpływający na tempo pracy. Populacja: limit Paleniska (10 → 24 → 50), osadnicy przyciągani
+bogactwem i karczmą.
 
-## 9. Zagrożenia
-Potwory zależne od warstwy i światła; gniazda budzą się po przebiciu się do ich jaskini.
-Zdarzenia: zawały stropów bez podpór, zalanie tunelu po przebiciu do wody, wylew lawy, najazd goblinów.
-Reżyser zdarzeń dozuje napięcie wg bogactwa, liczebności i głębokości.
+## 8. Zagrożenia
+34 stworzenia (w tym 9 bossów), najazdy wyzwalane przez bogactwo grodu i reżysera zdarzeń, zjawiska
+środowiskowe (zawały, zalania, wylewy lawy, chmury zarodników, wychłodzenie, groza).
 
-## 10. Cel i progresja
-Dotrzeć do Serca Góry i pokonać Strażnika. Po drodze: kamienie milowe głębokości, kolejne poziomy
-Paleniska, technologie (lepsze kilofy, lampy, maszyny), kronika grodu. Potem tryb nieskończony.
+## 9. Samouczek (~1 h) i gra swobodna
+Samouczek prowadzi przez cele w Podgórzu i pierwszym zejściu do Wapiennych Progów: obóz i Ognisko,
+magazyn, pierwsze kopanie w zboczu, światło, kwatery, jedzenie i piwo, odkrycie miedzi, piec i huta,
+pierwsze badanie (pokazanie zakrytego drzewka), pierwsza noc z wilkami, zejście szybem z drabinami,
+podpory i zawał pokazowy. Kończy się naturalnie: przewodnik („Stary Brodacz”) oddaje stery, a cele
+zmieniają się w **zlecenia** (tablica opcjonalnych zadań) — bez twardego przejścia ekranem.
 
-## 11. Sterowanie
-Mysz: przeciąganie obszarów rozkazów, PPM/środkowy — przesuwanie, kółko — zoom do kursora.
-Klawiatura: WASD/strzałki, spacja — pauza, 1/2/3 — prędkość, skróty narzędzi (K kopanie, B budowa,
-X anuluj, L drabina, T pochodnia). Dotyk: jeden palec — narzędzie, dwa — przesuwanie i zoom.
+## 10. Kierunek artystyczny i dźwiękowy
+Rozstrzygane turniejami wariantów (min. 10 na element, `docs/variants/`). Ograniczenie: wszystko
+generowane kodem (brak zewnętrznych tekstur i nagrań). Docelowo: makieta 2.5D, dynamiczne światło,
+generatywna muzyka zależna od głębokości.
 
-## 12. Kierunek artystyczny
-Makieta: przekrój płyty skalnej oglądany kamerą o wąskim kącie, z lekką paralaksą. Geometria
-low-poly + bogate, proceduralne materiały w shaderach (warstwy, żyłki rud, fasetki kryształów,
-pęknięcia magmy). Ciepłe światło ognia kontra zimny blask głębin. Bloom na źródłach światła,
-delikatna winieta i ziarno. Żadnych zewnętrznych tekstur — wszystko generowane kodem.
+## 11. Technologia
+TypeScript 7, Vite 8, Three.js r187 (WebGL2, własne shadery), Preact + Signals, Vitest.
+Treść jako dane (`src/content/`) z analizą progresji (`analysis.ts`) i testami spójności.
+Symulacja deterministyczna, oddzielona od renderowania. Hosting: GitHub Pages.
 
-## 13. Kierunek dźwiękowy
-Dźwięki generowane (Web Audio): stuk kilofa zależny od materiału, osuwanie się skał, kapanie wody,
-echo jaskiń rosnące z głębokością. Muzyka generatywna: ciepłe bordunowe akordy przy powierzchni,
-coraz mroczniejsza i rzadsza w głębi, bębny podczas walki.
-
-## 14. Technologia
-TypeScript 7, Vite 8, Three.js r187 (WebGL2, własne shadery GLSL), Preact + Signals dla UI,
-Vitest. Symulacja oddzielona od renderowania (czysty TS, deterministyczny RNG z seeda).
-Hosting: GitHub Pages (workflow w `.github/workflows/deploy.yml`).
-
-## 15. Poza zakresem (świadomie)
-Tryb wieloosobowy; postacie sterowane modelem językowym (wymagałyby backendu i kluczy API);
-zakupy w grze; jakiekolwiek zasoby skopiowane z innych gier.
+## 12. Poza zakresem
+Tryb wieloosobowy; oswajanie stworzeń i stworzenia-pracownicy; postacie sterowane modelem językowym;
+mikrotransakcje; zasoby skopiowane z innych gier.

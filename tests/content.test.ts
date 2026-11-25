@@ -7,6 +7,7 @@ import { describe, expect, it } from 'vitest';
 import { analyze, usages } from '../src/content/analysis';
 import { BIOMES, HAZARDS } from '../src/content/biomes';
 import { BUILDINGS, INFRASTRUCTURE, START_BUILDINGS, START_INFRA } from '../src/content/buildings';
+import { GREAT_WORKS } from '../src/content/greatworks';
 import { RECIPES, START_RECIPES } from '../src/content/recipes';
 import { RES, RESOURCES } from '../src/content/resources';
 import { CREATURES, DEPOSITS, OBJECTS } from '../src/content/sources';
@@ -181,6 +182,18 @@ describe('content: progression', () => {
         );
         if (best > b.tier) p.push(`biome ${b.id} T${b.tier}: hazard ${h} first countered at ${best}`);
       }
+    report(p);
+  });
+
+  it('makes every Great Work stage buildable before the finale', () => {
+    const p: string[] = [];
+    for (const g of GREAT_WORKS)
+      g.stages.forEach((st, i) => {
+        for (const c of st.cost) if (!RES.has(c.id)) p.push(`great work ${g.id}:${i + 1}: unknown ${c.id}`);
+        const t = Math.max(g.tier, ...st.cost.map((c) => A.res.get(c.id) ?? Infinity));
+        if (t > 7) p.push(`great work ${g.id}:${i + 1} only at ${t}`);
+      });
+    expect(GREAT_WORKS.length).toBeGreaterThanOrEqual(8);
     report(p);
   });
 

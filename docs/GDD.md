@@ -9,10 +9,17 @@ Pełnoprawna strategiczna symulacja krasnoludzkiej kolonii w przekroju góry, og
 Gracz prowadzi garstkę krasnoludów od wozu u podnóża góry, przez dziewięć coraz głębszych biomów, aż do
 Serca Góry, gdzie śpi Pożeracz Światła. **Ukończenie: ok. 40 h. Wymaksowanie: ok. 120 h.**
 
+**Fabuła** (biblia: [narrative/](narrative/README.md)): po 312 latach wygnania stary król Gostomir prowadzi
+lud z powrotem do góry Kuźnicy. Ginie w zawale na końcu samouczka i wskazuje gracza jako Namiestnika.
+Drużyna dziewięciu towarzyszy z różnych frakcji i stanów (rekrutacja, lojalność, tarcia — w duchu Dragon
+Age: Origins i Mass Effect 2) i Krążki Pamięci odsłaniają prawdę: krasnoludy to potomkowie strażników
+Raroga — czarnego ognia, który pożera światło. Finał decyduje o przeżyciu drużyny i kształcie świata.
+
 Gra jest oryginalna w swoim gatunku (kolonia + produkcja + eksploracja w widoku z boku).
 Inspiracje mechaniczne: łańcuchy produkcji i automatyzacja (Factorio, Satisfactory), biomy kopalni
 wymagające nowego podejścia i rzemiosła (Return to Moria), najazdy na bazę i bossowie strzegący terenów
-(Palworld — tylko te elementy). **Bez oswajania stworzeń** — pracują wyłącznie krasnoludy i maszyny.
+(Palworld — tylko te elementy). **Bez oswajania stworzeń** — pracują krasnoludy, sojusznicze ludy
+(gnomy-wynalazcy) i maszyny.
 
 ## 2. Filary
 1. **Przekrój, który żyje** — makieta z dynamicznym światłem, cyklem dnia, żywymi tunelami.
@@ -41,7 +48,7 @@ wymagające nowego podejścia i rzemiosła (Return to Moria), najazdy na bazę i
 | 5 | Kryształowe Głębie | mróz, mrok | ogrzewanie, ocieplina, optyka, kobalt | Kryształowy Kolos → Kuźnia magmowa |
 | 6 | Pas Magmy | żar, lawa, opary | chłodzenie rdzeniami mrozu, obsydian, turbina magmowa | Robak Magmowy → Esencja eteryczna |
 | 7 | Prastare Głębiny | groza, konstrukty | runy, lśnit, adamant | Strażnik Ruin → Klucz Serca |
-| 8 | Serce Góry | finał | wszystko powyżej | Pożeracz Światła |
+| 8 | Serce Góry | finał | wszystko powyżej | Raróg, Pożeracz Światła |
 
 Synergie międzywarstwowe (przykłady): futro kretów z granitu ociepla w kryształach; mroźne rdzenie
 z kryształów chłodzą w magmie; rdzenie magmy wytapiają adamant w prastarych głębinach.
@@ -74,8 +81,10 @@ bogactwem i karczmą.
 Samouczek prowadzi przez cele w Podgórzu i pierwszym zejściu do Wapiennych Progów: obóz i Ognisko,
 magazyn, pierwsze kopanie w zboczu, światło, kwatery, jedzenie i piwo, odkrycie miedzi, piec i huta,
 pierwsze badanie (pokazanie zakrytego drzewka), pierwsza noc z wilkami, zejście szybem z drabinami,
-podpory i zawał pokazowy. Kończy się naturalnie: przewodnik („Stary Brodacz”) oddaje stery, a cele
-zmieniają się w **zlecenia** (tablica opcjonalnych zadań) — bez twardego przejścia ekranem.
+podpory i zawał. Przewodnikiem jest **stary król Gostomir**, który w Sali Pierwszego Progu podtrzymuje
+pieśnią walący się strop, ginie i przekazuje Młot Pamięci graczowi jako Namiestnikowi; cele zmieniają się
+w **zlecenia** (tablica opcjonalnych zadań) — bez twardego przejścia ekranem
+(scenariusz: [narrative/02-campaign.md](narrative/02-campaign.md)).
 
 ## 10. Kierunek artystyczny i dźwiękowy
 Rozstrzygane turniejami wariantów (min. 10 na element, `docs/variants/`). Ograniczenie: wszystko

@@ -17,11 +17,12 @@ automatycznie co 5 h. Każda sesja zaczyna od pierwszego niezaznaczonego punktu.
       (`docs/variants/01-render-style.md`); finaliści pokazani właścicielowi do ewentualnej zmiany
 - [ ] A7. Turnieje: ~~materiałów skał~~ ✅ (`docs/variants/02-materials.md`), światła, nieba, dekoracji, płynów,
       post-processingu (z darmowymi bibliotekami zewnętrznymi jako zawodnikami), kamery
-- [ ] A8. **Biblia narracyjna** (`docs/narrative/`): świat, frakcje, bóstwa i magia, 5 aktów, towarzysze z misjami
-      rekrutacyjnymi i lojalnościowymi, dokumenty projektowe zadań, makrostruktura świata i ekonomia ryzyka
+- [x] A8. **Biblia narracyjna** (`docs/narrative/`): świat, frakcje, bóstwa i magia, 5 aktów, 9 towarzyszy z misjami
+      rekrutacyjnymi i lojalnościowymi, 14 dokumentów zadań, makrostruktura świata i ekonomia ryzyka
 
 ## Faza B — Świat i symulacja
-- [ ] B1. Generator świata 2.0 dla 9 biomów (złoża wg biblii, jaskinie wg typów, miejsca specjalne, bossowie)
+- [ ] B1. Generator świata 2.0 dla 9 biomów wg `docs/narrative/05-level-systems.md` (Gardziel, pieczęcie, kaskada,
+      układ wody, gęstości złóż, żyły-matki w strefach zagrożenia; świat ~224×720)
       — turniej wariantów generatora oceniany metrykami (dostępność złóż, łączność, różnorodność)
 - [ ] B2. Model świata w grze: kopanie, zawały i podpory, płyny (woda, lawa, obsydian), temperatura, gazy, groza
 - [ ] B3. Krasnoludy: model i animacje (turniej), potrzeby, cechy, umiejętności, ekwipunek w slotach
@@ -34,7 +35,10 @@ automatycznie co 5 h. Każda sesja zaczyna od pierwszego niezaznaczonego punktu.
 - [ ] C2. Ekonomia wg biblii treści, wszystkie 187 receptur
 - [ ] C3. Stworzenia i bossowie (AI, walka, łup), najazdy, reżyser zdarzeń
 - [ ] C4. Interfejs (turniej układu HUD), drzewko technologii, kronika, zlecenia
-- [ ] C5. Samouczek ~1 h płynnie przechodzący w grę swobodną
+- [ ] C5. Samouczek ~1 h ze starym królem Gostomirem (śmierć w zawale) płynnie przechodzący w grę swobodną
+- [ ] C6. Warstwa drużyny: wyprawy, Palenisko, Zaufanie/lojalność, frakcje, Przebudzenie, Weksel, Krążki Pamięci,
+      Pieśń Kamienia, druidzi, Pracownia Wynalazków; 5 kamieni milowych i 17 misji drużyny jako dane + testy
+- [ ] C7. Finał „Serce Góry”: przygotowanie grodu, przydział ról, 3 zakończenia, epilog
 
 ## Faza D — Treść końcowa i szlif
 - [ ] D1. Wielkie Dzieła (8 × 3 etapy)
@@ -65,3 +69,9 @@ automatycznie co 5 h. Każda sesja zaczyna od pierwszego niezaznaczonego punktu.
   rud w świetle roboczym ΔE 1,0 → 8,2, skał 14,0 → 24,3. Nowe decyzje właściciela: stary król-przewodnik
   ginie w zawale na końcu samouczka; główny przeciwnik na wzór balroga (oryginalny); warstwa drużyny RPG
   (DA:O, ME2); gnomy-wynalazcy jako sojuszniczy lud; biblioteki zewnętrzne dopuszczone przez turnieje.
+- **2026-11-26 (dzień 2)** — Biblia narracyjna (`docs/narrative/`, ~18 tys. słów): research (Tolkien, WoW —
+  sprawdzone źródła, Sanderson, Lynch, DA:O, ME2, folklor górniczy i słowiański), świat (Prakowale, Ociosani,
+  Pierwszy Wybór, Raróg), 6 frakcji z interesami i urazami, panteon, Pieśń Kamienia, druidzi, Krążki Pamięci,
+  kierunek artystyczny techniki/nauki/magii; samouczek z królem Gostomirem i zawałem; 5 aktów; 9 towarzyszy;
+  14 dokumentów zadań (zwroty z konkretnymi dowodami, 2–3 wykluczające się zakończenia z ceną, echa);
+  projekt poziomów (kaskada z Gardzielą, linie prowadzące, tabela ryzyka i nagrody, gęstości zasobów, bramy).

@@ -1,0 +1,288 @@
+/**
+ * Illustrated ("ink") rendering helpers for the 2.5D cross-section
+ * (tournament #3, docs/variants/03-illustrated-style.md).
+ *
+ *  - GLSL_INK: ink lines with a constant on-screen width, soft light bands,
+ *    hatching and halftone with zoom LOD (octave cross-fade keeps the mark
+ *    density constant in pixels), brush strokes and paper grain in world space,
+ *    exact distance to the rock/void boundary from the mesher's aEdge attribute.
+ *  - inkHullMaterial(): back-face hull outline with a constant pixel width
+ *    (props, characters).
+ *  - DepthInkPass: post-process outline from the depth buffer (Laplacian +
+ *    max-jump, wobbled sample positions).
+ *
+ * Every function is branch-light and allocation-free; all widths are given in
+ * pixels and converted with worldPerPixel(), so lines stay crisp at any zoom.
+ */
+import * as THREE from 'three';
+import { FullScreenQuad, Pass } from 'three/addons/postprocessing/Pass.js';
+import { GLSL_NOISE } from './shaderlib';
+
+/** Requires GLSL_NOISE. Declares uPxScale (world units per pixel at unit view depth). */
+export const GLSL_INK = /* glsl */ `
+uniform float uPxScale;
+
+// World units covered by one screen pixel at p (the camera looks along -z).
+float worldPerPixel(vec3 p, vec3 cam) { return max(cam.z - p.z, 0.5) * uPxScale; }
+
+// Coverage of a line of half-width w around d = 0 (d, w, aa in the same units).
+float inkLine(float d, float w, float aa) { return 1.0 - smoothstep(w - aa, w + aa, d); }
+
+// Light quantised to n bands (n = 0: smooth); s = softness of band edges (0 hard .. 0.5).
+float lightBands(float l, float n, float s) {
+  if (n < 0.5) return l;
+  float x = l * n;
+  float i = floor(x);
+  return (i + smoothstep(0.5 - s, 0.5 + s, x - i)) / n;
+}
+
+// Parallel hatch lines along dir; spacing ~spacingPx and width widthPx on screen at any zoom.
+// Octaves are powers of two and the coarser one is a subset of the finer, so the cross-fade never pops.
+float hatchLines(vec2 p, vec2 dir, float wpp, float spacingPx, float widthPx, float wob) {
+  float lv = log2(spacingPx * wpp);
+  float l0 = floor(lv);
+  float f = lv - l0;
+  float s0 = exp2(l0);
+  float t = dot(p, dir) + wob * s0 * 0.18;
+  float d0 = (0.5 - abs(fract(t / s0) - 0.5)) * s0;
+  float d1 = (0.5 - abs(fract(t / (2.0 * s0)) - 0.5)) * 2.0 * s0;
+  float w = widthPx * wpp * 0.5;
+  float aa = wpp * 0.6;
+  return mix(inkLine(d0, w, aa), inkLine(d1, w, aa), f);
+}
+
+// Halftone dots on a 45 degree grid; amount 0..1 sets the dot area.
+float halftoneDots(vec2 p, float wpp, float spacingPx, float amount) {
+  float lv = log2(spacingPx * wpp);
+  float l0 = floor(lv);
+  float f = lv - l0;
+  vec2 q = vec2(p.x + p.y, p.y - p.x) * 0.70711;
+  float s0 = exp2(l0);
+  float s1 = s0 * 2.0;
+  vec2 c0 = (q / s0 - floor(q / s0 + 0.5)) * s0;
+  vec2 c1 = (q / s1 - floor(q / s1 + 0.5)) * s1;
+  float r = sqrt(clamp(amount, 0.0, 1.0)) * 0.62;
+  float aa = wpp * 0.7;
+  float d0 = 1.0 - smoothstep(r * s0 - aa, r * s0 + aa, length(c0));
+  float d1 = 1.0 - smoothstep(r * s1 - aa, r * s1 + aa, length(c1));
+  return mix(d0, d1, f);
+}
+
+// Brush texture in world space: long smudges along the stroke angle, bristle streaks (faded by lod) and
+// dry-brush gaps. Returns roughly -1..1.
+float brushStrokes(vec2 p, float angle, float scale, float lod) {
+  float c = cos(angle);
+  float s = sin(angle);
+  vec2 q = vec2(c * p.x + s * p.y, -s * p.x + c * p.y) * scale;
+  float stroke = vnoise(vec2(q.x * 0.45, q.y * 2.4));
+  float streak = vnoise(vec2(q.x * 1.3, q.y * 13.0)) - 0.5;
+  float dry = smoothstep(0.6, 0.82, vnoise(vec2(q.x * 0.7, q.y * 4.5) + 7.0));
+  return (stroke - 0.5) * 1.5 + streak * 0.7 * lod - dry * 0.45;
+}
+
+// Paper / canvas grain in world space (fine tooth faded out when it would alias).
+float paperGrain(vec2 p, float wpp) {
+  float fine = (vnoise(p * 31.0) - 0.5) * (1.0 - smoothstep(0.012, 0.035, wpp));
+  float fiber = vnoise(vec2(p.x * 7.0, p.y * 2.2) + 11.0) - 0.5;
+  float blot = vnoise(p * 0.9 + 3.0) - 0.5;
+  return fine * 0.7 + fiber * 0.35 + blot * 0.35;
+}
+
+// Distance (tiles) from a point of a cap quad to the rock/void boundary of its tile.
+// e = tile-local (u, v) in 0..1 (v grows downwards), mask = neighbours that differ in solidity
+// (L 1, R 2, T 4, B 8, TL 16, TR 32, BL 64, BR 128); convex corners are rounded with radius r.
+float edgeDistance(vec2 e, int mask, float r) {
+  float dx = 1e3;
+  float dy = 1e3;
+  if ((mask & 1) != 0) dx = e.x;
+  if ((mask & 2) != 0) dx = min(dx, 1.0 - e.x);
+  if ((mask & 4) != 0) dy = e.y;
+  if ((mask & 8) != 0) dy = min(dy, 1.0 - e.y);
+  float d = (dx < r && dy < r) ? r - length(vec2(r - dx, r - dy)) : min(dx, dy);
+  if ((mask & 16) != 0) d = min(d, length(e));
+  if ((mask & 32) != 0) d = min(d, length(vec2(1.0 - e.x, e.y)));
+  if ((mask & 64) != 0) d = min(d, length(vec2(e.x, 1.0 - e.y)));
+  if ((mask & 128) != 0) d = min(d, length(1.0 - e));
+  return d;
+}
+`;
+
+/** Pixel-scale uniform for GLSL_INK: world units per pixel at unit view depth. */
+export function pxScale(camera: THREE.PerspectiveCamera, heightPx: number): number {
+  return (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2)) / Math.max(1, heightPx);
+}
+
+/** Smooth-normal copy of a (non-indexed, flat-shaded) geometry for hull outlines. */
+export function hullGeometry(src: THREE.BufferGeometry): THREE.BufferGeometry {
+  const g = new THREE.BufferGeometry();
+  const p = src.attributes.position!;
+  // weld by quantised position so the hull is watertight across flat-shaded faces
+  const key = new Map<string, number>();
+  const pos: number[] = [];
+  const idx: number[] = [];
+  for (let i = 0; i < p.count; i++) {
+    const k = `${p.getX(i).toFixed(4)}|${p.getY(i).toFixed(4)}|${p.getZ(i).toFixed(4)}`;
+    let j = key.get(k);
+    if (j === undefined) {
+      j = pos.length / 3;
+      key.set(k, j);
+      pos.push(p.getX(i), p.getY(i), p.getZ(i));
+    }
+    idx.push(j);
+  }
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setIndex(idx);
+  g.computeVertexNormals();
+  g.computeBoundingSphere();
+  return g;
+}
+
+/**
+ * Ink hull: back faces pushed out along the smoothed normal by a constant number
+ * of pixels (clip-space offset), so outlines keep their width at every zoom.
+ * Hidden where the world is unexplored (fog texture) so it never leaks shapes.
+ */
+export function inkHullMaterial(u: Record<string, THREE.IUniform>, px: number, color: THREE.Color): THREE.ShaderMaterial {
+  return new THREE.ShaderMaterial({
+    uniforms: { uFogTex: u.uFogTex!, uWorldSize: u.uWorldSize!, uHullPx: { value: px }, uRes: u.uRes!, uInkCol: { value: color } },
+    vertexShader: /* glsl */ `
+      uniform float uHullPx;
+      uniform vec2 uRes;
+      varying vec2 vWp;
+      void main() {
+        mat4 m = modelMatrix;
+        #ifdef USE_INSTANCING
+          m = modelMatrix * instanceMatrix;
+        #endif
+        vec4 wp = m * vec4(position, 1.0);
+        vWp = wp.xy;
+        vec4 clip = projectionMatrix * viewMatrix * wp;
+        vec3 vn = mat3(viewMatrix) * normalize(mat3(m) * normal);
+        vec2 dir = (projectionMatrix * vec4(vn, 0.0)).xy;
+        float len = length(dir);
+        dir = len > 1e-5 ? dir / len : vec2(0.0);
+        clip.xy += dir * uHullPx * 2.0 / uRes * clip.w;
+        gl_Position = clip;
+      }`,
+    fragmentShader: /* glsl */ `
+      uniform sampler2D uFogTex;
+      uniform vec2 uWorldSize;
+      uniform vec3 uInkCol;
+      varying vec2 vWp;
+      void main() {
+        if (texture(uFogTex, vec2(vWp.x / uWorldSize.x, -vWp.y / uWorldSize.y)).r < 0.5) discard;
+        gl_FragColor = vec4(uInkCol, 1.0);
+      }`,
+    side: THREE.BackSide,
+  });
+}
+
+/** Screen-space outline from depth: wobbled 8-tap Laplacian + max jump, faded with distance. */
+const DepthInkShader = {
+  uniforms: {
+    tDiffuse: { value: null as THREE.Texture | null },
+    tDepth: { value: null as THREE.Texture | null },
+    uRes: { value: new THREE.Vector2(1, 1) },
+    uNear: { value: 0.5 },
+    uFar: { value: 1200 },
+    uWidth: { value: 1.2 },
+    uStrength: { value: 0.9 },
+    uThreshold: { value: 0.006 },
+    uInk: { value: new THREE.Color(0.012, 0.009, 0.008) },
+    uTime: { value: 0 },
+    uBoil: { value: 0 },
+    uWobblePx: { value: 1.2 },
+    uFadeFar: { value: new THREE.Vector2(70, 260) },
+  },
+  vertexShader: /* glsl */ `varying vec2 vUv; void main() { vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }`,
+  fragmentShader: /* glsl */ `
+    uniform sampler2D tDiffuse;
+    uniform sampler2D tDepth;
+    uniform vec2 uRes;
+    uniform float uNear;
+    uniform float uFar;
+    uniform float uWidth;
+    uniform float uStrength;
+    uniform float uThreshold;
+    uniform vec3 uInk;
+    uniform float uTime;
+    uniform float uBoil;
+    uniform float uWobblePx;
+    uniform vec2 uFadeFar;
+    varying vec2 vUv;
+    ${GLSL_NOISE}
+    float linDepth(vec2 uv) {
+      float z = texture2D(tDepth, uv).x * 2.0 - 1.0;
+      return 2.0 * uNear * uFar / (uFar + uNear - z * (uFar - uNear));
+    }
+    void main() {
+      vec2 px = 1.0 / uRes;
+      float bt = uBoil > 0.0 ? floor(uTime * uBoil) : 0.0;
+      vec2 fc = gl_FragCoord.xy * 0.035;
+      vec2 wob = vec2(vnoise(fc + bt * 13.1), vnoise(fc + 7.7 + bt * 5.3)) - 0.5;
+      vec2 uv = vUv + wob * uWobblePx * px;
+      float d = linDepth(uv);
+      float s = 0.0;
+      float mx = 0.0;
+      for (int i = 0; i < 8; i++) {
+        float a = float(i) * 0.785398;
+        float dn = linDepth(uv + vec2(cos(a), sin(a)) * uWidth * px);
+        s += dn;
+        mx = max(mx, d - dn); // only the far side of a jump draws, so lines sit on the near object
+      }
+      float lap = abs(s * 0.125 - d) / d;
+      float e = smoothstep(uThreshold, uThreshold * 2.5, max(lap * 3.0, mx / d));
+      e *= 1.0 - smoothstep(uFadeFar.x, uFadeFar.y, d);
+      vec3 c = texture2D(tDiffuse, vUv).rgb;
+      gl_FragColor = vec4(mix(c, uInk, e * uStrength), 1.0);
+    }`,
+};
+
+export interface DepthInkOptions {
+  width?: number;
+  strength?: number;
+  threshold?: number;
+  boil?: number;
+  wobblePx?: number;
+}
+
+/** Composer pass: reads colour + depth of the previous pass (both composer targets carry a DepthTexture). */
+export class DepthInkPass extends Pass {
+  readonly material: THREE.ShaderMaterial;
+  private quad: FullScreenQuad;
+
+  constructor(camera: THREE.PerspectiveCamera, opt: DepthInkOptions = {}) {
+    super();
+    this.material = new THREE.ShaderMaterial({
+      ...DepthInkShader,
+      uniforms: THREE.UniformsUtils.clone(DepthInkShader.uniforms),
+      depthTest: false,
+      depthWrite: false,
+    });
+    const u = this.material.uniforms;
+    u.uNear!.value = camera.near;
+    u.uFar!.value = camera.far;
+    if (opt.width !== undefined) u.uWidth!.value = opt.width;
+    if (opt.strength !== undefined) u.uStrength!.value = opt.strength;
+    if (opt.threshold !== undefined) u.uThreshold!.value = opt.threshold;
+    if (opt.boil !== undefined) u.uBoil!.value = opt.boil;
+    if (opt.wobblePx !== undefined) u.uWobblePx!.value = opt.wobblePx;
+    this.quad = new FullScreenQuad(this.material);
+  }
+
+  override setSize(w: number, h: number): void {
+    (this.material.uniforms.uRes!.value as THREE.Vector2).set(w, h);
+  }
+
+  override render(renderer: THREE.WebGLRenderer, writeBuffer: THREE.WebGLRenderTarget, readBuffer: THREE.WebGLRenderTarget): void {
+    this.material.uniforms.tDiffuse!.value = readBuffer.texture;
+    this.material.uniforms.tDepth!.value = readBuffer.depthTexture;
+    renderer.setRenderTarget(this.renderToScreen ? null : writeBuffer);
+    this.quad.render(renderer);
+  }
+
+  override dispose(): void {
+    this.material.dispose();
+    this.quad.dispose();
+  }
+}

@@ -131,12 +131,20 @@ export function buildHeightfield(world: World, x0: number, y0: number, x1: numbe
   const mf: number[] = [];
   const ao: number[] = [];
   const idx: number[] = [];
+  // aEdge (illustrated styles): caps -> (u, v, boundary mask, 1) with u, v the tile-local
+  // coordinates (0..1, v grows downwards) and the mask of the 8 neighbours that differ in
+  // solidity (L 1, R 2, T 4, B 8, TL 16, TR 32, BL 64, BR 128); walls -> (t, span, lip, 0)
+  // with t = 0 at the back and 1 at the front edge, span = depth extent (world units),
+  // lip = 1 when the front edge lies in the cut plane.
+  const edg: number[] = [];
+  const E = [0, 0, 0, 0];
   let nv = 0;
   const vert = (nx: number, ny: number, nz: number, m: number, a: number) => {
     pos.push(J[0]!, J[1]!, J[2]!);
     nrm.push(nx, ny, nz);
     mf.push(m);
     ao.push(a);
+    edg.push(E[0]!, E[1]!, E[2]!, E[3]!);
     return nv++;
   };
   const quad = (a: number, b: number, c: number, d: number) => idx.push(a, b, c, a, c, d);
@@ -154,8 +162,17 @@ export function buildHeightfield(world: World, x0: number, y0: number, x1: numbe
         if (ft & 4) ff |= FACE.GRASSY;
         const m = mA[r]! + ff * 256;
         const cavity = kind === KIND_CAVITY;
+        const solidHere = kind === KIND_SOLID;
+        const differs = (rr: number) => ((kA[rr] === KIND_SOLID) !== solidHere ? 1 : 0);
+        const bmask =
+          differs(r - 1) | (differs(r + 1) << 1) | (differs(r - RW) << 2) | (differs(r + RW) << 3) |
+          (differs(r - RW - 1) << 4) | (differs(r - RW + 1) << 5) | (differs(r + RW - 1) << 6) | (differs(r + RW + 1) << 7);
         const corner = (X: number, Y: number) => {
           jitter(X, Y, cavity ? capZ(X, Y) : 0);
+          E[0] = X - x;
+          E[1] = Y - y;
+          E[2] = bmask;
+          E[3] = 1;
           return vert(0, 0, 1, m, cavity ? capAO(X, Y) : 1);
         };
         quad(corner(x, y + 1), corner(x + 1, y + 1), corner(x + 1, y), corner(x, y));
@@ -189,12 +206,17 @@ export function buildHeightfield(world: World, x0: number, y0: number, x1: numbe
         const segs = outdoor ? segsG : 1;
         let pa = -1;
         let pb = -1;
+        E[2] = kn === KIND_SOLID ? 1 : 0;
+        E[3] = 0;
         for (let sI = 0; sI <= segs; sI++) {
           const t = sI / segs;
           let a = outdoor ? 1 : 0.55 + 0.45 * t;
           if (!outdoor && dy !== 0) a *= 0.92;
+          E[0] = t;
+          E[1] = Math.abs(fAz - dA);
           jitter(ax, ay, dA + (fAz - dA) * t);
           const va = vert(-dx, dy, 0, m, a);
+          E[1] = Math.abs(fBz - dB);
           jitter(bx, by, dB + (fBz - dB) * t);
           const vb = vert(-dx, dy, 0, m, a);
           if (sI > 0) quad(pa, pb, vb, va);
@@ -208,6 +230,7 @@ export function buildHeightfield(world: World, x0: number, y0: number, x1: numbe
   geo.setAttribute('normal', new THREE.Float32BufferAttribute(nrm, 3));
   geo.setAttribute('aMatFlags', new THREE.Float32BufferAttribute(mf, 1));
   geo.setAttribute('aAo', new THREE.Float32BufferAttribute(ao, 1));
+  geo.setAttribute('aEdge', new THREE.Float32BufferAttribute(edg, 4));
   geo.setIndex(idx);
   geo.computeBoundingSphere();
   return geo;

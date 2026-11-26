@@ -2,7 +2,6 @@
 
 > concept-artist · v1 · 2026-11-26 · zgodna z `docs/art/ART-BIBLE.md` v1.1 i `docs/team/vision/VISION.md` §3.
 > Odbiorcy: animator-ta (model i ruch, F3-1), artist-2d (ikony), ui-ux (znaki nad postaciami). Akceptuje: game-director.
-> Sylwetki i studium wartości: `docs/art/concepts/dwarf-lineup.svg` (generator: `gen_concepts.py`).
 
 ## 1. Kierunek wizualny, funkcja i nastrój
 - **Idea**: „kowadło z brodą” — krępy, nisko osadzony pracownik, którego ciężar i pewność ruchu mówią „to jest jego

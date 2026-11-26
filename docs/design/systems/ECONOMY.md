@@ -195,13 +195,13 @@ tej zmianie przeliczyć w modelu.
 | **Dropy z obiektów** (drewno, żywica, włókno, jagody, jęczmień, pióro, mech, guano, grzyby, drewno grzybowe, zarodniki, wodorost, ryba, perła, skrytki: relikwia, pył run, tryb) | obiekty odrastające (z wyczerpaniem: −25% plonu przy zbiorze przed odrostem, powrót w 3 doby); skrytki jednorazowe | żywność, budulec, smoła i paliwo światła, księgi, nawozy | odnawialne, ale ograniczone przepustowością, nie zapasem |
 | **Dropy ze stworzeń** (mięso, skóra, kość, kieł, błona, chityna, kwas, futro, jedwab, gruczoł jadowy, śluz, skóra węgorza, odłamek golema, kryształowe serce, skóra i tłuszcz trolla, pył ćmy, łuska, gruczoł ognisty, rdzeń magmowy, ektoplazma) | polowanie, obrona, gniazda z limitem populacji | rzemiosło, sprzęt środowiskowy, uszczelki i smar, mikstury, księgi; nowe: naprawy | dropy mają mniej sr/kh niż rudy (perła 2 222 wobec złota 8 828 w T4), więc nie stają się farmą pieniędzy |
 | **Trofea** (9) | jeden boss to jedna sztuka; Odźwierny przekonany pieśnią przekazuje pieczęć przez zadanie | jeden węzeł-klucz na warstwę; nowy koszt zastępczy, gdy trofeum zużyto lub pominięto | bramka postępu, nie towar handlowy |
-| **Materiały** (T0 deska, cegła; T2 stal, rura, zębatka; T4 stal niklowa, uszczelka, tłok; T5 stal kobaltowa, soczewka, rdzeń mrozu; T6 brąz żarowy, wymiennik; T7 adamant, lśnitstal, tablica run) | receptury | budowle, infrastruktura (skalowalna), ekwipunek, utrzymanie, raty, Wielkie Dzieła | wartość przetworzenia ≥ +10% (§2.2); każdy tier ma odpływ powtarzalny |
-| **Żywność i piwo** | pole, jagody, łowy, grzybnie (T3), ryby i wodorosty (T4), ogród świetlny (T5), import zboża | 1 posiłek i 1 kufel na mieszkańca na dobę; psucie (4–10%); uczty i Sala Tysiąca Kufli | podatek od ludności; jakość jedzenia przekłada się na nastrój, a nastrój na tempo |
-| **Drewno** | sosny i brzozy (odrastają), drewno grzybowe (T3), import od Korzennych | deski, belki, węgiel drzewny, pochodnie, stemple, drabiny | limit wyrębu Korzennych: ponad przyrost lasu −1 relacji za 10 drzew; w głębi drewno zastępuje grzyb |
-| **Energia** | koło 6, para 16, turbina 45 kW | maszyny 7–57 kW; paliwo (para); P (turbina) | moc się nie magazynuje, więc zawsze trzeba wybrać dostawcę i jego koszt |
-| **Księgi badań** (8) | Sala Wiedzy z próbek najnowszego biomu | węzły drzewka; Archiwum Wieków; nowe: Mistrzostwa | ciągną gród w głąb, a po drzewku trafiają do odpływu powtarzalnego |
-| **Srebrne** (saldo) | dostawy, nagrody, wpłaty sztab | raty, import, najemnicy, cło, kary, okupy, prolongaty | jedna miara dla Weksla i frakcji; bez odsetek, więc nie ma powodu trzymać salda |
-| **Weksel** (ok. 12 000 sr) | dług startowy | 5 rat towarami bieżącej głębi | zegar Aktów I–IV i odpływ kruszców, którym w danych nic innego nie zużywa |
+| **Materiały** (T0 deska, cegła; T2 stal, rura, zębatka; T4 stal niklowa, uszczelka, tłok; T5 stal kobaltowa, soczewka, rdzeń mrozu; T6 brąz żarowy, wymiennik; T7 adamant, lśnitstal, tablica run) | receptury | budowle, infrastruktura, ekwipunek, utrzymanie, raty, Wielkie Dzieła | przetworzenie ≥ +10% wartości (§2.2) |
+| **Żywność i piwo** | pole, łowy, grzybnie (T3), ryby (T4), ogród świetlny (T5), import zboża | 1 posiłek i 1 kufel na mieszkańca na dobę; psucie 4–10%; uczty | podatek od ludności; jakość jedzenia to nastrój, a nastrój to tempo |
+| **Drewno** | sosny i brzozy (odrastają), drewno grzybowe (T3), import | deski, belki, węgiel drzewny, pochodnie, stemple | wyręb ponad przyrost lasu: Korzenni −1 za 10 drzew; w głębi zastępuje je grzyb |
+| **Energia** | koło 6, para 16, turbina 45 kW | maszyny 7–57 kW; paliwo albo P | moc się nie magazynuje, więc dostawca to zawsze wybór kosztu |
+| **Księgi badań** (8) | Sala Wiedzy z próbek najnowszego biomu | węzły drzewka, Archiwum Wieków, Mistrzostwa | ciągną gród w głąb |
+| **Srebrne** (saldo) | dostawy, nagrody, wpłaty sztab | raty, import, najemnicy, cło, kary, okupy | bez odsetek, więc nie ma powodu trzymać salda |
+| **Weksel** (ok. 12 000 sr) | dług startowy | 5 rat towarami bieżącej głębi | zegar Aktów I–IV i jedyny zużywalny odpływ kruszców |
 | **Ludność** | Palenisko, osadnicy, zadania | śmierć, ucieczki, porwania, zastawni dla Wagi | pracownik i odbiorca naraz |
 | **Nastrój** | jedzenie, piwo, Palenisko, karczma, piękno | mrok, głód, groza, śmierć, tłok | przekłada się na tempo pracy (±15–25%) |
 | **Autorytet** | dotrzymane terminy, obrona, wyroki | dekrety, zwłoka, zaniedbania | kapitał polityczny, wydawany na dekrety i progi QDD |
@@ -236,18 +236,12 @@ Klasy odpływu z `economy-audit.mjs sinks`: **R** zużywalny, **S** skalowalny, 
 | Pieczęć Strażnika | **popyt 2, podaż 1** (Klucz i Latarnia, etap 3) | §5.3, poz. 5 |
 
 ### 4.3 Jak system unika „tysiąca sztuk” i ślepego zaułka
-- **Przeciw nadmiarowi:**
-  - Każdy tier ma odpływ powtarzalny: paliwo, smar, wymurówka, naprawy, księgi albo raty.
-  - Nasycenie rynku i brak skupu budulca.
-  - Pojemność magazynu ogranicza zapas.
-  - Bogactwo wabi najazdy, a skarb podnosi Chciwość.
-  - Zbędny ekwipunek idzie do przetopu.
-- **Przeciw zaułkowi:**
-  - Surowce T0–T1 są odnawialne albo leżą w złożach w kilku biomach.
-  - Import zboża i desek ratuje głodującą kolonię.
-  - Koszt zastępczy trofeum pozwala obejść pominiętego bossa (3× księgi i rzadkie dropy biomu).
-  - Prolongata zamiast spirali długu.
-  - Sankcje Wagi zawsze można odwrócić.
+- **Przeciw nadmiarowi:** każdy tier ma odpływ powtarzalny (paliwo, smar, wymurówka, naprawy, księgi, raty);
+  rynek się nasyca, a budulca Waga nie skupuje; magazyn ogranicza zapas; bogactwo wabi najazdy, a skarb podnosi
+  Chciwość; zbędny ekwipunek idzie do przetopu.
+- **Przeciw zaułkowi:** surowce T0–T1 są odnawialne albo leżą w kilku biomach; import zboża i desek ratuje
+  głodującą kolonię; koszt zastępczy trofeum (3× księgi i rzadkie dropy biomu) obchodzi pominiętego bossa;
+  prolongata zastępuje spiralę długu, a każdą sankcję Wagi da się odwrócić.
 
 ## 5. Balans, Wrażliwe Punkty i Potencjalne Nadużycia
 

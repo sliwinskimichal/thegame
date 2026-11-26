@@ -30,6 +30,7 @@ TypeScript 7, Vite 8, Vitest). Pełna gra: ukończenie ok. 40 h, wymaksowanie ok
 | Wyniki turniejów wariantów | `docs/variants/` |
 | Decyzje (rejestr) | `docs/team/DECISIONS.md` |
 | Tablica zadań | `docs/team/BOARD.md` |
+| **Wizja gry (dusza, słownik znaczeń, decyzje kierunkowe, checklista „czy pasuje?”)** | `docs/team/vision/VISION.md` |
 
 ## 4. Kierunek artystyczny (decyzja właściciela z 2026-11-26)
 **Ilustrowany przekrój kolonii w 2.5D, trochę ciemniejszy niż referencja.** Referencja właściciela to rodzina
@@ -52,6 +53,18 @@ gęsto zastawione maszynami, rurami i drabinami, ciepłe żarówki dające plamy
   | średnie nasycenie (chroma) | 14,6 | 21–25 | **13–18** |
   | piksele krawędzi (gradient L* > 18) | 29% | 0,4–3% | **≥ 15%** |
   | kreska (ciemne piksele na krawędzi) | 5,3% | 0,01–0,3% | **≥ 3%** |
+- **Cele per kontekst** (wizja v1): gród oświetlony — cele z tabeli; odkryta dzika głębia — L* ≥ 26, czerń ≤ 30%,
+  kreska ≥ 3%; Raróg i jego strefa — świadomy wyjątek (zabiera światło, kolor i kreskę). Nasycenie = informacja:
+  w kadrze grodu ≤ 8% pikseli o chroma > 30.
+- **Słownik znaczeń** (jeden dla obrazu, dźwięku i UI): mrok zabiera kolor, nie kształt; drżenie kreski = groza;
+  kreskowanie = nieznane; nasycony kolor = informacja (rudy, magia, zagrożenie); Raróg jako jedyny nie ma kreski.
+- **Z R2B przechodzą**: pole światła, ciepłe źródła na chłodnym tle, nastrój nocy. **Nie przechodzą**: poświata
+  jako krawędź, zgnieciona czerń, barwienie całego kadru barwą lampy, mgła bloomu. Wariant R2A i filtr Kuwahary
+  wycofane (dostępność: suwak jasności i tryb mocnej kreski).
+- **Każdy turniej wizualny** ocenia warianty w **trzech scenach tonu**: *izba wieczorem* (przytulność),
+  *przodek w mroku* (groza pracy), *zawał* (katastrofa) — wariant wygrywa tylko, gdy niesie wszystkie trzy.
+  W finale **ślepy test oryginalności**: kadry wymieszane z wycinkami referencji; jeśli oceniający się pomyli,
+  wariant odpada (kopiujemy rodzinę stylu, nie grę).
 - Wszystko generowane kodem (shadery, geometria proceduralna, SVG, Web Audio). Brak zewnętrznych tekstur
   i nagrań. Darmowe biblioteki (MIT/BSD/Apache/CC0) tylko po wygranym turnieju.
 

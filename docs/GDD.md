@@ -54,14 +54,14 @@ Synergie międzywarstwowe (przykłady): futro kretów z granitu ociepla w kryszt
 z kryształów chłodzą w magmie; rdzenie magmy wytapiają adamant w prastarych głębinach.
 
 ## 5. Badania
-- 127 węzłów w 8 poziomach. Koszt: **księgi badań** pisane w Sali Wiedzy z **próbek najnowszego biomu**
+- 134 węzły w 8 poziomach. Koszt: **księgi badań** pisane w Sali Wiedzy z **próbek najnowszego biomu**
   (np. Mapy mierniczego = pergamin + atrament + węgiel + wapień) — badania ciągną gród w głąb.
 - Węzeł ukryty do odkrycia surowca z listy „ujawnia”. Interfejs pokazuje liczbę ukrytych węzłów per poziom.
 - Jeden węzeł-klucz na poziom wymaga trofeum bossa poprzedniej warstwy.
 
 ## 6. Ekonomia i logistyka
 - 26 złóż, 27 surowców kopalnych, 47 surowców z obiektów i stworzeń, 81 materiałów, 91 przedmiotów,
-  24 budowle × 3 poziomy, 28 elementów infrastruktury, 184 receptury.
+  24 budowle × 3 poziomy, 36 elementów infrastruktury, 187 receptur.
 - Logistyka rośnie z głębią: noszenie → zsypy i kołowrót → tory i wagoniki → winda zębata → para
   (winda, kolejka, przenośniki) → wiertła automatyczne na złożach.
 - Energia: koło wodne (wymaga strumienia) → maszyna parowa (węgiel + woda) → turbina magmowa (lawa).
@@ -91,7 +91,10 @@ w **zlecenia** (tablica opcjonalnych zadań) — bez twardego przejścia ekranem
 plamy barwne z fakturą pędzla, przygaszona paleta, czytelne piętra pełne maszyn, rur i drabin, ciepłe plamy
 światła — trochę ciemniej niż w referencji właściciela, z głębią 2.5D (wnęki, tylne ściany, światło).
 Własne projekty postaci, maszyn i teł (język form: `narrative/01-world.md` §10). Cele mierzalne:
-`team/CHARTER.md` §4. Rozstrzygane turniejami wariantów (min. 10 na element, `docs/variants/`).
+`team/CHARTER.md` §4. Dusza gry (wizja v1, `team/vision/VISION.md`): *niesiesz ciepło paleniska w głąb góry,
+której ciemność jest głodna światła*; obraz to „żywa mapa mierniczego”; słownik znaczeń wspólny dla obrazu,
+dźwięku i UI (mrok zabiera kolor, nie kształt; drżenie kreski = groza; kreskowanie = nieznane; nasycenie =
+informacja; Raróg nie ma kreski). Rozstrzygane turniejami wariantów (min. 10 na element, `docs/variants/`).
 Ograniczenie: wszystko generowane kodem (brak zewnętrznych tekstur i nagrań); darmowe biblioteki tylko po
 wygranym turnieju. Dźwięk: syntezowany w Web Audio; muzyka generatywna zależna od głębokości.
 

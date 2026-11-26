@@ -110,8 +110,9 @@ z referencji właściciela (ręczny kontur, płaskie plamy z fakturą, przygaszo
 pomieszczenia, ciepłe plamy światła), **trochę ciemniejszy** niż referencja; własne projekty, zero cudzych
 assetów. Cele mierzalne w `docs/team/CHARTER.md` §4, pomiar `python3 scripts/refstats.py <zrzut>`; referencja
 leży lokalnie w `.reference/owner-style.jpg` (git-ignored — to zrzut innej gry, nigdy nie commitować).
-Rozstrzyga turniej nr 3 (styl ilustrowany). Poprzedni zwycięzca R2B „Sylwetki czytelne”
-(`src/lab/styles/round2.ts`) zostaje bazą oświetlenia i nastroju.
+Rozstrzyga turniej nr 3 (styl ilustrowany). Wizja gry i słownik znaczeń: `docs/team/vision/VISION.md`.
+Z R2B (`src/lab/styles/round2.ts`) przechodzą tylko pole światła, ciepłe źródła na chłodnym tle i nastrój nocy;
+poświata zamiast kreski, zgnieciona czerń, barwienie kadru i mgła bloomu — nie (R2A i Kuwahara wycofane).
 Model renderingu: płyta skalna oglądana z przodu. Lita skała = płaszczyzna cięcia z=0, wnętrza
 jaskiń/tuneli = wgłębienia (gładka tylna ściana z uśrednionych głębokości narożników), na
 powierzchni pas gruntu o głębokości `CONFIG.groundDepth` przechodzi w krajobraz w tle.

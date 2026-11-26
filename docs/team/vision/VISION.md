@@ -1,22 +1,19 @@
 # Wizja Underhearth — v1
 
-> Rola: game-director · wersja 1 · 2026-11-26 · status: do akceptacji producenta (spór wizji → właściciel).
-> Podstawy: `CLAUDE.md`, `docs/team/CHARTER.md` §4, `docs/GDD.md`, `docs/narrative/`, `docs/variants/01-render-style.md`,
-> `docs/variants/02-materials.md`. Dokument wyznacza kierunek i granice; parametry ustalają biblia sztuki i turnieje.
+> game-director · v1 · 2026-11-26 · do akceptacji producenta (spór wizji → właściciel). Wizja wyznacza kierunek
+> i granice; parametry ustalają biblia sztuki (`docs/art/`) i turnieje (`docs/variants/`).
 
 ## 1. Rdzeń Wizji, Tożsamość i „Dusza” Gry
 
 **Dusza w jednym zdaniu.** Niesiesz ciepło paleniska coraz głębiej w trzewia góry, której ciemność jest głodna
 światła — i odkrywasz, że twój lud nie przyszedł tu kopać, tylko pilnować.
 
-**Trzy słowa: Palenisko · Przodek · Pamięć.** *Palenisko* to dom, wspólnota i pierwsze światło gracza (budowla,
-limit ludności, miejsce rozmów drużyny). *Przodek* w gwarze to czoło wyrobiska — praca, chciwość i ryzyko — ale też
-ten, po kim dziedziczymy: krasnoludy są potomkami strażników. *Pamięć* to Krążki, wina Gostomira i prawda podawana
-warstwami.
+**Trzy słowa: Palenisko · Przodek · Pamięć.** *Palenisko* to dom, wspólnota i pierwsze światło gracza.
+*Przodek* w gwarze to czoło wyrobiska — praca, chciwość i ryzyko — ale też ten, po kim dziedziczymy: krasnoludy są
+potomkami strażników. *Pamięć* to Krążki, wina Gostomira i prawda podawana warstwami.
 
 **Obietnica dla gracza.**
-1. Zbudujesz gród od ogniska przy wozie po miasto na dziewięć pięter — widoczny w całości i żywy jak makieta,
-   w której każdy pokój ma mieszkańców.
+1. Zbudujesz gród od ogniska przy wozie po miasto na dziewięć pięter — widoczny w całości i żywy jak makieta.
 2. Każde zejście zmieni zasady: nowe zagrożenie, paleta, brzmienie, maszyny i wiedza. Tym, co już masz, dalej nie przejdziesz.
 3. Twoje decyzje będą miały twarze i imiona; finał rozliczy je życiem drużyny i mieszkańców.
 4. Prawda o górze zmieni sens wszystkiego, co zbudowałeś.
@@ -32,12 +29,11 @@ warstwami.
 przy kuflu; głębia milczy i pamięta. Nikt nie jest czarnym charakterem z głupoty.
 
 **Obraz: żywa mapa mierniczego.** Kierunek właściciela czytam jako ręcznie rysowany, podkolorowany przekrój — jak
-dawne mapy kopalń — który ożył jako przytulna makieta. Z rodziny stylu referencji bierzemy kreskę, płaskie plamy
-z fakturą, przygaszoną paletę i gęsto zastawione piętra. Od siebie dokładamy trzy rzeczy: głębię 2.5D (wnęki, tylne
-ściany, światło z głębią), mrok jako treść (trochę ciemniej, bo światło jest tu zasobem i stawką, a przytulność
-rodzi się z kontrastu ciepłej izby i zimnej skały) oraz tożsamość słowiańsko-górniczą. Metafora mapy spina obraz
-z UI i fabułą: „Mapy mierniczego” są w grze księgą badań, nieznane jest niezbadanym skrawkiem mapy, a oddalenie
-pokazuje górę jak plan kopalni.
+dawne mapy kopalń — który ożył jako przytulna makieta. Do rodziny stylu referencji dokładamy trzy rzeczy własne:
+głębię 2.5D (wnęki, tylne ściany, światło z głębią), mrok jako treść (trochę ciemniej, bo światło jest tu zasobem
+i stawką, a przytulność rodzi się z kontrastu ciepłej izby i zimnej skały) oraz tożsamość słowiańsko-górniczą.
+Metafora mapy spina obraz z UI i fabułą: „Mapy mierniczego” są w grze księgą badań, nieznane to niezbadany skrawek
+mapy, a oddalenie pokazuje górę jak plan kopalni.
 
 **Werdykt o kierunku ilustrowanym: przyjmuję.** Wzmacnia rdzeń lepiej niż R2B: tamten dawał nastrój, ale gubił
 materiał, gęstość życia i czytelność (pomiary w §2.3); styl ilustrowany przywraca „dom”, a ciemniejszy wariant
@@ -56,7 +52,7 @@ Każdy środek ma jedno znaczenie w obrazie, dźwięku, systemach i UI. Nie woln
 | ciepła plama światła | życie, praca, bezpieczeństwo | gwar; rytm pracy zgrany z tempem muzyki |
 | utrata koloru, chłód | brak światła — kształt i kreska zostają | muzyka traci górę, rośnie pogłos skały |
 | drżenie kreski | groza narastająca w mroku | niskie dudnienie, rozstrojone interwały |
-| gęste kreskowanie | nieznane, nieodkryte | cisza, szum skały |
+| gęste, ciemne kreskowanie | nieznane, nieodkryte (cień w odkrytym — tylko spadek wartości albo rzadka, jasna faktura) | cisza, szum skały |
 | nasycony akcent, błysk | informacja: złoże, magia, zagrożenie | krótki, strojony sygnał |
 | gęstość rekwizytów | zamieszkanie; pustka = dzikość albo opuszczenie | warstwy gwaru |
 | linia idealnie prosta, bez drżenia | Prakowale: maszyna, obcość | ciągły akord |
@@ -77,9 +73,9 @@ Każdy środek ma jedno znaczenie w obrazie, dźwięku, systemach i UI. Nie woln
 ### 2.3 Zgrzyty widoczne już dziś
 | # | Zgrzyt i dowód | Kierunek rozstrzygnięcia | Kto |
 |---|---|---|---|
-| 1 | **R2B kontra styl ilustrowany.** W R2B krawędź niesie poświata, nie kreska; bloom i „świecące powietrze” rozmywają kontur. Pomiar zrzutów R2B z rundy 2 turnieju nr 1 (`refstats`): kreska 0,01–0,33% (cel ≥ 3%), w tunelu nocą 43% pikseli silnie nasyconych (chroma > 30; referencja 4,8%), w jaskini 77% czerni. | Kreska przejmuje rolę krawędzi. Poświata zostaje tylko jako światło rozlane od źródła, bloom wyłącznie na emiterach. Światło to plama o miękkim brzegu, nie barwienie całego kadru. | engine-graphics (turniej nr 3), concept-artist |
-| 2 | **Dokumenty wciąż wiążą R2B:** `01-world.md` §10 („zgodnie z R2B: ciemna skała”), `05-level-systems.md` §1.4 pkt 7 (pustki kuszą „poświatą krawędzi”), `CLAUDE.md` („Kierunek wizualny: R2B”), opcje R2A „jaśniejszy przekrój” i filtr Kuwahary. | Przepisać na słownik z §2.1. R2A i Kuwaharę wycofać: dostępność zapewni suwak jasności i tryb mocnej kreski w nowym stylu; filtr malarski kłóci się z kreską. | lead-narrative (F2-8), level-systems, producent |
-| 3 | **Materiały skalibrowane pod R2B** (`02-materials.md`): iskry HDR, aura 0,08, poświata `uRimTint`, ΔE mierzone nocą. Cel chroma 13–18 obniży akcenty; zagrożone pary: cyna–wapień (5,3), galena–kwarc przy deuteranopii (3,0), obsydian–bazalt (6,0). | Zostaje reguła „matryca + akcent + forma + połysk”; formy minerałów stają się rysowanymi znakami (zmiana stylu im służy), błysk jest rysowany, pary rozsuwa jasność. Obsydian rozpoznawalny po muszlowym przełamie. Powtórzyć galerię, dostosować `tests/palette.test.ts` do kreski. | engine-graphics, concept-artist |
+| 1 | **R2B kontra styl ilustrowany.** W R2B krawędź niesie poświata, nie kreska; bloom i „świecące powietrze” rozmywają kontur. Pomiar zrzutów R2B z rundy 2 turnieju nr 1 (`refstats`): kreska 0,01–0,33% (cel ≥ 3%), w tunelu nocą 43% pikseli silnie nasyconych (chroma > 30; referencja 4,8%), w jaskini 77% czerni. | Kreska przejmuje rolę krawędzi; bloom tylko na emiterach; światło to plama o miękkim brzegu, nie barwienie kadru. | engine-graphics (turniej nr 3), concept-artist |
+| 2 | **Dokumenty wciąż wiążą R2B:** `CLAUDE.md` („R2B zostaje bazą oświetlenia i nastroju” — bez wskazania, które cechy), `01-world.md` §10 („zgodnie z R2B: ciemna skała”), `05-level-systems.md` §1.4 pkt 7 (pustki kuszą „poświatą krawędzi”), opcje R2A „jaśniejszy przekrój” i filtr Kuwahary. | Z R2B przechodzą: pole światła, ciepłe źródła na chłodnym tle, nastrój nocy. Nie przechodzą: poświata jako krawędź, zgnieciona czerń, barwienie kadru, mgła bloomu. Dokumenty przepisać na słownik z §2.1; R2A i Kuwaharę wycofać (dostępność: suwak jasności i tryb mocnej kreski; filtr malarski kłóci się z kreską). | producent, lead-narrative (F2-8), level-systems |
+| 3 | **Materiały skalibrowane pod R2B** (`02-materials.md`): iskry HDR, aura 0,08, poświata `uRimTint`, ΔE mierzone nocą. Cel chroma 13–18 obniży akcenty; zagrożone pary: cyna–wapień (5,3), galena–kwarc przy deuteranopii (3,0), obsydian–bazalt (6,0). | Zostaje reguła „matryca + akcent + forma + połysk”; formy minerałów stają się rysowanymi znakami, błysk jest rysowany, pary rozsuwa jasność. Obsydian rozpoznawalny po muszlowym przełamie. Powtórzyć galerię, dostosować `tests/palette.test.ts` do kreski. | engine-graphics, concept-artist |
 | 4 | **Ton biblii kontra przytulna kreska:** dług dziedziczny 30% ludności, Ogniści zamurowani z dziećmi, KM4 Z3 (wymordowana młodzież), ofiara głosu, porwania z ciemnych sal. W „uroczej” makiecie zabrzmią jak parodia albo okrucieństwo w lukrze. | Godność postaci (bez chibi), tragedia przez odejmowanie (kolor, kreska, dźwięk) i trwałe ślady w świecie; przemoc poza kadrem. | concept-artist, animator-ta, narrative-writer, vfx |
 | 5 | **Gobliny: lud czy łup?** `01-world.md` §3: „nie atakują z natury”, uciekają przed Rarogiem. `src/content/biomes.ts`: „sprawdzają, czy przybysze są łatwym łupem”, najazdy z bogactwa; `sources.ts`: `goblin_raider` daje kość (→ klej kostny). | Gobliny zostawiają to, co niosą (rudy, drewno), nigdy części ciała. Częstość najazdów z Przebudzenia, cel z bogactwa (głód idzie do ciepła). Ucieczka i oszczędzenie mają echo w finale. | systems-designer, lead-narrative |
 | 6 | **UI kontra makieta:** ponad 10 mierników fabularnych (Przebudzenie, Weksel, Autorytet, 6 frakcji, 9 × Zaufanie, Chciwość, Zdziczenie, Drabina Szychty) plus potrzeby, 11 slotów, 187 receptur, 134 badania. | Nośniki w świecie, liczby w księdze, budżet ekranu (§3, wiersz UI). | ui-ux-designer |
@@ -107,7 +103,7 @@ Każdy środek ma jedno znaczenie w obrazie, dźwięku, systemach i UI. Nie woln
 | **Dźwięk** | Drugi zmysł przekroju: przez skałę słychać sąsiednie sale, materiał po brzmieniu kilofa, zagrożenie zanim je widać (strop „płacze”, woda za ścianą, syk żaru). Interfejs brzmi drewnem, kamieniem i metalem. | czytelność, reguła R4 | cyfrowych „bipów”; muzyki zagłuszającej sygnały; realistycznego gore |
 | **UI** | Stół mierniczego: papier i łupek, ta sama kreska co świat, czytelny krój pisma do liczb. Mierniki najpierw w świecie (puls Gardzieli, dzwon raty, szept korony), liczby na żądanie w księdze. Koszt systemowy (zasoby, Przebudzenie, raty) zapowiedziany przed decyzją; reakcje towarzyszy widoczne dopiero po niej, bez liczb. Na widoku roboczym świat zajmuje ≥ 80% ekranu. | immersja przy dużej skali systemów | HUD-u z MMO; pisma odręcznego w danych; liczb aprobaty w dialogach |
 | **Raróg** — antagonista w obrazie i dźwięku | Jedyny byt bez kreski: odejmuje światło, kolor, kreskę i pogłos. Popiół to płatki kreski unoszące się w górę. Przed finałem obecny tylko przez odejmowanie. | groza bez kopiowania archetypu | skrzydeł, bicza, miecza, ryku; czerwono-pomarańczowego „demona ognia” |
-| **Oryginalność wobec referencji i tożsamość** | Z referencji bierzemy rodzinę (kreska, plamy, gęste piętra, ciepłe światła), zmieniamy wszystko rozpoznawalne: proporcje postaci, materiały (drewno, kamień, sól, miedź), tła (warstwy skały z głębią), źródła światła (kaganki, kosze żarowe, kryształy), paletę, ikony, UI. Źródła własne: gwara, Skarbnik, Barbórka (Święto Lampy), solne kaplice, podhalańska geometria, dawne mapy kopalń; ornament tylko w miejscach znaczenia (Palenisko, Krążnica, grób króla). | prawo, własny charakter | odrysowywania maszyn, postaci, ikon i teł; białych kafli, płaskiej turkusowej tapety, żarówek na kablach; cepeliady; futharku i celtyckich plecionek; obrazu referencji w repozytorium |
+| **Oryginalność wobec referencji i tożsamość** | Z referencji bierzemy rodzinę (kreska, plamy, gęste piętra, ciepłe światła), zmieniamy wszystko rozpoznawalne: proporcje postaci, materiały (drewno, kamień, sól, miedź), tła (warstwy skały z głębią), źródła światła (kaganki, kosze żarowe, kryształy), paletę, ikony, UI. Źródła własne: gwara, Skarbnik, Barbórka (Święto Lampy), solne kaplice, podhalańska geometria, dawne mapy kopalń; ornament tylko w miejscach znaczenia (Palenisko, Krążnica, grób króla). | prawo, własny charakter | odrysowywania maszyn, postaci, ikon i teł; białych kafli, płaskiej turkusowej tapety, żarówek na kablach; cepeliady; futharku i celtyckich plecionek |
 
 ## 4. Łuk Doświadczenia Gracza (Player Journey & Feel)
 

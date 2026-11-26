@@ -58,34 +58,48 @@ Projekt: **Underhearth** — przeglądarkowa gra o krasnoludzkiej kolonii w prze
 
 ## Polecenia
 ```bash
-npm run dev            # serwer deweloperski (http://localhost:5173)
+npm run dev            # serwer deweloperski (gra: http://localhost:5173, src/main.ts — na razie zaślepka)
 npm test               # testy Vitest
 npm run build          # typecheck (tsc 7) + build produkcyjny do dist/
-node scripts/shot.mjs "http://localhost:5173/?x=70&y=-235&d=45&t=0.42&reveal=1" out.png 8000
-WORLDMAP_OUT=map.png npx vitest run tests/worldmap.test.ts --silent=false   # mapa świata 2D + statystyki
+npx vite --port 5174 --strictPort                       # serwer laboratorium (producent trzyma go na 5174)
+node scripts/tournament.mjs http://localhost:5174 <out> <entries.json|style,...> 960 540 2   # turniej
+python3 scripts/contact-sheet.py <out> [names.json]     # plansze porównawcze
+python3 scripts/metrics.py <out>                        # czytelność przekroju (arena)
+python3 scripts/galmetrics.py <out> [--detail]          # rozróżnialność materiałów per biom (galeria)
+python3 scripts/refstats.py <zrzuty...>                 # styl vs referencja właściciela (cele CHARTER §4)
+CONTENT_DOC=1 npx vitest run tests/contentdoc.test.ts   # regeneruje docs/CONTENT.md
+BALANCE_REPORT=1 npx vitest run tests/balance.test.ts --silent=false   # raport balansu
+ARENA_OUT=map.png npx vitest run tests/arena.test.ts    # podgląd mapy areny
 ```
-Parametry URL (debug): `seed`, `x`, `y`, `d` (kamera), `t` (pora dnia 0..1), `reveal=1`.
+Laboratorium: `lab.html?style=<id>&scenario=<id>[&world=gallery][&flood=1][&mat=<wariant>][&hud=0]`
+(automatyzacja przez `window.__lab`: `styles`, `scenarios`, `setScenario`, `probes`, `layout`, `frameMs`).
 
 **Sieć / npm w tym kontenerze:** `registry.npmjs.org` jest w `no_proxy`, ale DNS nie rozwiązuje go
 bezpośrednio — przed `npm install` ustaw:
 `export npm_config_noproxy="localhost,127.0.0.1" NO_PROXY="localhost,127.0.0.1" no_proxy="localhost,127.0.0.1"`.
 Playwright w skryptach `.mjs` ładuj przez `createRequire` (pakiet globalny).
 
-## Architektura
+## Architektura (stan faktyczny)
 ```
-src/config.ts          stałe globalne (rozmiar świata, chunk, slab, tick)
-src/core/              rng (sfc32, hashe), noise (simplex, fbm, ridged), events (EventBus)
-src/world/             world.ts (SoA kafli, flagi, dirty-tracking), materials.ts, layers.ts,
-                       decor.ts, worldgen.ts (generator), lighting.ts (pole światła: sweep max-decay)
-src/sim/               symulacja (items.ts; dalej: nav, jobs, dwarves, buildings) — BEZ importów z render/
-src/render/            gameRenderer (scena, pętla), terrainMesher (Z-heightfield), terrain (shader skał),
-                       worldTextures (tekstury światła/mgły/stanu/materiałów), glsl (szum + model światła),
-                       litMaterial (materiał propów/postaci), sky (niebo, krajobraz), post (bloom, grading)
-src/input/             camera.ts (kamera makiety), dalej: input, narzędzia
-src/ui/, src/audio/, src/i18n/  (do zrobienia)
-tests/                 Vitest; worldmap.test.ts = narzędzie podglądu mapy (WORLDMAP_OUT)
-scripts/               shot.mjs (zrzuty), contact-sheet.py, metrics.py
-docs/                  GDD.md, ROADMAP.md, QUALITY.md, variants/, progress/
+src/config.ts          stałe globalne (rozmiar świata, chunk, głębokość gruntu, tick, doba)
+src/core/              rng.ts (sfc32 + hashe), noise.ts (simplex, fbm, ridged), events.ts (EventBus)
+src/content/           biblia treści jako dane: biomes, resources, sources (złoża, obiekty, stworzenia),
+                       buildings, recipes, tech, greatworks, types; analysis.ts (analiza progresji)
+src/balance/model.ts   model tempa gry + Monte Carlo (cele 40 h / 120 h)
+src/world/             world.ts (SoA kafli, wnęki, płyny, flagi, rekwizyty), materials.ts (44 materiały
+                       powiązane z treścią), lightfield.ts (pole światła: max-decay, niebo, emitery)
+src/render/            shaderlib.ts (szum, model światła, procedury skał i form minerałów), worldTex.ts
+                       (tekstury świata dla shaderów), palette.ts (wygląd materiałów), paletteCheck.ts,
+                       heightfield.ts (geometria przekroju), propsGeo.ts (rekwizyty, manekiny), fluids.ts,
+                       sky.ts, daylight.ts, post.ts (bloom, gradacja)
+src/lab/               laboratorium turniejów: main.ts, arena.ts, gallery.ts (galeria biomów), scenarios.ts,
+                       common.ts (uniformy i pokrętła z URL), materialVariants.ts, styles/ (style renderu)
+src/main.ts            gra (zaślepka — gra powstaje w fazach B–C)
+src/sim/, src/ui/, src/audio/, src/tools/   (do zbudowania przez zespół — własność katalogów: docs/team/CHARTER.md §6)
+tests/                 Vitest: core, arena, content (+contentdoc), balance, palette
+scripts/               tournament.mjs, contact-sheet.py, metrics.py, galmetrics.py, matmetrics.py, refstats.py, shot.mjs
+docs/                  GDD, ROADMAP, QUALITY, BALANCE, CONTENT, narrative/, variants/, team/
+.claude/agents/        definicje 20 agentów-specjalistów
 ```
 **Materiały (turniej nr 2):** 44 materiały (26 złóż z biblii treści + skały 9 biomów) w `src/world/materials.ts`,
 wygląd w `src/render/palette.ts` (paleta per biom + forma minerału + kolor połysku), reguły w
@@ -98,12 +112,9 @@ assetów. Cele mierzalne w `docs/team/CHARTER.md` §4, pomiar `python3 scripts/r
 leży lokalnie w `.reference/owner-style.jpg` (git-ignored — to zrzut innej gry, nigdy nie commitować).
 Rozstrzyga turniej nr 3 (styl ilustrowany). Poprzedni zwycięzca R2B „Sylwetki czytelne”
 (`src/lab/styles/round2.ts`) zostaje bazą oświetlenia i nastroju.
-Laboratorium: `lab.html?style=<id>&scenario=<id>`; turniej: `node scripts/tournament.mjs <url> <out> [style,...]`,
-potem `python3 scripts/contact-sheet.py <out> [names.json]` i `python3 scripts/metrics.py <out>`.
-
 Model renderingu: płyta skalna oglądana z przodu. Lita skała = płaszczyzna cięcia z=0, wnętrza
 jaskiń/tuneli = wgłębienia (gładka tylna ściana z uśrednionych głębokości narożników), na
-powierzchni pas gruntu o głębokości `CONFIG.slabDepth` przechodzi w krajobraz w tle.
+powierzchni pas gruntu o głębokości `CONFIG.groundDepth` przechodzi w krajobraz w tle.
 Światło: tekstura RGBA (rgb = światło bloków, a = niebo), kierunek z gradientu pola.
 
 ## Konwencje

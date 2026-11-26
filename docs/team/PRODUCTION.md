@@ -8,9 +8,12 @@
 samouczek ze starym królem, kopanie, budowa, produkcja do brązu, pierwsza noc, zawał), a potem rozciągnąć go
 na 9 biomów, drużynę i finał — w nowym kierunku artystycznym (ilustrowany przekrój 2.5D).
 
-**Ramy zasobowe**: zespół = sesja główna + agenci-specjaliści uruchamiani falami (równolegle maks. 4–5
-strumieni, bo każdy agent zużywa limit tak jak sesja główna). Sesja wznawiana automatycznie co 5 h.
-Jednostka planowania: **cykl** = jedno okno pracy między wznowieniami (~5 h).
+**Ramy zasobowe**: zespół = sesja główna + agenci-specjaliści uruchamiani falami. **Pomiar z 2026-11-26**:
+7 równoległych agentów wyczerpało 5-godzinne okno limitu w ok. 1 h, 4 agentów — w ok. 1,2 h. Całkowita praca
+na okno jest stała; równoległość zmienia tylko to, kiedy budżet się kończy. Zasada: **3 agentów naraz +
+rezerwa na integrację** (raport bez integracji w tym samym oknie to praca bez efektu), zadania krojone tak,
+by agent kończył je w jednym oknie, a przerwany agent był wznawiany (`SendMessage`), nie startowany od nowa.
+Jednostka planowania: **cykl** = jedno okno limitu (5 h; realnie ~1–1,5 h pracy zespołu).
 
 | KM | Nazwa | Kryterium ukończenia (mierzalne) | Cykle (z buforem) |
 |---|---|---|---|

@@ -17,7 +17,7 @@ Statusy: `kolejka` · `w toku` · `do przeglądu` · `zrobione` · `zablokowane 
 |---|---|---|---|
 | F2-1 | Ekonomia: źródła i odpływy wszystkich zasobów i mierników (Weksel, Przebudzenie, Autorytet) | systems-designer | **zrobione** (ECONOMY.md) |
 | F2-2 | Specyfikacja generatora 2.0 jako dane + metryki | level-systems-designer | kolejka |
-| F2-3 | Kopanie, zawały i podpory, zadania (rdzeń symulacji) | gameplay-programmer | kolejka |
+| F2-3 | Kopanie, zawały i podpory, zadania (rdzeń symulacji) — etap 1: mutacje świata (BUG-003), kopanie, zawały | gameplay-programmer | w toku |
 | F2-4 | Nawigacja z grawitacją — benchmark 3 algorytmów | ai-programmer | w toku (start wcześniej — niezależne od sztuki) |
 | F2-5 | HUD i sterowanie — specyfikacja + makiety do turnieju | ui-ux-designer | kolejka |
 | F2-6 | Zadania jako dane + testy kompletności | quest-designer | kolejka |

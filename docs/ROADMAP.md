@@ -15,8 +15,12 @@ automatycznie co 5 h. Każda sesja zaczyna od pierwszego niezaznaczonego punktu.
 - [x] A5. Laboratorium turniejów wizualnych: arena, 8 scenariuszy, automat zrzutów, plansze, metryki
 - [x] A6. **Turniej nr 1 — styl wizualny**: 12 stylów + 3 finalistów → zwycięzca **R2B „Sylwetki czytelne”**
       (`docs/variants/01-render-style.md`); finaliści pokazani właścicielowi do ewentualnej zmiany
-- [ ] A7. Turnieje: ~~materiałów skał~~ ✅ (`docs/variants/02-materials.md`), światła, nieba, dekoracji, płynów,
-      post-processingu (z darmowymi bibliotekami zewnętrznymi jako zawodnikami), kamery
+- [x] A9. **Zespół 20 agentów-specjalistów** (`.claude/agents/`, `docs/team/`): statut, skład, plan produkcji,
+      tablica zadań, rejestr decyzji; sesja główna jako Executive Producer
+- [ ] A10. **Turniej nr 3 — styl ilustrowany 2.5D** (nowy kierunek właściciela): ≥ 10 wariantów, cele z
+      `docs/team/CHARTER.md` §4, biblia sztuki v1 (`docs/art/`) — kamień milowy M1
+- [ ] A7. Turnieje: ~~materiałów skał~~ ✅ (`docs/variants/02-materials.md`; do adaptacji pod styl ilustrowany),
+      światła, nieba, dekoracji, płynów, post-processingu (z bibliotekami zewnętrznymi jako zawodnikami), kamery
 - [x] A8. **Biblia narracyjna** (`docs/narrative/`): świat, frakcje, bóstwa i magia, 5 aktów, 9 towarzyszy z misjami
       rekrutacyjnymi i lojalnościowymi, 14 dokumentów zadań, makrostruktura świata i ekonomia ryzyka
 
@@ -75,3 +79,8 @@ automatycznie co 5 h. Każda sesja zaczyna od pierwszego niezaznaczonego punktu.
   kierunek artystyczny techniki/nauki/magii; samouczek z królem Gostomirem i zawałem; 5 aktów; 9 towarzyszy;
   14 dokumentów zadań (zwroty z konkretnymi dowodami, 2–3 wykluczające się zakończenia z ceną, echa);
   projekt poziomów (kaskada z Gardzielą, linie prowadzące, tabela ryzyka i nagrody, gęstości zasobów, bramy).
+- **2026-11-26 (dzień 2, przedpołudnie)** — Nowe decyzje właściciela: (1) kierunek artystyczny — ilustrowany
+  przekrój kolonii w 2.5D, trochę ciemniejszy niż referencja (pomiar referencji: L* 43,5, krawędzie 29%, kreska
+  5,3% — nasz R2B ma 10× mniej kreski i detalu, a nocą 3× więcej czerni; cele w CHARTER §4, skrypt
+  `scripts/refstats.py`); (2) zespół 20 agentów-specjalistów zarządzany przez sesję główną jako Executive
+  Producer — statut, skład, plan produkcji M1–M7, tablica zadań i rejestr decyzji w `docs/team/`.

@@ -87,9 +87,13 @@ w **zlecenia** (tablica opcjonalnych zadań) — bez twardego przejścia ekranem
 (scenariusz: [narrative/02-campaign.md](narrative/02-campaign.md)).
 
 ## 10. Kierunek artystyczny i dźwiękowy
-Rozstrzygane turniejami wariantów (min. 10 na element, `docs/variants/`). Ograniczenie: wszystko
-generowane kodem (brak zewnętrznych tekstur i nagrań). Docelowo: makieta 2.5D, dynamiczne światło,
-generatywna muzyka zależna od głębokości.
+**Ilustrowany przekrój kolonii w 2.5D** (decyzja właściciela 2026-11-26): ręcznie rysowany kontur, płaskie
+plamy barwne z fakturą pędzla, przygaszona paleta, czytelne piętra pełne maszyn, rur i drabin, ciepłe plamy
+światła — trochę ciemniej niż w referencji właściciela, z głębią 2.5D (wnęki, tylne ściany, światło).
+Własne projekty postaci, maszyn i teł (język form: `narrative/01-world.md` §10). Cele mierzalne:
+`team/CHARTER.md` §4. Rozstrzygane turniejami wariantów (min. 10 na element, `docs/variants/`).
+Ograniczenie: wszystko generowane kodem (brak zewnętrznych tekstur i nagrań); darmowe biblioteki tylko po
+wygranym turnieju. Dźwięk: syntezowany w Web Audio; muzyka generatywna zależna od głębokości.
 
 ## 11. Technologia
 TypeScript 7, Vite 8, Three.js r187 (WebGL2, własne shadery), Preact + Signals, Vitest.

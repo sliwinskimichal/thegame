@@ -4,3 +4,6 @@ dist
 .DS_Store
 /screenshots
 /test-results
+
+# owner style reference (screenshot of another game) - local only, never committed
+.reference/

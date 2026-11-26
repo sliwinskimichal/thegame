@@ -29,6 +29,16 @@ Projekt: **Underhearth** — przeglądarkowa gra o krasnoludzkiej kolonii w prze
 - **Balans** całości — weryfikowany symulacjami progresji (docs/BALANCE.md).
 - Treść jest danymi w `src/content/` (jedno źródło prawdy) + testy spójności grafu i minimów ilościowych.
 
+## Zespół i rola tej sesji (decyzja właściciela, 2026-11-26)
+- **Sesja główna = Senior Executive Producer / Lead Producer**: planuje fale pracy, deleguje zadania
+  agentom-specjalistom, zdejmuje blokady, integruje wyniki (testy, build, zrzuty), commituje i pushuje,
+  prowadzi `docs/team/BOARD.md`, `docs/team/DECISIONS.md` i dziennik w `docs/ROADMAP.md`.
+- **20 agentów-specjalistów** zdefiniowanych w `.claude/agents/*.md` (skład: `docs/team/ROSTER.md`), zasady
+  współpracy, własność katalogów i przekazania: `docs/team/CHARTER.md`; plan produkcji: `docs/team/PRODUCTION.md`.
+  Agenci nie commitują i nie edytują plików wspólnych; kończą raportem końcowym.
+- Jeśli typ agenta nie jest jeszcze załadowany w sesji, uruchom `general-purpose` z poleceniem przeczytania
+  `.claude/agents/<id>.md` i działania jako ta rola. Maks. 4–5 agentów równolegle.
+
 ## Jak pracować (wymagania właściciela — obowiązkowe)
 1. **Głębia ponad tempo.** Pracuj „od limitu do limitu”; nie kończ tury, póki jest praca.
    Sesja wznawiana jest automatycznie co 5 h (zaplanowane zadanie `trig_01Y6ieq8SwSN8YiEXGtXzHgM`).
@@ -81,8 +91,13 @@ docs/                  GDD.md, ROADMAP.md, QUALITY.md, variants/, progress/
 wygląd w `src/render/palette.ts` (paleta per biom + forma minerału + kolor połysku), reguły w
 `docs/variants/02-materials.md`; galeria `lab.html?world=gallery[&flood=1]`, metryki `scripts/galmetrics.py`,
 strażnik palety `tests/palette.test.ts`.
-**Kierunek wizualny (turniej nr 1):** R2B „Sylwetki czytelne” — `src/lab/styles/round2.ts`
-(baza: makieta `s01-diorama.ts` + ciemniejsza skała z poświatą krawędzi, iskrzące rudy, świecące powietrze).
+**Kierunek wizualny (decyzja właściciela 2026-11-26):** **ilustrowany przekrój kolonii w 2.5D** — rodzina stylu
+z referencji właściciela (ręczny kontur, płaskie plamy z fakturą, przygaszona paleta, gęsto zastawione
+pomieszczenia, ciepłe plamy światła), **trochę ciemniejszy** niż referencja; własne projekty, zero cudzych
+assetów. Cele mierzalne w `docs/team/CHARTER.md` §4, pomiar `python3 scripts/refstats.py <zrzut>`; referencja
+leży lokalnie w `.reference/owner-style.jpg` (git-ignored — to zrzut innej gry, nigdy nie commitować).
+Rozstrzyga turniej nr 3 (styl ilustrowany). Poprzedni zwycięzca R2B „Sylwetki czytelne”
+(`src/lab/styles/round2.ts`) zostaje bazą oświetlenia i nastroju.
 Laboratorium: `lab.html?style=<id>&scenario=<id>`; turniej: `node scripts/tournament.mjs <url> <out> [style,...]`,
 potem `python3 scripts/contact-sheet.py <out> [names.json]` i `python3 scripts/metrics.py <out>`.
 

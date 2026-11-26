@@ -196,7 +196,7 @@ const MAX_PICK = 5;
 const NEVER_TIER = 9;
 
 const arr = <T>(x: readonly T[] | undefined | null): readonly T[] => (Array.isArray(x) ? x : []);
-const isObj = (x: unknown): x is Record<string, unknown> => typeof x === 'object' && x !== null;
+const isObj = (x: unknown): x is object => typeof x === 'object' && x !== null;
 const isNum = (x: unknown): x is number => typeof x === 'number' && Number.isFinite(x);
 const isInt = (x: unknown): x is number => typeof x === 'number' && Number.isInteger(x);
 const str = (x: unknown): string => (typeof x === 'string' ? x : String(x));
@@ -279,7 +279,7 @@ export function checkContent(bundle: ContentBundle, opts: CheckOptions = {}): Ch
     }
     const out: T[] = [];
     arr(list).forEach((x, i) => {
-      if (isObj(x)) out.push(x);
+      if (isObj(x)) out.push(x as T);
       else err('internal', F[coll], `#${i + 1}`, `Pozycja nr ${i + 1} w ${COLL_PL[coll]} nie jest obiektem (${String(x)}).`, 'Usuń zbędny przecinek lub wartość z listy.');
     });
     return out;
@@ -352,7 +352,7 @@ export function checkContent(bundle: ContentBundle, opts: CheckOptions = {}): Ch
       return;
     }
     if (!list.length && !allowEmpty) err('range.cost', file, id, `${where}: pusta lista.`, 'Podaj co najmniej jeden składnik.');
-    for (const s of list) {
+    for (const s of list as readonly Stack[]) {
       if (!isObj(s)) {
         err('range.cost', file, id, `${where}: składnik ${String(s)} nie jest parą { id, n }.`, "Użyj helpera s('id', n).");
         continue;
@@ -454,8 +454,10 @@ export function checkContent(bundle: ContentBundle, opts: CheckOptions = {}): Ch
       for (const q of arr(u.infra))
         if (!INF.has(q)) err('ref.infra', F.tech, t.id, `unlocks.infra: infrastruktura „${q}” nie istnieje.`, `Popraw id.${didYouMean(q, INF.keys())}`);
       for (const pair of arr(u.buildings)) {
-        const [bid, lvl] = Array.isArray(pair) ? pair : [pair, undefined];
-        if (!BLD.has(bid)) err('ref.building', F.tech, t.id, `unlocks.buildings: budowla „${str(bid)}” nie istnieje.`, `Popraw id.${didYouMean(str(bid), BLD.keys())}`);
+        const p: unknown = pair;
+        const bid = str(Array.isArray(p) ? p[0] : p);
+        const lvl: unknown = Array.isArray(p) ? p[1] : undefined;
+        if (!BLD.has(bid)) err('ref.building', F.tech, t.id, `unlocks.buildings: budowla „${bid}” nie istnieje.`, `Popraw id.${didYouMean(bid, BLD.keys())}`);
         else if (!(isInt(lvl) && lvl >= 1 && lvl <= 3))
           err('ref.building', F.tech, t.id, `unlocks.buildings: poziom ${String(lvl)} budowli „${bid}” — budowle mają poziomy 1, 2, 3.`, "Użyj B('id', 1|2|3).");
       }
@@ -907,7 +909,7 @@ export function checkContent(bundle: ContentBundle, opts: CheckOptions = {}): Ch
       }
       const outs = arr(r.outputs).filter(isObj).map((o) => o.id);
       if (RES.has(r.id) && !outs.includes(r.id))
-        warn('consistency.recipeId', F.recipes, r.id, `Id receptury „${r.id}” to id surowca ${resName(r.id)}, a receptura wytwarza ${outs.map(resName).join(', ')}.`,
+        warn('consistency.recipeId', F.recipes, r.id, `Id receptury „${r.id}” to id surowca ${resName(r.id)}, a receptura wytwarza ${outs.map((o) => resName(o)).join(', ')}.`,
           'Zwykle to pomyłka przy kopiowaniu: id receptury = id wyniku, a wariant ma przyrostek (np. „glass_quartz”).');
       for (const i of arr(r.inputs))
         if (isObj(i) && outs.includes(i.id))
@@ -1030,7 +1032,7 @@ export function checkContent(bundle: ContentBundle, opts: CheckOptions = {}): Ch
           err('prog.reveal', F.tech, t.id, `Węzeł ${techName(t.id)} nigdy się nie odsłoni — żadnego z revealBy (${rev.join(', ')}) nie da się zdobyć.`, 'Wskaż w revealBy surowiec osiągalny w warstwie węzła.');
         else if (rt > t.tier) {
           if (unlocksPack(t) && rt === t.tier + 1) {
-            skipped.push({ rule: 'prog.reveal', id: t.id, reason: 'węzeł paczki badań odsłaniają próbki następnego biomu (z założenia)' });
+            skipped.push({ rule: 'prog.reveal', id: t.id, reason: 'węzeł paczki badań: z założenia odsłaniają go próbki następnego biomu' });
             continue;
           }
           warn('prog.reveal', F.tech, t.id, `Węzeł ${techName(t.id)} z T${t.tier} odsłania się dopiero dzięki surowcom z ${tierName(rt)}: ${rev.map((x) => `${x} od ${tierLabel(at(x))}`).join(', ')} — gracz zobaczy go dopiero tam, choć zbadać mógłby już w T${t.tier}.`,
@@ -1096,7 +1098,8 @@ export function locateLine(source: string, id: string): number | undefined {
     new RegExp(`\\bid:\\s*'${q}'`),
     new RegExp(`\\b(?!(?:s|d|B)\\()\\w+\\(\\s*'${q}'`),
     new RegExp(`M\\.\\w+,\\s*'${q}'`),
-    new RegExp(`\\b${q}\\b\\s*[:=]`),
+    // constants such as START_RECIPES or ROCK_PICK_TIER
+    ...(/^[A-Z][A-Z0-9_]*$/.test(base!) ? [new RegExp(`\\b${q}\\b\\s*[:=]`)] : []),
     new RegExp(`'${q}'`),
   ];
   for (const re of patterns) {
@@ -1117,6 +1120,8 @@ export interface FormatOptions {
   /** Resolves a 1-based line for an issue (the CLI reads the file). */
   line?: (issue: Issue) => number | undefined;
   verbose?: boolean;
+  /** List errors only (the summary still counts the warnings). */
+  hideWarnings?: boolean;
   skipped?: Skip[];
   /** Footer extras, e.g. timing. */
   footer?: string;
@@ -1141,7 +1146,7 @@ export function summarize(r: CheckResult): { errors: number; warnings: number; l
 
 export function formatReport(r: CheckResult, o: FormatOptions = {}): string {
   const out: string[] = [];
-  for (const i of r.issues) out.push(formatIssue(i, o), '');
+  for (const i of r.issues) if (!(o.hideWarnings && i.severity === 'warning')) out.push(formatIssue(i, o), '');
   const s = summarize(r);
   const c = r.counts;
   const n = (k: string, one: string, few: string, many: string) => `${c[k] ?? 0} ${plural(c[k] ?? 0, one, few, many)}`;

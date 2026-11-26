@@ -142,12 +142,22 @@ export function hullGeometry(src: THREE.BufferGeometry): THREE.BufferGeometry {
  * of pixels (clip-space offset), so outlines keep their width at every zoom.
  * Hidden where the world is unexplored (fog texture) so it never leaks shapes.
  */
-export function inkHullMaterial(u: Record<string, THREE.IUniform>, px: number, color: THREE.Color): THREE.ShaderMaterial {
-  return new THREE.ShaderMaterial({
-    uniforms: { uFogTex: u.uFogTex!, uWorldSize: u.uWorldSize!, uHullPx: { value: px }, uRes: u.uRes!, uInkCol: { value: color } },
+export function inkHullMaterial(u: Record<string, THREE.IUniform>, px: number, color: THREE.Color, wind = 0): THREE.ShaderMaterial {
+  const mat = new THREE.ShaderMaterial({
+    uniforms: {
+      uFogTex: u.uFogTex!,
+      uWorldSize: u.uWorldSize!,
+      uTime: u.uTime!,
+      uRes: u.uRes!,
+      uHullPx: { value: px },
+      uInkCol: { value: color },
+      uWind: { value: wind },
+    },
     vertexShader: /* glsl */ `
       uniform float uHullPx;
       uniform vec2 uRes;
+      uniform float uTime;
+      uniform float uWind;
       varying vec2 vWp;
       void main() {
         mat4 m = modelMatrix;
@@ -155,6 +165,11 @@ export function inkHullMaterial(u: Record<string, THREE.IUniform>, px: number, c
           m = modelMatrix * instanceMatrix;
         #endif
         vec4 wp = m * vec4(position, 1.0);
+        #ifdef WIND
+          // same sway as the lit prop material, so the outline stays on the swaying plant
+          float hh = max(position.y, 0.0);
+          wp.x += sin(uTime * 1.6 + wp.x * 0.7 + wp.z * 0.4) * hh * hh * uWind;
+        #endif
         vWp = wp.xy;
         vec4 clip = projectionMatrix * viewMatrix * wp;
         vec3 vn = mat3(viewMatrix) * normalize(mat3(m) * normal);
@@ -175,6 +190,8 @@ export function inkHullMaterial(u: Record<string, THREE.IUniform>, px: number, c
       }`,
     side: THREE.BackSide,
   });
+  if (wind) mat.defines = { WIND: 1 };
+  return mat;
 }
 
 /** Screen-space outline from depth: wobbled 8-tap Laplacian + max jump, faded with distance. */

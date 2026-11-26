@@ -1,9 +1,8 @@
 # Ekonomia Underhearth — jeden system (F2-1)
 
-> Rola: systems-designer. Status: projekt v1 do akceptacji producenta. Liczby są celami wyjściowymi, a każdą zmianę
-> w `src/content/` wdrażamy razem z testem balansu (`tests/balance.test.ts`).
-> Dowody liczbowe: `node docs/design/systems/tools/economy-audit.mjs [sinks|values|power|timeline|sim]`. Skrypt czyta
-> prawdziwe dane i model `src/balance/model.ts` i niczego w `src/` nie zmienia.
+> Rola: systems-designer. Status: v1 do akceptacji producenta; zmiany w `src/content/` wdrażamy z testem balansu.
+> Dowody: `node docs/design/systems/tools/economy-audit.mjs [sinks|values|power|timeline|sim]` (czyta dane i model,
+> nie zmienia `src/`).
 > Skróty: **kh** to krasnoludo-godzina pracy, **P** to Przebudzenie, **A** to Autorytet, **sr** to srebrny (§2.2).
 
 ## 1. Cel Systemu i Pętla Działania (Core & Meta Loop)
@@ -25,18 +24,16 @@ trzy waluty decyzji. Każda decyzja ekonomiczna wydaje co najmniej dwie z nich:
 | Akt (Weksel) | rata za 44–66 dób | eksport zabiera towary z bieżącej głębi (2,5–6% pracy biomu); zwłoka grozi zajęciem sal | A, ceny, spokój z Wagą | inwestować we wzrost czy spłacać; kogo wysłać do przodka |
 | Cała gra (P) | chciwe dźwignie: żyły-matki, turbina magmowa, pieczęcie siłą, czarne złoto | najazdy, mrok, trudniejszy finał, ryzyko P = 100 | szybsza gospodarka (ok. −5–8% czasu) | ile kołysanek, ofiar i zaniechań kupić za pracę |
 
-**Logistyka rośnie z głębią.** Typowy dystans dowozu rośnie z 25 do 90 kafli (model, `DISTANCE`). Kolejne progi
-logistyki odpowiadają mnożnikom 1 → 0,8 → 0,55 → 0,45, a plecaki dają udźwig 1 → 3 → 5 → 8. Bez tych progów
-transport jednostki w Pasie Magmy kosztowałby 2,3× więcej. To główna dźwignia ekonomii: gracz nie kupuje w niej
-procentów, tylko inny sposób grania (§3).
+**Logistyka rośnie z głębią:** dystans dowozu rośnie z 25 do 90 kafli, progi logistyki dają mnożniki
+1 → 0,8 → 0,55 → 0,45, a plecaki udźwig 1 → 3 → 5 → 8. Bez nich transport w Pasie Magmy kosztowałby 2,3× więcej.
+To główna dźwignia ekonomii, bo każdy próg zmienia sposób grania (§3).
 
 ## 2. Specyfikacja Mechaniki i Reguły Gry
 
 ### 2.1 Jednostki i kalendarz
 - Doba trwa 600 s przy prędkości 1× (`DAY_SECONDS`). **Rok to 4 pory po 11 dób, czyli 44 doby.** Pauza nie płynie.
-- Według modelu mediana gracza kończy T1 w 56. dobie, T3 w 153., T5 w 245., T7 w 321., a finał w 332.
-  Skrajny profil szybki (24,5 h) kończy T7 w 239. dobie, skrajny wolny (72 h) w 464. (`timeline`).
-- Ceny i wartości liczymy w srebrnych (sr). Dziś 1 sr odpowiada 1 punktowi pola `value`.
+- Mediana kończy T1 w 56. dobie, T3 w 153., T5 w 245., T7 w 321., finał w 332.; profil skrajnie szybki kończy T7
+  w 239. dobie, skrajnie wolny w 464. (`timeline`). 1 sr = 1 punkt pola `value`.
 
 ### 2.2 Waluta: decyzja i uzasadnienie
 **Rekomendacja: waluta rozrachunkowa „srebrny” prowadzona w Księdze Wagi, bez monet w magazynie.**
@@ -249,12 +246,12 @@ Klasy odpływu z `economy-audit.mjs sinks`: **R** zużywalny, **S** skalowalny, 
 
 | # | Nadużycie | Mechanizm zaradczy | Metryka ostrzegawcza (bot lub telemetria) |
 |---|---|---|---|
-| 1 | **Bezpieczne farmienie płytkich złóż** zamiast schodzenia | płytkie dają 1,9–2,3× mniej sr/kh; nasycenie −3% na 50 sztuk; 40% koszyka raty z bieżącej głębi; import bez T2+; wiertła wyczerpują żyły | udział salda z towarów co najmniej 2 tiery płytszych > 30%; czas w biomie > 1,5× celu u ponad 20% przejść |
-| 2 | **Magazynowanie przed ratą** i ukrywanie bogactwa przed najazdami | rachunek raty zaliczany na bieżąco i 5% rabatu za wczesną wpłatę; bogactwo liczy też towar na wózkach i placach budowy | stosunek szczytowego do średniego zapasu w ostatnich 3 dobach przed terminem > 2,5; straty z najazdów > 8% produkcji |
-| 3 | **Farmienie odradzających się obiektów i stworzeń** (małże i perły, krzewy, gniazda) | wyczerpanie plonu −25% przy zbiorze przed odrostem; limit populacji gniazd; nasycenie dropów ×0,9 na 20 sztuk; bestiariusz liczy 10 zabić na gatunek | udział dropów w saldzie > 25%; ponad 3 zbiory tego samego obiektu na dobę |
-| 4 | **Minimalizacja P przez niekopanie** albo odwrotnie: ignorowanie P (turbiny, żyły-matki) | podłoga fabularna; najazdy zależą też od bogactwa; mniej kopania to mniej postępu; P = 100 skraca przygotowania do finału | rozkład P przy KM4: oszczędni ≤ podłoga + 5, chciwi ok. podłoga + 25; P = 100 przed KM4 w < 5% przebiegów; chciwy profil −5–8% czasu przy ×2 wariancji strat |
-| 5 | **Kupowanie Zaufania darami** i Autorytetu łatwymi zleceniami | dary najwyżej +30 i ×0,5 za powtórkę; zlecenia najwyżej +6 A na porę i ważone trudnością; lojalność tylko z misji | ponad 50% Zaufania z darów; A ≥ 70 przed Aktem III u ponad 30% graczy |
-| 6 | **Najemnicy jako zamiana sr na pracę** | najwyżej 2 jednocześnie, 60 sr × (tier + 1) za 5 dób | najemnicy > 10% pracy kolonii |
+| 1 | **Bezpieczne farmienie płytkich złóż** zamiast schodzenia | płytkie dają 1,9–2,3× mniej sr/kh; nasycenie; 40% koszyka raty z bieżącej głębi; import bez T2+; żyły się wyczerpują | > 30% salda z towarów o 2+ tiery płytszych; czas w biomie > 1,5× celu w > 20% przejść |
+| 2 | **Magazynowanie przed ratą** i ukrywanie bogactwa | rachunek raty na bieżąco, 5% rabatu za wcześniejszą wpłatę; bogactwo liczy też wózki i place budowy | szczyt zapasu / średnia w 3 dobach przed terminem > 2,5; straty z najazdów > 8% produkcji |
+| 3 | **Farmienie odradzających się obiektów i stworzeń** (małże, krzewy, gniazda) | plon −25% przy zbiorze przed odrostem; limit populacji gniazd; dropy ×0,9 na 20 sztuk; bestiariusz 10 zabić na gatunek | > 25% salda z dropów; > 3 zbiory tego samego obiektu na dobę |
+| 4 | **Minimalizacja P przez niekopanie** albo ignorowanie P (turbiny, żyły-matki) | podłoga fabularna; najazdy zależą też od bogactwa; mniej kopania to mniej postępu; P = 100 skraca przygotowania | P przy KM4: oszczędni ≤ podłoga + 5, chciwi ok. + 25; P = 100 przed KM4 w < 5% przebiegów; chciwy profil −5–8% czasu przy ×2 wariancji strat |
+| 5 | **Kupowanie Zaufania darami**, Autorytetu łatwymi zleceniami | limity z §2.6; zlecenia ważone trudnością | > 50% Zaufania z darów; A ≥ 70 przed Aktem III u > 30% graczy |
+| 6 | **Najemnicy jako zamiana sr na pracę** | najwyżej 2, 60 sr × (tier + 1) za 5 dób | najemnicy > 10% pracy kolonii |
 
 Wizja wymaga, by chciwość była szybsza, ale ryzykowniejsza i nigdy dominująca. Test w kolejnym kroku: Monte Carlo
 profili „chciwy” i „oszczędny” z najazdami. Kryterium: chciwy wygrywa medianą czasu o 5–10% i przegrywa na P90

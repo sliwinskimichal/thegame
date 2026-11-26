@@ -15,7 +15,7 @@ Statusy: `kolejka` · `w toku` · `do przeglądu` · `zrobione` · `zablokowane 
 ## Fala 2 — systemy, świat, narracja w danych (M2–M3)
 | Id | Zadanie | Agent | Status |
 |---|---|---|---|
-| F2-1 | Ekonomia: źródła i odpływy wszystkich zasobów i mierników (Weksel, Przebudzenie, Autorytet) | systems-designer | w toku (start wcześniej — niezależne od sztuki) |
+| F2-1 | Ekonomia: źródła i odpływy wszystkich zasobów i mierników (Weksel, Przebudzenie, Autorytet) | systems-designer | **zrobione** (ECONOMY.md) |
 | F2-2 | Specyfikacja generatora 2.0 jako dane + metryki | level-systems-designer | kolejka |
 | F2-3 | Kopanie, zawały i podpory, zadania (rdzeń symulacji) | gameplay-programmer | kolejka |
 | F2-4 | Nawigacja z grawitacją — benchmark 3 algorytmów | ai-programmer | w toku (start wcześniej — niezależne od sztuki) |
@@ -28,6 +28,9 @@ Statusy: `kolejka` · `w toku` · `do przeglądu` · `zrobione` · `zablokowane 
 | F2-11 | Metryka nasycenia (udział pikseli chroma > 30) w `scripts/refstats.py` | tools-programmer | kolejka |
 | F2-12 | Scenariusze tonu w laboratorium: izba wieczorem, przodek w mroku, zawał — **wymagane przed decyzją M1** | engine-graphics-programmer | kolejka (po rundzie 1, przed rundą 2) |
 | F2-14 | 7 ostrzeżeń walidatora (moc pieca vs receptury kobaltu, tiery `feast_platter`/`heart_key`, `copper_rod` light 0, trofeum `guardian_sigil` bez badania, `gas_masks` odsłaniane w T3) — decyzja i poprawka danych | systems-designer | kolejka (z F2-1) |
+| F2-15 | Wdrożenie ekonomii w danych: wytrzymałość i naprawa/przetop 62 przedmiotów, `src/content/economy.ts` (Weksel: 5 rat/rok), paliwo i utrzymanie, ceny wyrobów, krzywa ksiąg 6,2/1,31; poprawka 7 ostrzeżeń walidatora; Monte Carlo w `tests/balance.test.ts`; potem `--strict` w CI | systems-designer | kolejka |
+| F2-16 | Czarne złoto jako surowiec (dane + lore + walidator) | systems-designer + lead-narrative-designer | kolejka |
+| F2-17 | Granitowe Korzenie przeciążone (7,5 h vs 6 h) — korekta treści/kosztów | systems-designer + level-systems-designer | kolejka |
 | F2-13 | Kalibracja materiałów pod kreskę: galeria biomów ponownie, `tests/palette.test.ts` pod styl ilustrowany | engine-graphics + concept-artist | kolejka (po M1) |
 
 ## Fala 3 — postacie, efekty, dźwięk (M3–M4)

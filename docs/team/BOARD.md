@@ -15,10 +15,10 @@ Statusy: `kolejka` · `w toku` · `do przeglądu` · `zrobione` · `zablokowane 
 ## Fala 2 — systemy, świat, narracja w danych (M2–M3)
 | Id | Zadanie | Agent | Status |
 |---|---|---|---|
-| F2-1 | Ekonomia: źródła i odpływy wszystkich zasobów i mierników (Weksel, Przebudzenie, Autorytet) | systems-designer | kolejka |
+| F2-1 | Ekonomia: źródła i odpływy wszystkich zasobów i mierników (Weksel, Przebudzenie, Autorytet) | systems-designer | w toku (start wcześniej — niezależne od sztuki) |
 | F2-2 | Specyfikacja generatora 2.0 jako dane + metryki | level-systems-designer | kolejka |
 | F2-3 | Kopanie, zawały i podpory, zadania (rdzeń symulacji) | gameplay-programmer | kolejka |
-| F2-4 | Nawigacja z grawitacją — benchmark 3 algorytmów | ai-programmer | kolejka |
+| F2-4 | Nawigacja z grawitacją — benchmark 3 algorytmów | ai-programmer | w toku (start wcześniej — niezależne od sztuki) |
 | F2-5 | HUD i sterowanie — specyfikacja + makiety do turnieju | ui-ux-designer | kolejka |
 | F2-6 | Zadania jako dane + testy kompletności | quest-designer | kolejka |
 | F2-7 | Teksty samouczka (król Gostomir) i Krążków Pamięci | narrative-writer | kolejka |

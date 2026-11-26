@@ -49,7 +49,7 @@ Statusy: `⬜ nie zaczęte` · `🟨 w pracy` · `🟦 do przeglądu` · `✅ sp
 - [x] Spójna paleta między warstwami: ciepła ziemia → krem i ochra → łososiowy granit i niebieski łupek →
       fiolet pod turkusową grzybnią → czarno-zielona woda → zimna lawenda → czerń i ogień → śliwka i runy.
 
-### E3. Generator świata (`src/world/worldgen.ts`) — 🟨
+### E3. Generator świata (do zbudowania w M2: `src/world/worldgen*.ts`; dziś arena i galeria laboratorium) — 🟨
 - [ ] Deterministyczny (test), < 400 ms dla 224×480 (test), żadnych „pływających” kafli płynów.
 - [ ] Warstwy geologiczne z fałdami, uskokami i strefami przejściowymi (nie proste pasy).
 - [ ] Rudy: żyły wzdłuż warstw i uskoków, gniazda, rzadkie „żyły-matki”; bogactwo rośnie z głębokością.
@@ -60,14 +60,14 @@ Statusy: `⬜ nie zaczęte` · `🟨 w pracy` · `🟦 do przeglądu` · `✅ sp
 - [ ] Start bezpieczny i czytelny: płaski teren pod wóz, brak jaskiń 25 kafli w głąb.
 - [ ] Mapa `worldmap` dla 3 seedów oceniona: każda warstwa ma charakter rozpoznawalny bez legendy.
 
-### E4. Światło (`src/world/lighting.ts`) — 🟨
+### E4. Światło (`src/world/lightfield.ts`) — 🟨
 - [ ] Pochodnia oświetla tunel ~10 kafli, nie przebija się przez >2 kafle skały (test).
 - [ ] Światło dzienne wpada szybem i wejściami jaskiń (test), zmienia barwę z porą dnia.
 - [ ] Brak widocznych schodków/pasm na przejściach światła w skale.
 - [ ] Przeliczenie całego świata < 50 ms; aktualizacje lokalne < 5 ms (pomiar).
 - [ ] Ruchome światła (latarnie krasnoludów) z okluzją przez skałę.
 
-### E5. Renderer terenu (`src/render/terrain*.ts`) — 🟨
+### E5. Renderer terenu (`src/render/heightfield.ts`, `shaderlib.ts`, `ink.ts`, style w `src/lab/styles/`) — 🟨
 - [ ] Przekrój czyta się natychmiast: lita skała vs wnętrze tunelu vs nieodkryte.
 - [ ] Brak efektu „klocków Minecrafta”: krawędzie wykopów fazowane/nieregularne,
       tylne ściany jaskiń gładkie, naturalne jaskinie organiczne.

@@ -18,10 +18,24 @@ export class EventBus<Events extends Record<string, unknown>> {
     return () => set!.delete(fn as Handler<never>);
   }
 
+  /**
+   * Delivers to every subscriber present when the event was emitted: one that
+   * subscribes during delivery waits for the next event, and one that throws
+   * does not starve the others (errors are rethrown after delivery).
+   */
   emit<K extends keyof Events>(type: K, payload: Events[K]): void {
     const set = this.handlers.get(type);
-    if (!set) return;
-    for (const fn of set) (fn as Handler<Events[K]>)(payload);
+    if (!set || set.size === 0) return;
+    const fns = [...set] as Handler<Events[K]>[];
+    let errors: unknown[] | null = null;
+    for (const fn of fns) {
+      try {
+        fn(payload);
+      } catch (e) {
+        (errors ??= []).push(e);
+      }
+    }
+    if (errors) throw errors.length === 1 ? errors[0] : new AggregateError(errors, `${String(type)}: ${errors.length} subscribers failed`);
   }
 
   clear(): void {

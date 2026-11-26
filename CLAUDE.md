@@ -8,7 +8,7 @@ Projekt: **Underhearth** — przeglądarkowa gra o krasnoludzkiej kolonii w prze
   (minimum 20 h rozgrywki).
 - **≥ 15 typów budowli**, każda z **3 poziomami ulepszeń**.
 - **~80 przedmiotów użytkowych** dla krasnoludów (narzędzia, broń, pancerz, sprzęt środowiskowy, mikstury...).
-- **≥ 20 rodzajów złóż**, **≥ 30 surowców** wypadających z obiektów/stworzeń, **60–80 materiałów wytwarzanych**.
+- **≥ 20 rodzajów złóż**, **≥ 30 surowców** wypadających z obiektów/stworzeń, **ok. 80 materiałów wytwarzanych (min. 60)**.
 - Wszystko osadzone w systemach (ekonomia, środowisko, zagrożenia): każdy nowy, głębszy biom wymaga
   nowego podejścia, nowych budowli, ekwipunku i bardziej zaawansowanej produkcji.
 - Inspiracje: Factorio, Satisfactory (łańcuchy produkcji, automatyzacja), LOTR: Return to Moria
@@ -52,7 +52,8 @@ Projekt: **Underhearth** — przeglądarkowa gra o krasnoludzkiej kolonii w prze
    Dla kodu niewidocznego: benchmark 2–3 algorytmów tam, gdzie liczy się wydajność, i testy.
    Dla balansu/trudności/generatora: symulacje Monte Carlo wielu kolonii na wariant.
    **Darmowe biblioteki zewnętrzne** (np. post-processing, AO, shadery) wolno wprowadzić, jeśli wygrają turniej
-   z naszym rozwiązaniem w identycznych scenariuszach (licencja MIT/BSD/Apache/CC0, rozmiar paczki w ocenie).
+   z naszym rozwiązaniem w identycznych scenariuszach (licencje permisywne: MIT, BSD, Apache-2.0, Zlib, ISC, CC0;
+   rozmiar paczki w ocenie).
 4. Po każdym ukończonym kroku: `npm test`, `npm run build`, commit, push na
    `claude/fervent-ptolemy-fv7lmn`, wpis w dzienniku `docs/ROADMAP.md`.
 
@@ -96,8 +97,11 @@ src/lab/               laboratorium turniejów: main.ts, arena.ts, gallery.ts (g
                        common.ts (uniformy i pokrętła z URL), materialVariants.ts, styles/ (style renderu)
 src/main.ts            gra (zaślepka — gra powstaje w fazach B–C)
 src/sim/, src/ui/, src/audio/, src/tools/   (do zbudowania przez zespół — własność katalogów: docs/team/CHARTER.md §6)
-tests/                 Vitest: core, arena, content (+contentdoc), balance, palette
-scripts/               tournament.mjs, contact-sheet.py, metrics.py, galmetrics.py, matmetrics.py, refstats.py, shot.mjs
+tests/                 Vitest: core, arena, content (+contentdoc), balance, palette; tools/ (walidator, indeks treści,
+                       raport stylu); qa/ (testy przekrojowe QA, `lab-audit.mjs` — audyt laboratorium po każdym turnieju)
+scripts/               tournament.mjs, contact-sheet.py, metrics.py, galmetrics.py, matmetrics.py, refstats.py,
+                       style-report.py, content-check.mjs, tools-smoke.mjs, shot.mjs
+tools.html             przeglądarka danych treści dla designerów (`src/tools/browser/`)
 docs/                  GDD, ROADMAP, QUALITY, BALANCE, CONTENT, narrative/, variants/, team/
 .claude/agents/        definicje 20 agentów-specjalistów
 ```

@@ -291,27 +291,28 @@ if (on('timeline')) {
 
 // ---------------------------------------------------------------- proposed sinks (ECONOMY.md §4–§6)
 const P = {
-  /** Weksel installments: goods basket per tier in which it falls due (dwarf-hours booked in that tier). */
+  /** Weksel: 5 installments on a 7-year calendar (year = 44 game days; due days 44/110/176/242/308), each a
+   *  goods basket booked in the tier where the median colony is on its due day (timeline section). */
   weksel: {
-    1: [['copper_bar', 90], ['bronze_bar', 30]],
-    2: [['iron_bar', 70], ['steel_bar', 20]],
-    3: [['silver_bar', 30], ['steel_bar', 30]],
-    4: [['nickel_steel', 25], ['gold_bar', 15]],
-    6: [['cobalt_steel', 15], ['emberbronze_bar', 12], ['cut_ruby', 4]],
+    1: [['copper_bar', 50], ['bronze_bar', 20]],
+    2: [['iron_bar', 60], ['steel_bar', 25]], // + optional silver from the grottos (doc §4)
+    4: [['nickel_steel', 30], ['gold_bar', 15], ['pearl', 10]],
+    5: [['cobalt_steel', 30], ['cut_sapphire', 12], ['cut_amethyst', 10]],
+    7: [['adamant_bar', 30], ['emberbronze_bar', 30], ['cut_ruby', 10]],
   },
-  /** Steam engines burn coal: units per game day at full load (data now: fuelPerMin 6 = 60/day). */
-  steamFuelPerDay: 40,
-  /** Maintenance of powered machines: stacks per machine per 10 game days (from T2: pitch grease; T4+: gasket + fish oil). */
-  maintenance: (k) => (k >= 4 ? [['gasket', 1], ['fish_oil', 1]] : k >= 2 ? [['pitch', 2]] : []),
-  /** Fuel-burning lights in use (count) and fuel per light per game day. Spore lamps (T3), crystal posts (T5)
-   *  and ember/glimmer lights burn nothing. */
-  lights: (k) => (k <= 1 ? { torch: 30 / 3 } : k === 2 ? { oil: 20 } : k === 3 ? { oil: 10 } : k === 4 ? { oil: 6 } : {}),
-  /** Equipment wear: share of militia + expedition kit worn out per tier (repairs at 25% of the cost). */
-  wear: 0.6,
-  /** Food lost to spoilage (share of food & drink labour) per tier; salt (T4) and cold stores (T5) cut it. */
-  waste: [0.12, 0.12, 0.1, 0.1, 0.06, 0.05, 0.05, 0.05, 0.05],
-  /** Lullaby singers keeping Awakening down: dwarf-equivalents from Granite Roots on. */
-  singers: [0, 0, 0.3, 0.4, 0.5, 0.5, 0.6, 0.8, 0.8],
+  /** Steam engine coal per game day at full load (data now: fuelPerMin 6 = 60/day); burn scales with load. */
+  steamFuelPerDay: 24,
+  /** Maintenance of powered machines, stacks per machine per 10 game days (T2-T3 pitch grease, T4+ gasket + fish oil). */
+  maintenance: (k) => (k >= 4 ? [['gasket', 1], ['fish_oil', 0.5]] : k >= 2 ? [['pitch', 1]] : []),
+  /** Fuel lights in use and burn per game day: torch 1 per 5 days; oil lamp 1 pitch per 4 days. Spore lamps (T3),
+   *  crystal posts (T5), ember and glimmer lights burn nothing. */
+  lights: (k) => (k <= 1 ? { torch: 30 / 5 } : k === 2 ? { oil: 20 } : k === 3 ? { oil: 10 } : k === 4 ? { oil: 5 } : {}),
+  /** Equipment wear: repairs at 25% of cost, ~1 per piece of militia + expedition kit (14 sets) per tier. */
+  repairsPerTier: 1,
+  /** Food lost to spoilage (share of food & drink labour); salt (T4) and cold stores (T5) cut it. */
+  waste: [0.1, 0.1, 0.08, 0.08, 0.05, 0.04, 0.04, 0.04, 0.04],
+  /** Lullaby singers keeping Awakening down (voluntary; median player), dwarf-equivalents. */
+  singers: [0, 0, 0.1, 0.1, 0.2, 0.2, 0.3, 0.3, 0.3],
 };
 const econ = {
   extra(model, k) {
@@ -328,7 +329,7 @@ const econ = {
       }
       if (bestId) kit += model.unitWork(bestId, k);
     }
-    out.wear = P.wear * 14 * kit * 0.25 * 4; // ~4 repairs per piece and tier at 25% of the cost
+    out.wear = 14 * kit * 0.25 * P.repairsPerTier;
     return out;
   },
   waste: (k) => P.waste[k],
@@ -336,12 +337,12 @@ const econ = {
     // dwarf-equivalents (dwarf-seconds per game second) busy with upkeep
     let perDay = 0; // dwarf-seconds per game day
     const pw = powerTable()[k];
-    if (pw.lvl === 1) perDay += pw.plants * P.steamFuelPerDay * model.unitWork('coal', k);
+    if (pw.lvl === 1) perDay += (pw.need / 16) * P.steamFuelPerDay * model.unitWork('coal', k);
     const machines = BUILDINGS.filter((b) => b.levels.some((lv, i) => (lv.power ?? 0) > 0 && (A.building.get(`${b.id}:${i + 1}`) ?? Infinity) <= k)).length;
     for (const [id, n] of P.maintenance(k)) perDay += (machines * n * model.unitWork(id, k)) / 10;
     const L = P.lights(k);
     if (L.torch) perDay += L.torch * (model.unitWork('wood', k) + model.unitWork('resin', k));
-    if (L.oil) perDay += L.oil * 0.5 * model.unitWork('pitch', k);
+    if (L.oil) perDay += L.oil * 0.25 * model.unitWork('pitch', k);
     return perDay / MD.DAY_SECONDS + P.singers[k];
   },
 };

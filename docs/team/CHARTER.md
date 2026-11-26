@@ -66,7 +66,7 @@ gęsto zastawione maszynami, rurami i drabinami, ciepłe żarówki dające plamy
   W finale **ślepy test oryginalności**: kadry wymieszane z wycinkami referencji; jeśli oceniający się pomyli,
   wariant odpada (kopiujemy rodzinę stylu, nie grę).
 - Wszystko generowane kodem (shadery, geometria proceduralna, SVG, Web Audio). Brak zewnętrznych tekstur
-  i nagrań. Darmowe biblioteki (MIT/BSD/Apache/CC0) tylko po wygranym turnieju.
+  i nagrań. Darmowe biblioteki (licencje permisywne: MIT, BSD, Apache-2.0, Zlib, ISC, CC0) tylko po wygranym turnieju.
 
 ## 5. Zasady pracy (obowiązkowe)
 1. **Turniej wariantów** dla wszystkiego, co gracz widzi, słyszy lub czuje: min. 10 wariantów w identycznych

@@ -16,6 +16,11 @@
 //   node tests/qa/lab-audit.mjs [baseUrl] [outDir] [arenaStyles|all] [galleryStyles|all|none] [W] [H] [concurrency]
 //   e.g. node tests/qa/lab-audit.mjs http://localhost:5174 /tmp/underhearth-qa/lab-audit all s01-diorama,r2b-silhouette-plus
 // Env: SHOTS=0 disables screenshots (default: on).
+//      PAGE=<path> page to drive instead of lab.html (e.g. tests/qa/harness/ill-lab.html for the
+//      illustrated styles that are not registered in the lab yet).
+//      STABILITY=1 also measures "lines still at rest" (docs/team/vision/VISION.md section 3): two
+//      captures 1 s apart; share of changed pixels overall and among ink pixels (L* < 22 in the
+//      first capture). Animated fluids, sky and wind legitimately change some pixels.
 // Output: <outDir>/audit.json, <outDir>/audit.md and screenshots <outDir>/<mode>/<style>/<scenario>.png
 import { createRequire } from 'node:module';
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -25,6 +30,8 @@ const { chromium } = require('playwright');
 
 const [, , BASE = 'http://localhost:5174', OUT = '/tmp/underhearth-qa/lab-audit', ARENA = 'all', GALLERY = 's01-diorama,r2b-silhouette-plus', W = '960', H = '540', CONC = '2'] = process.argv;
 const SHOTS = process.env.SHOTS !== '0';
+const PAGE = process.env.PAGE ?? 'lab.html';
+const STABILITY = process.env.STABILITY === '1';
 mkdirSync(OUT, { recursive: true });
 
 const browser = await chromium.launch({
@@ -45,7 +52,7 @@ async function open(query, timeout = 90000) {
   const t0 = Date.now();
   let ready = true;
   try {
-    await page.goto(`${BASE}/lab.html?hud=0${query ? `&${query}` : ''}`, { waitUntil: 'load', timeout });
+    await page.goto(`${BASE}/${PAGE}?hud=0${query ? `&${query}` : ''}`, { waitUntil: 'load', timeout });
     await page.waitForFunction(() => !!window.__lab, null, { timeout });
   } catch (e) {
     ready = false;
@@ -84,6 +91,39 @@ function canvasStats() {
   }
   const mean = sum / n;
   return { w: off.width, h: off.height, darkPct: (100 * dark) / n, blackPct: (100 * black) / n, magentaPct: (100 * magenta) / n, meanL: mean, stdL: Math.sqrt(Math.max(0, sum2 / n - mean * mean)), colours: colours.size };
+}
+
+/** Keep a copy of the canvas (first call) or compare the canvas with the kept copy (second call). */
+function canvasDiff(keep) {
+  const c = document.getElementById('c');
+  const off = document.createElement('canvas');
+  off.width = c.width;
+  off.height = c.height;
+  const g = off.getContext('2d', { willReadFrequently: true });
+  g.drawImage(c, 0, 0);
+  const d = g.getImageData(0, 0, off.width, off.height).data;
+  if (keep) {
+    window.__qaPrev = d;
+    return null;
+  }
+  const a = window.__qaPrev;
+  const L = (r, gg, b) => {
+    const lin = (v) => ((v /= 255) <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+    const Y = 0.2126 * lin(r) + 0.7152 * lin(gg) + 0.0722 * lin(b);
+    return Y > 0.008856 ? 116 * Math.cbrt(Y) - 16 : 903.3 * Y;
+  };
+  let changed = 0, ink = 0, inkChanged = 0;
+  for (let i = 0; i < d.length; i += 4) {
+    const diff = Math.max(Math.abs(d[i] - a[i]), Math.abs(d[i + 1] - a[i + 1]), Math.abs(d[i + 2] - a[i + 2]));
+    const isInk = L(a[i], a[i + 1], a[i + 2]) < 22;
+    if (diff > 24) changed++;
+    if (isInk) {
+      ink++;
+      if (diff > 24) inkChanged++;
+    }
+  }
+  const n = d.length / 4;
+  return { changedPct: (100 * changed) / n, inkPct: (100 * ink) / n, inkChangedPct: ink ? (100 * inkChanged) / ink : 0 };
 }
 
 async function rafMedian(page, frames = 10) {
@@ -126,7 +166,14 @@ async function runJob(job) {
         const raf = await rafMedian(page, 8);
         const frameMs = await page.evaluate(() => window.__lab.frameMs);
         if (SHOTS) await page.screenshot({ path: `${OUT}/${mode}/${style}/${sc}.png` });
-        rec.shots.push({ scenario: sc, frameMs, rafP50: raf.p50, rafMax: raf.max, ...stats, ms: Date.now() - t0 });
+        let stability = null;
+        if (STABILITY) {
+          await page.evaluate(canvasDiff, true);
+          await page.waitForTimeout(1000);
+          await rafMedian(page, 2);
+          stability = await page.evaluate(canvasDiff, false);
+        }
+        rec.shots.push({ scenario: sc, frameMs, rafP50: raf.p50, rafMax: raf.max, ...stats, ...(stability ?? {}), ms: Date.now() - t0 });
       } catch (e) {
         rec.shots.push({ scenario: sc, error: String(e.message).split('\n')[0] });
       }
@@ -160,10 +207,12 @@ results.sort((a, b) => (a.mode + a.style).localeCompare(b.mode + b.style));
 writeFileSync(`${OUT}/audit.json`, JSON.stringify({ base: BASE, width: Number(W), height: Number(H), styles: allStyles, results }, null, 2));
 
 const f1 = (v) => (typeof v === 'number' ? v.toFixed(1) : '—');
-const md = ['| tryb | styl | gotowy | wyrenderowany styl | błędy | ostrz. | maks. czerń L*<6 % | min. średnia L* | maks. ms (lab) | maks. rAF p50 ms |', '|---|---|---|---|---|---|---|---|---|---|'];
+const stab = STABILITY ? ' maks. zmiana pikseli kreski w 1 s % |' : '';
+const md = [`| tryb | styl | gotowy | wyrenderowany styl | błędy | ostrz. | maks. czerń L*<6 % | min. średnia L* | maks. ms (lab) | maks. rAF p50 ms |${stab}`, `|---|---|---|---|---|---|---|---|---|---|${STABILITY ? '---|' : ''}`];
 for (const r of results) {
   const s = r.shots.filter((x) => !x.error);
-  md.push(`| ${r.mode} | ${r.style} | ${r.ready ? 'tak' : '**NIE**'} | ${r.renderedStyle ?? '—'}${r.renderedStyle && r.renderedStyle !== r.style ? ' **(fallback)**' : ''} | ${r.log.errors.length + r.log.pageErrors.length} | ${r.log.warnings.length} | ${f1(Math.max(...s.map((x) => x.darkPct)))} | ${f1(Math.min(...s.map((x) => x.meanL)))} | ${f1(Math.max(...s.map((x) => x.frameMs)))} | ${f1(Math.max(...s.map((x) => x.rafP50)))} |`);
+  const st = STABILITY ? ` ${f1(Math.max(...s.map((x) => x.inkChangedPct ?? 0)))} |` : '';
+  md.push(`| ${r.mode} | ${r.style} | ${r.ready ? 'tak' : '**NIE**'} | ${r.renderedStyle ?? '—'}${r.renderedStyle && r.renderedStyle !== r.style ? ' **(fallback)**' : ''} | ${r.log.errors.length + r.log.pageErrors.length} | ${r.log.warnings.length} | ${f1(Math.max(...s.map((x) => x.darkPct)))} | ${f1(Math.min(...s.map((x) => x.meanL)))} | ${f1(Math.max(...s.map((x) => x.frameMs)))} | ${f1(Math.max(...s.map((x) => x.rafP50)))} |${st}`);
 }
 writeFileSync(`${OUT}/audit.md`, md.join('\n') + '\n');
 console.log(md.join('\n'));

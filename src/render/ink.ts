@@ -107,6 +107,99 @@ float edgeDistance(vec2 e, int mask, float r) {
 }
 `;
 
+/**
+ * Drawn rock structure in the language of old mining atlases (requires GLSL_NOISE, GLSL_INK):
+ *  layered rock (pattern 1): bedding planes of the palette's strata, joints per bed, fine lamination;
+ *  masonry (6): mortar joints; loose ground (0, 10): stipple and outlined pebbles;
+ *  everything else (massive rock, ore matrix, gems): polygonal joint blocks, a crack stroke in some.
+ * Line widths are world units derived from pixels by the caller (w, aa), and every family fades or
+ * switches octave before its marks get closer than ~10-22 px on screen.
+ */
+export const GLSL_ROCK_INK = /* glsl */ `
+struct RockInk { float lines; float fine; float cell; float bev; };
+
+RockInk rockInk(int pat, vec2 p, float sc, float wpp, float scale, float w, float aa) {
+  RockInk r;
+  r.lines = 0.0;
+  r.fine = 0.0;
+  r.cell = 0.5;
+  r.bev = 0.0;
+  float ppt = 1.0 / wpp;
+  if (pat == 1) {
+    float k = 0.55 * sc;
+    float t = p.y * k + fbm3(vec2(p.x * 0.08, p.y * 0.3)) * 1.6;
+    float id = floor(t);
+    float b = fract(t);
+    float bedH = 1.0 / k;
+    float bedLod = smoothstep(9.0, 20.0, bedH * ppt);
+    float lj = scale * (1.1 + 1.5 * hash12(vec2(id, 1.3)));
+    lj *= exp2(max(0.0, ceil(log2(18.0 * wpp / lj))));
+    float xj = (p.x + hash12(vec2(id, 4.1)) * lj) / lj + (b - 0.5) * (hash12(vec2(id, 6.7)) - 0.5) * 0.5;
+    float c = floor(xj);
+    float fj = fract(xj);
+    float jb = fj < 0.5 ? c : c + 1.0;
+    float joint = hash12(vec2(id, jb) + 0.5) < 0.8 ? inkLine(min(fj, 1.0 - fj) * lj, w, aa) : 0.0;
+    r.lines = max(inkLine(min(b, 1.0 - b) * bedH, w, aa), joint) * bedLod;
+    float t3 = fract(t * 3.0);
+    r.fine = inkLine(min(t3, 1.0 - t3) * bedH / 3.0, w * 0.6, aa) * step(hash12(vec2(id, 9.2)), 0.75) * smoothstep(9.0, 20.0, bedH / 3.0 * ppt);
+    r.cell = hash12(vec2(id, c));
+    r.bev = smoothstep(0.72, 1.0, b) - smoothstep(0.28, 0.0, b);
+  } else if (pat == 6) {
+    float row = floor(p.y * 2.0);
+    float bx = p.x + mod(row, 2.0) * 0.5;
+    float fy = fract(p.y * 2.0);
+    float dm = min(min(fract(bx), 1.0 - fract(bx)), min(fy, 1.0 - fy) * 0.5);
+    r.lines = inkLine(dm, w * 0.8, aa) * smoothstep(8.0, 16.0, 0.5 * ppt);
+    r.cell = hash12(vec2(floor(bx), row));
+    r.bev = smoothstep(0.7, 1.0, fy) - smoothstep(0.3, 0.0, fy);
+  } else if (pat == 0 || pat == 10) {
+    float gs = pat == 10 ? 7.0 : 5.0;
+    vec2 g = p * gs;
+    vec2 gi = floor(g);
+    vec2 gf = fract(g) - 0.5 - (hash22(gi) - 0.5) * 0.7;
+    float rd = 0.75 * wpp * gs;
+    float stip = (1.0 - smoothstep(rd - aa * gs, rd + aa * gs, length(gf))) * step(hash12(gi + 3.3), 0.6) * smoothstep(5.0, 10.0, ppt / gs);
+    float ps = 3.2 * sc;
+    vec4 v = voronoi(p * ps);
+    float ring = inkLine(abs(v.x - 0.2) / ps, w * 0.55, aa) * step(hash12(v.zw), 0.3) * smoothstep(6.0, 12.0, 0.4 / ps * ppt);
+    r.fine = max(stip, ring);
+    float cs = scale * 1.3;
+    cs *= exp2(max(0.0, ceil(log2(22.0 * wpp / cs))));
+    vec4 vc = voronoi(p / cs + 5.3);
+    r.lines = inkLine((vc.y - vc.x) * 0.5 * cs, w * 0.7, aa) * 0.8;
+    r.cell = hash12(vc.zw);
+  } else {
+    float lvl = max(0.0, log2(22.0 * wpp / scale));
+    float s0 = scale * exp2(floor(lvl));
+    float f = lvl > 0.0 ? fract(lvl) : 0.0;
+    vec2 cp = p * vec2(0.9, 1.06) / s0;
+    vec4 v = voronoi(cp);
+    float l0 = inkLine((v.y - v.x) * 0.5 * s0 / 1.06, w, aa);
+    r.cell = hash12(v.zw);
+    vec2 rel = cp - v.zw - hash22(v.zw);
+    float nearB = 1.0 - smoothstep(0.0, 0.5, v.y - v.x);
+    r.bev = nearB * dot(normalize(rel + 1e-4), vec2(-0.5, 0.866));
+    float ch = hash12(v.zw + 9.1);
+    for (int k = 0; k < 2; k++) {
+      float a = ch * 37.0 + float(k) * 2.1;
+      vec2 dir = vec2(cos(a), sin(a));
+      vec2 q = rel - vec2(-dir.y, dir.x) * (float(k) * 0.22 - 0.06);
+      float along = dot(q, dir);
+      float across = abs(dot(q, vec2(-dir.y, dir.x)) + 0.05 * sin(along * 11.0));
+      float len = 0.22 + 0.15 * hash12(v.zw + float(k) * 3.7);
+      r.fine = max(r.fine, inkLine(across * s0, w * 0.55, aa) * step(abs(along), len) * step(hash12(v.zw + float(k) * 5.3), 0.7));
+    }
+    if (f > 0.0) {
+      vec4 v1 = voronoi(cp * 0.5 + 31.7);
+      l0 = mix(l0, inkLine((v1.y - v1.x) * s0 / 1.06, w, aa), f);
+      r.fine *= 1.0 - f;
+    }
+    r.lines = l0;
+  }
+  return r;
+}
+`;
+
 /** Pixel-scale uniform for GLSL_INK: world units per pixel at unit view depth. */
 export function pxScale(camera: THREE.PerspectiveCamera, heightPx: number): number {
   return (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2)) / Math.max(1, heightPx);

@@ -1,0 +1,552 @@
+{
+ "version": "1.1",
+ "source": "docs/art/ART-BIBLE.md (concept-artist, F1-2)",
+ "note": "Screen-referred sRGB HEX after the illustrated grade; albedo stays in src/render/palette.ts",
+ "lines_px_at_1080p": {
+  "W1_rock_void_and_characters": 4,
+  "W2_buildings_machines": 3,
+  "W3_props_infrastructure": 2,
+  "Wd_detail_and_mineral_signs": 1.25,
+  "static_irregularity_width": 0.2,
+  "dread_tremble_max_px": 1.5,
+  "dread_tremble_fps": 8,
+  "strong_line_mode_scale": 1.5,
+  "ink_default": "#201812",
+  "ink_in_lamp_core_L": [
+   16,
+   20
+  ],
+  "ember_outline": "#6A2A0E",
+  "lod": {
+   "Okolica": {
+    "W1": 3,
+    "W2": 2,
+    "W3": 1.5,
+    "Wd": 0
+   }
+  }
+ },
+ "values_L": {
+  "cut_plane_dark": [
+   22,
+   48
+  ],
+  "cut_plane_lit_offset": 8,
+  "dry_edge": {
+   "width_tiles": 0.12,
+   "dL": -7
+  },
+  "side_walls_offset": [
+   -4,
+   -12
+  ],
+  "back_wall_dark": [
+   14,
+   32
+  ],
+  "back_wall_lit": {
+   "default": 44,
+   "limestone": 46,
+   "granite": 46
+  },
+  "props_lit": [
+   40,
+   62
+  ],
+  "props_shadow": [
+   26,
+   40
+  ],
+  "characters": {
+   "clothes": [
+    30,
+    48
+   ],
+   "faces_hands": [
+    58,
+    68
+   ],
+   "lamp": [
+    88,
+    98
+   ]
+  },
+  "lights": [
+   85,
+   98
+  ],
+  "ore_accents": [
+   45,
+   90
+  ],
+  "unknown_hatching_mean": [
+   14,
+   17
+  ]
+ },
+ "grade": {
+  "exposure": {
+   "foothills": 1.98,
+   "limestone": 0.6,
+   "granite": 0.6,
+   "fungal": 2.29,
+   "sunken": 1.64,
+   "crystal": 1.19,
+   "magma": 1.9,
+   "ancient": 3.42,
+   "heart": 4.42
+  },
+  "soft_floor_L": 17,
+  "knee": {
+   "rock": [
+    32,
+    48
+   ],
+   "ore_matrix": [
+    40,
+    60
+   ],
+   "ore_accent": [
+    70,
+    90
+   ]
+  },
+  "chroma_lit": {
+   "rock": 0.8,
+   "ore_matrix": 0.9,
+   "accent": 1.0
+  },
+  "chroma_dark": {
+   "rock": 0.45,
+   "ore_matrix": 0.5,
+   "accent": 1.0,
+   "ambient_mix": 0.08
+  }
+ },
+ "brush": {
+  "mottling_sigma_L": 3,
+  "mottling_scale_tiles": [
+   0.3,
+   0.8
+  ],
+  "anisotropy": 3,
+  "grain_sigma_L": 1.3,
+  "grain_scale_tiles": [
+   0.05,
+   0.1
+  ],
+  "hue_jitter_deg": 4,
+  "chroma_jitter": 2,
+  "stroke_direction": {
+   "cut": "along strata",
+   "back_wall": "diagonal 60deg",
+   "side_walls": "into depth"
+  }
+ },
+ "unknown_hatching": {
+  "base": "#333232",
+  "spacing_tiles": 0.15,
+  "angles_deg": [
+   45,
+   -45
+  ],
+  "line": "Wd ink"
+ },
+ "light": {
+  "pool": {
+   "core_radius": 0.35,
+   "core_dL": [
+    16,
+    20
+   ],
+   "halo_dL": 6,
+   "core_edge_smooth": 0.12
+  },
+  "sources": {
+   "kaganek": [
+    "#FFC878",
+    6,
+    0.02
+   ],
+   "pochodnia": [
+    "#FFB45A",
+    8,
+    0.06
+   ],
+   "kosz_zarowy": [
+    "#FF9A48",
+    7,
+    0.05
+   ],
+   "latarnia_olejna": [
+    "#FFC878",
+    9,
+    0.02
+   ],
+   "palenisko": [
+    "#FFB060",
+    [
+     6,
+     9,
+     12
+    ],
+    0.03
+   ],
+   "lampa_krysztalowa": [
+    "#CFEFFF",
+    12,
+    0.0
+   ]
+  },
+  "rim_glow_R2B": 0,
+  "glowing_air": 0,
+  "bloom": {
+   "threshold_L": 85,
+   "radius_max": 0.6
+  }
+ },
+ "frame_targets": {
+  "colony_lit": {
+   "L_mean": [
+    36,
+    40
+   ],
+   "black_pct": [
+    15,
+    22
+   ],
+   "chroma_mean": [
+    13,
+    18
+   ],
+   "edge_pct_min": 15,
+   "ink_pct_min": 3,
+   "chroma_over_30_pct_max": 8
+  },
+  "wild_depth_explored": {
+   "L_mean_min": 26,
+   "black_pct_max": 30,
+   "ink_pct_min": 3
+  }
+ },
+ "biomes": {
+  "foothills": {
+   "name": "Podgórze",
+   "exposure": 1.98,
+   "rocks": {
+    "SOIL": {
+     "lit": "#825B3F",
+     "dark": "#5C4D46",
+     "L": 34
+    }
+   },
+   "cut_L": 34,
+   "dry_edge": "#4A3D38",
+   "side_front": "#51443E",
+   "side_back": "#3D332E",
+   "back_dark": "#382E2B",
+   "back_lit": "#816249",
+   "back_lit_L": 44,
+   "unknown_base": "#343231",
+   "ink": "#201812",
+   "ambient": "#56647E",
+   "lamp": "#FFB45A",
+   "biome_light": "#FFB45A"
+  },
+  "limestone": {
+   "name": "Wapienne Progi",
+   "exposure": 0.6,
+   "rocks": {
+    "LIMESTONE": {
+     "lit": "#8A816F",
+     "dark": "#6E6E6B",
+     "L": 46
+    },
+    "SANDSTONE": {
+     "lit": "#A06D41",
+     "dark": "#756052",
+     "L": 43
+    },
+    "SHALE": {
+     "lit": "#5B575C",
+     "dark": "#43464C",
+     "L": 30
+    }
+   },
+   "cut_L": 46,
+   "dry_edge": "#5C5D5A",
+   "side_front": "#646461",
+   "side_back": "#50514F",
+   "back_dark": "#4C4C4A",
+   "back_lit": "#786B59",
+   "back_lit_L": 46,
+   "unknown_base": "#333232",
+   "ink": "#1F1811",
+   "ambient": "#5A6472",
+   "lamp": "#FFB860",
+   "biome_light": "#FFB860"
+  },
+  "granite": {
+   "name": "Granitowe Korzenie",
+   "exposure": 0.6,
+   "rocks": {
+    "GRANITE": {
+     "lit": "#947366",
+     "dark": "#6F6464",
+     "L": 43
+    },
+    "SLATE": {
+     "lit": "#4D4A58",
+     "dark": "#353A44",
+     "L": 24
+    }
+   },
+   "cut_L": 43,
+   "dry_edge": "#5D5354",
+   "side_front": "#645B5B",
+   "side_back": "#504849",
+   "back_dark": "#4A4445",
+   "back_lit": "#836758",
+   "back_lit_L": 46,
+   "unknown_base": "#343232",
+   "ink": "#221716",
+   "ambient": "#4E5C78",
+   "lamp": "#FFAE5C",
+   "biome_light": "#FFAE5C"
+  },
+  "fungal": {
+   "name": "Grzybowe Groty",
+   "exposure": 2.29,
+   "rocks": {
+    "SPORE_SHALE": {
+     "lit": "#6E5066",
+     "dark": "#4A4450",
+     "L": 30
+    },
+    "MYCELIUM": {
+     "lit": "#5E9079",
+     "dark": "#5A7770",
+     "L": 48
+    }
+   },
+   "cut_L": 30,
+   "dry_edge": "#3A353F",
+   "side_front": "#413C46",
+   "side_back": "#2D2B33",
+   "back_dark": "#29272E",
+   "back_lit": "#7B6268",
+   "back_lit_L": 44,
+   "unknown_base": "#333234",
+   "ink": "#1C151D",
+   "ambient": "#2E6A66",
+   "lamp": "#FFBE6E",
+   "biome_light": "#FFBE6E"
+  },
+  "sunken": {
+   "name": "Zatopione Głębie",
+   "exposure": 1.64,
+   "rocks": {
+    "MUDSTONE": {
+     "lit": "#505955",
+     "dark": "#3C4648",
+     "L": 29
+    }
+   },
+   "cut_L": 29,
+   "dry_edge": "#2D3638",
+   "side_front": "#343D3F",
+   "side_back": "#232B2D",
+   "back_dark": "#1F2729",
+   "back_lit": "#6B685F",
+   "back_lit_L": 44,
+   "unknown_base": "#323333",
+   "ink": "#0C1A1B",
+   "ambient": "#2C5662",
+   "lamp": "#FFB870",
+   "biome_light": "#FFB870"
+  },
+  "crystal": {
+   "name": "Kryształowe Głębie",
+   "exposure": 1.19,
+   "rocks": {
+    "SCHIST": {
+     "lit": "#6B5B73",
+     "dark": "#4D4C5D",
+     "L": 33
+    }
+   },
+   "cut_L": 33,
+   "dry_edge": "#3D3C4B",
+   "side_front": "#444352",
+   "side_back": "#32313F",
+   "back_dark": "#2D2D3A",
+   "back_lit": "#78626B",
+   "back_lit_L": 44,
+   "unknown_base": "#333234",
+   "ink": "#171924",
+   "ambient": "#6A76A6",
+   "lamp": "#FF9A50",
+   "biome_light": "#FF9A50"
+  },
+  "magma": {
+   "name": "Pas Magmy",
+   "exposure": 1.9,
+   "rocks": {
+    "BASALT": {
+     "lit": "#5F5154",
+     "dark": "#464143",
+     "L": 28
+    },
+    "MAGMA_ROCK": {
+     "lit": "#6F3C2A",
+     "dark": "#49332B",
+     "L": 23
+    }
+   },
+   "cut_L": 28,
+   "dry_edge": "#363133",
+   "side_front": "#3D383A",
+   "side_back": "#2C2627",
+   "back_dark": "#282223",
+   "back_lit": "#7B625E",
+   "back_lit_L": 44,
+   "unknown_base": "#323233",
+   "ink": "#21120D",
+   "ambient": "#6E2E1E",
+   "lamp": "#FF6A2A",
+   "biome_light": "#FF6A2A"
+  },
+  "ancient": {
+   "name": "Prastare Głębiny",
+   "exposure": 3.42,
+   "rocks": {
+    "DEEPSTONE": {
+     "lit": "#614E4B",
+     "dark": "#453E42",
+     "L": 27
+    },
+    "ANCIENT_BRICK": {
+     "lit": "#7D859F",
+     "dark": "#6C7183",
+     "L": 48
+    }
+   },
+   "cut_L": 27,
+   "dry_edge": "#352F33",
+   "side_front": "#3C3539",
+   "side_back": "#2A2428",
+   "back_dark": "#272226",
+   "back_lit": "#78645B",
+   "back_lit_L": 44,
+   "unknown_base": "#333233",
+   "ink": "#1C131A",
+   "ambient": "#44304E",
+   "lamp": "#FFB860",
+   "biome_light": "#6FF0FF"
+  },
+  "heart": {
+   "name": "Serce Góry",
+   "exposure": 4.42,
+   "rocks": {
+    "HEARTSTONE": {
+     "lit": "#723F40",
+     "dark": "#4D3538",
+     "L": 25
+    },
+    "BEDROCK": {
+     "lit": "#4F424E",
+     "dark": "#39323A",
+     "L": 22
+    }
+   },
+   "cut_L": 25,
+   "dry_edge": "#3B2629",
+   "side_front": "#432D30",
+   "side_back": "#321E21",
+   "back_dark": "#311F21",
+   "back_lit": "#865E57",
+   "back_lit_L": 44,
+   "unknown_base": "#343232",
+   "ink": "#1F0F11",
+   "ambient": "#521A24",
+   "lamp": "#FFB860",
+   "biome_light": "#FF2A3A"
+  }
+ },
+ "palette_corrections": {
+  "TIN": {
+   "accent": [
+    "#2A1A14",
+    "#4A2C1E"
+   ]
+  },
+  "SHELL_LIMESTONE": {
+   "a": [
+    "#D6C296",
+    "#D2B884"
+   ],
+   "b": [
+    "#EAD8AC",
+    "#E6CF9C"
+   ]
+  },
+  "RUNESTONE": {
+   "a": [
+    "#241C24",
+    "#34243A"
+   ],
+   "b": [
+    "#342832",
+    "#46304E"
+   ]
+  }
+ },
+ "estates": {
+  "hajer": [
+   "#7E6446",
+   "#C8902E"
+  ],
+  "mistrz": [
+   "#7E6446",
+   "#E6E0D2"
+  ],
+  "zastawny": [
+   "#6E6A62",
+   "#9AA0A0"
+  ],
+  "korona": [
+   "#6A3436",
+   "#A8303A"
+  ],
+  "waga": [
+   "#344A40",
+   "#B89A50"
+  ],
+  "straznicy": [
+   "#7A7A76",
+   "#E6E2D8"
+  ],
+  "korzenni": [
+   "#4E5636",
+   "#E0A030"
+  ],
+  "gnomy": [
+   "#3E6A62",
+   "#B070F0"
+  ],
+  "popielni": [
+   "#5E5A58",
+   "#FF7A2A"
+  ]
+ },
+ "reserved": {
+  "alarm": "#E8542A",
+  "runes": "#6FF0FF",
+  "bioluminescence": "#45E6C0",
+  "rarog_core": "#070508",
+  "rarog_bruise": [
+   "#3A1A2A",
+   "#5A1A3A"
+  ]
+ }
+}

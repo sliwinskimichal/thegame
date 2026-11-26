@@ -19,7 +19,7 @@
 import * as THREE from 'three';
 import { buildFluidGeometry } from '../../render/fluids';
 import { buildHeightfield } from '../../render/heightfield';
-import { DepthInkPass, GLSL_INK, hullGeometry, inkHullMaterial, pxScale } from '../../render/ink';
+import { DepthInkPass, GLSL_INK, GLSL_ROCK_INK, hullGeometry, inkHullMaterial, pxScale } from '../../render/ink';
 import { PostFX } from '../../render/post';
 import { buildMannequin, buildPropGeometries, collectProps } from '../../render/propsGeo';
 import { GLSL_LIGHT, GLSL_NOISE, GLSL_ROCK } from '../../render/shaderlib';
@@ -44,14 +44,17 @@ export interface IllParams {
   // --- rock chunks
   chunk: number; // cell size in tiles (0 = off)
   chunkInk: number; // joint line width relative to the contour (one side)
+  backStruct: number; // rock structure drawn on back walls as a lighter pencil line (0..1)
   bevel: number;
-  lostEdges: number; // 0..1: joints fade where unlit ("lost and found" edges)
+  darkDesat: number; // 0..1: darkness takes colour, not shape (unlit surfaces drift to cool grey)
   grainInk: number; // ore/gem grains traced in ink
   sparkle: number; // drawn star glints on mineral grains
   // --- fills
   valueTarget: number; // linear luminance the palette is pulled toward
   valueComp: number; // 0 = palette as is, 1 = every material at valueTarget
   poster: number; // value steps relative to the material mean (0 = off)
+  flat: number; // flatten fine procedural grain on the cut face (0..1), mineral grains kept
+  flatBack: number; // the same on back walls (calmer backgrounds)
   brush: number;
   desat: number;
   lightDesat: number;
@@ -92,6 +95,7 @@ export interface IllParams {
   saturation: number;
   vignette: number;
   grain: number;
+  exposure: number;
 }
 
 /** Shared defaults: a 3-band illustrated look with stones in ink (variants override). */
@@ -106,25 +110,28 @@ export const ILL_BASE: IllParams = {
   lip: 1,
   backInk: 0.35,
   inkTint: 0.35,
-  chunk: 1.7,
-  chunkInk: 0.3,
+  chunk: 0.85,
+  chunkInk: 0.32,
+  backStruct: 0.8,
   bevel: 0.35,
-  lostEdges: 0,
+  darkDesat: 0.25,
   grainInk: 0.75,
   sparkle: 1,
   valueTarget: 0.17,
-  valueComp: 0.35,
+  valueComp: 0.5,
   poster: 0,
+  flat: 0.45,
+  flatBack: 0.75,
   brush: 0.14,
-  desat: 0.2,
-  lightDesat: 0.3,
+  desat: 0.05,
+  lightDesat: 0.15,
   bands: 3,
   bandSoft: 0.14,
   ambCool: [0.62, 0.74, 0.82],
-  cutAmb: 0.34,
-  cutLight: 0.62,
-  backAmb: 0.55,
-  backLight: 1.0,
+  cutAmb: 0.58,
+  cutLight: 0.5,
+  backAmb: 0.85,
+  backLight: 0.85,
   backLift: 0.35,
   backTint: [0.15, 0.17, 0.18],
   sideDark: 0.62,
@@ -147,9 +154,10 @@ export const ILL_BASE: IllParams = {
   bloom: 0.45,
   bloomRadius: 0.55,
   bloomThreshold: 0.85,
-  saturation: 0.92,
+  saturation: 1.15,
   vignette: 0.42,
   grain: 0.025,
+  exposure: 1.05,
 };
 
 const TERRAIN_VERT = /* glsl */ `
@@ -194,13 +202,16 @@ uniform float uLip;
 uniform float uBackInk;
 uniform float uChunk;
 uniform float uChunkInk;
+uniform float uBackStruct;
 uniform float uBevel;
-uniform float uLostEdges;
+uniform float uDarkDesat;
 uniform float uGrainInk;
 uniform float uSparkle;
 uniform float uValueTarget;
 uniform float uValueComp;
 uniform float uPoster;
+uniform float uFlat;
+uniform float uFlatBack;
 uniform float uBrush;
 uniform float uDesat;
 uniform float uLightDesat;
@@ -231,6 +242,7 @@ ${GLSL_WORLD}
 ${GLSL_NOISE}
 ${GLSL_LIGHT}
 ${GLSL_INK}
+${GLSL_ROCK_INK}
 ${ILL_UNIFORMS}
 varying vec3 vPos;
 varying vec3 vNormal;
@@ -274,39 +286,43 @@ void main() {
   float vk = pow(uValueTarget / max(lum(mean), 0.004), uValueComp);
   vec3 alb = sf.albedo * vk;
   mean *= vk;
+  // flat fills: fine procedural grain is calmed (more on back walls); mineral grains stay
+  alb = mix(alb, mean * (0.9 + 0.2 * vnoise(uv * 0.45 + 3.0)), (interior ? uFlatBack : uFlat) * (1.0 - sf.mask));
 #ifdef POSTER
   {
     float r = lum(alb) / max(lum(mean), 1e-3);
     float q = r * uPoster;
     float qi = floor(q);
-    float qa = fwidth(q) * 0.75 + 1e-3;
+    float qa = fwidth(q) * 1.5 + 0.12;
     float qs = (qi + smoothstep(0.5 - qa, 0.5 + qa, q - qi)) / uPoster;
     alb *= mix(1.0, qs / max(r, 1e-3), 1.0 - sf.mask);
   }
 #endif
   alb = desat(alb, uDesat);
 
-  // ---- the cut face drawn as stones: joints, bevel, a value per stone
-  float chunkE = 1e3;
-  float chunkLod = 0.0;
-  float cellH = 0.5;
+  // ---- ink widths: constant in pixels (or following the zoom, clamped), uneven by world-space wobble
+  float wpx = clamp(uInkW.y * ppt, uInkW.x, max(uInkW.x, uInkW.z));
+  float wW = wpx * wpp;
+  float bt = uBoil > 0.0 ? floor(uTime * uBoil) : 0.0;
+  float wob = (vnoise(wp.xy * 1.7 + bt * 7.13) - 0.5) * 1.6 + (vnoise(wp.xy * 5.9 + 3.0 + bt * 3.71) - 0.5) * 0.7;
+  float wE = wW * max(0.3, 1.0 + uWobble * wob);
+  float aa = wpp * 0.75;
+
+  // ---- drawn rock structure: beds and joints, blocks and cracks, stipple and pebbles
+  RockInk rk;
+  rk.lines = 0.0;
+  rk.fine = 0.0;
+  rk.cell = 0.5;
+  rk.bev = 0.0;
 #ifdef CHUNKS
-  if (cut && !unexplored) {
-    vec2 an = pat == 1 ? vec2(0.62, 1.35) : vec2(0.9, 1.06);
-    vec2 cp = wp.xy * an / uChunk;
-    vec4 v = voronoi(cp);
-    cellH = hash12(v.zw);
-    chunkE = (v.y - v.x) * 0.5 * uChunk / max(an.x, an.y);
-    chunkLod = smoothstep(16.0, 34.0, uChunk * ppt);
-    vec2 rel = cp - v.zw - hash22(v.zw);
-    float nearB = 1.0 - smoothstep(0.0, 0.5, v.y - v.x);
-    float bev = nearB * dot(normalize(rel + 1e-4), vec2(-0.5, 0.866));
-    alb *= mix(1.0, (0.88 + 0.24 * cellH) * (1.0 + uBevel * bev), chunkLod);
+  if (cap && !unexplored) {
+    rk = rockInk(pat, wp.xy, p3.x, wpp, uChunk, wE * uChunkInk, aa);
+    alb *= mix(1.0, (0.88 + 0.24 * rk.cell) * (1.0 + uBevel * rk.bev), cut ? 1.0 : 0.5);
   }
 #endif
 #ifdef BRUSH
   {
-    float ang = (pat == 1 ? 0.15 : 0.7) * (cellH - 0.5) * 2.0;
+    float ang = (pat == 1 ? 0.15 : 0.7) * (rk.cell - 0.5) * 2.0;
     alb *= 1.0 + uBrush * brushStrokes(uv, ang, 1.0, lodFine) * (1.0 - 0.7 * sf.mask);
   }
 #endif
@@ -342,6 +358,9 @@ void main() {
     alb = mix(alb, painted, uBackLift);
   }
   vec3 col = alb * (uAmbCool * amb * vAo + hue * lb * gain * mix(1.0, vAo, 0.5));
+  // darkness takes colour, not shape: unlit surfaces drift to a cool grey (mineral grains keep some)
+  float dk = 1.0 - smoothstep(0.05, 0.45, l);
+  col = mix(col, vec3(lum(col)) * vec3(0.92, 0.98, 1.08), uDarkDesat * dk * (1.0 - 0.6 * sf.mask));
   col += sf.emissive * uEmissive;
 
   // ---- shadow marks
@@ -364,12 +383,6 @@ void main() {
 #endif
 
   // ---- ink
-  float wpx = clamp(uInkW.y * ppt, uInkW.x, max(uInkW.x, uInkW.z));
-  float wW = wpx * wpp;
-  float bt = uBoil > 0.0 ? floor(uTime * uBoil) : 0.0;
-  float wob = (vnoise(wp.xy * 1.7 + bt * 7.13) - 0.5) * 1.6 + (vnoise(wp.xy * 5.9 + 3.0 + bt * 3.71) - 0.5) * 0.7;
-  float wE = wW * max(0.3, 1.0 + uWobble * wob);
-  float aa = wpp * 0.75;
   float ink = 0.0;
   if (cap) {
     float dE = edgeDistance(vEdge, int(vMask + 0.5), uRound);
@@ -380,8 +393,9 @@ void main() {
     ink = max(ink, inkLine(vEdge.x * span, wE * 0.5, aa) * uBackInk);
   }
 #ifdef CHUNKS
-  float found = mix(1.0, smoothstep(0.04, 0.3, l), uLostEdges);
-  ink = max(ink, inkLine(chunkE, wE * uChunkInk, aa) * chunkLod * found);
+  float structure = max(rk.lines, rk.fine * 0.85) * (1.0 - grassMask);
+  if (cut) ink = max(ink, structure);
+  else if (cap) col = mix(col, inkC, structure * uBackStruct * 0.6); // back walls: a lighter pencil line
 #endif
   if (grassy && cap && !top) ink = max(ink, inkLine(abs(fract(-wp.y) - fringe), wE * 0.3, aa) * 0.8);
 #ifdef GRAIN_INK
@@ -489,6 +503,8 @@ void main() {
   float form = smoothstep(-0.12, 0.18, dot(N, normalize(vec3(-0.45, 0.75, 0.5))));
   vec3 base = desat(vColor, uDesat);
   vec3 col = base * (uAmbCool * uPropAmb + hue * lb * uPropLight) * mix(0.66, 1.0, form);
+  float dk = 1.0 - smoothstep(0.05, 0.45, l);
+  col = mix(col, vec3(lum(col)) * vec3(0.92, 0.98, 1.08), uDarkDesat * dk);
   col += vColor * vEmi;
   gl_FragColor = vec4(col, 1.0);
 }
@@ -595,13 +611,16 @@ function styleUniforms(p: IllParams): WorldUniforms {
     uBackInk: { value: p.backInk },
     uChunk: { value: Math.max(p.chunk, 0.01) },
     uChunkInk: { value: p.chunkInk },
+    uBackStruct: { value: p.backStruct },
     uBevel: { value: p.bevel },
-    uLostEdges: { value: p.lostEdges },
+    uDarkDesat: { value: p.darkDesat },
     uGrainInk: { value: p.grainInk },
     uSparkle: { value: p.sparkle },
     uValueTarget: { value: p.valueTarget },
     uValueComp: { value: p.valueComp },
     uPoster: { value: p.poster },
+    uFlat: { value: p.flat },
+    uFlatBack: { value: p.flatBack },
     uBrush: { value: p.brush },
     uDesat: { value: p.desat },
     uLightDesat: { value: p.lightDesat },
@@ -755,6 +774,7 @@ export function createIllustrated(ctx: StyleContext, p: IllParams): StyleInstanc
     (inkPass.material.uniforms.uInk!.value as THREE.Color).copy(u.uInk!.value as THREE.Color);
     post.composer.insertPass(inkPass, 1);
   }
+  ctx.renderer.toneMappingExposure = p.exposure;
   post.bloom.strength = p.bloom;
   post.bloom.radius = p.bloomRadius;
   post.bloom.threshold = p.bloomThreshold;
@@ -850,8 +870,14 @@ export const ILL_VARIANTS: readonly IllVariant[] = [
   {
     id: 'i12-darkmine',
     namePl: 'Ciemna kopalnia',
-    descPl: 'Ciemniej: niski ambient, 4 pasma ciepłego światła, fugi „gubione” w mroku, ciężka kreska 3 px, gęste kreskowanie nieodkrytego.',
-    params: { cutAmb: 0.24, backAmb: 0.4, cutLight: 0.75, bands: 4, lostEdges: 0.8, inkPx: 3, inkMaxPx: 3, fogHatchPx: 5, desat: 0.25, bloom: 0.55 },
+    descPl: 'Ciemniej: niski ambient, 4 pasma ciepłego światła, mrok mocno zabiera kolor (kreska zostaje), ciężka kreska 3 px, gęste kreskowanie nieodkrytego.',
+    params: { cutAmb: 0.24, backAmb: 0.4, cutLight: 0.75, bands: 4, darkDesat: 0.85, inkPx: 3, inkMaxPx: 3, fogHatchPx: 5, desat: 0.25, bloom: 0.55 },
+  },
+  {
+    id: 'i13-lightsection',
+    namePl: 'Jasny przekrój',
+    descPl: 'Odwrócone wartości: lico skały jasne jak papier przekroju, wnęki ciemniejsze z ciepłymi plamami światła, mocne bryły.',
+    params: { cutAmb: 0.62, cutLight: 0.45, valueComp: 0.55, valueTarget: 0.2, backAmb: 0.3, backLift: 0.2, sideDark: 0.5, bevel: 0.45, darkDesat: 0.3 },
   },
 ];
 

@@ -240,7 +240,8 @@ export function suggest(id: string, pool: Iterable<string>, max = 2): string[] {
     else if (q.length >= 4 && (c.includes(q) || q.includes(c))) scored.push([limit + 1, c]);
   }
   scored.sort((x, y) => x[0] - y[0] || x[1].localeCompare(y[1]));
-  return scored.slice(0, max).map((s) => s[1]);
+  // only the closest matches (ties): a far second guess confuses more than it helps
+  return scored.filter((s) => s[0] === scored[0]![0]).slice(0, max).map((s) => s[1]);
 }
 
 function didYouMean(id: string, pool: Iterable<string>): string {

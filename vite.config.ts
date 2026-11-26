@@ -8,7 +8,7 @@ export default defineConfig({
     target: 'es2022',
     sourcemap: true,
     chunkSizeWarningLimit: 1500,
-    rollupOptions: { input: { main: 'index.html', lab: 'lab.html' } },
+    rollupOptions: { input: { main: 'index.html', lab: 'lab.html', tools: 'tools.html' } },
   },
   server: { host: true },
   test: {

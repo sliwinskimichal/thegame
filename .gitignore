@@ -7,3 +7,4 @@ dist
 
 # owner style reference (screenshot of another game) - local only, never committed
 .reference/
+__pycache__/

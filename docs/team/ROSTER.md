@@ -30,5 +30,5 @@ Fale: **1** — fundamenty i ścieżka krytyczna nowego kierunku artystycznego; 
 w danych; **3** — postacie, efekty i dźwięk na bazie zatwierdzonej biblii sztuki i silnika.
 Plan produkcji: `docs/team/PRODUCTION.md`; tablica zadań: `docs/team/BOARD.md`.
 
-Uwagi do definicji ról: rola nr 13 (Sound Designer) dotarła ucięta po punkcie 1 struktury — sekcje 2–5
-odtworzono analogicznie do pozostałych ról audio; role nr 10 i 18 nie zostały przekazane.
+Uwagi do definicji ról: rola nr 13 (Sound Designer) uzupełniona pełnym tekstem od właściciela (2026-11-26);
+brak ról nr 10 i 18 to przypadkowa numeracja — skład jest kompletny.

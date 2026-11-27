@@ -33,9 +33,13 @@ describe('world size vs the biome bible', () => {
     });
   });
 
-  it.fails('BUG-006: CONFIG.worldH holds the mountain (40 tiles) plus every biome (680 tiles deep)', () => {
+  it('BUG-006 (fixed): CONFIG.worldH holds the mountain (40 tiles) plus every biome (680 tiles deep)', () => {
     const deepest = Math.max(...BIOMES.map((b) => b.depth[1]));
     expect(CONFIG.worldH).toBeGreaterThanOrEqual(deepest + 40);
+    // chunks (render, dirty tracking) and navigation clusters (16) divide both axes: no partial edge chunk
+    expect(CONFIG.worldW % CONFIG.chunk).toBe(0);
+    expect(CONFIG.worldH % CONFIG.chunk).toBe(0);
+    expect(CONFIG.worldH % 16).toBe(0);
   });
 });
 

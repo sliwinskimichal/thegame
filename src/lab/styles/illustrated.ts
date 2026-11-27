@@ -990,8 +990,8 @@ const R2B_LIGHT: Partial<IllParams> = {
 /** Value plan of round 2 (producer): background out of light ~14 L* under the cut face, pools fall off. */
 const PLAN: Partial<IllParams> = {
   post: 'ink', bloom: 0.9, bloomRadius: 0.8, bloomThreshold: 0.65, saturation: 1.05, vignette: 0.5, grain: 0.03, exposure: 1.05,
-  ambCool: [0.62, 0.74, 0.82], cutAmb: 0.65, cutLight: 0.42, rimGlow: 0.35, backAmb: 0.45, backLight: 1.15,
-  bands: 0, lightDesat: 0, darkDesat: 0.25, desat: 0.05, air: 0.12, airSmooth: 1, shaft: 0.4, emissive: 1.5, lightCurve: 1.4,
+  ambCool: [0.62, 0.74, 0.82], cutAmb: 0.65, cutLight: 0.35, rimGlow: 0.35, backAmb: 0.45, backLight: 0.6, backLift: 0.3,
+  bands: 0, lightDesat: 0, darkDesat: 0.25, desat: 0.05, air: 0.12, airSmooth: 1, shaft: 0.4, emissive: 1.5, lightCurve: 1.6,
 };
 
 export const LIGHT_VARIANTS: readonly IllVariant[] = [

@@ -161,10 +161,12 @@ export function buildArena(seed = 777): ArenaInfo {
   cave(5, 31, 3.5, 4, 1.4, 2.4); // hidden cave (unexplored)
 
   // water pool: lowest rows of the granite cave
-  for (let y = 32; y < H; y++)
+  // (only the granite cave: before round 2 of tournament #3 this also flooded the top rows of the
+  // lava pocket, which rendered as a pale "glass" slab above the lava)
+  for (let y = 32; y < 35; y++)
     for (let x = 36; x < 60; x++) {
       const i = I(x, y);
-      if (cav[i] === CAV.NATURAL && y >= 32) {
+      if (cav[i] === CAV.NATURAL) {
         fluid[i] = 255;
         fluidKind[i] = FLUID.WATER;
       }

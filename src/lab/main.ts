@@ -144,7 +144,46 @@ function probes(): { x: number; y: number; tx: number; ty: number; cat: string; 
   return out;
 }
 
+/**
+ * Light-pool probes for the falloff guard (tournament #3 round 2): for every torch in view, the
+ * screen position of the pool centre on the back wall (0.6 tiles under the flame) and of the back
+ * wall 3 tiles to each side (only where that tile is open and explored).
+ */
+function lightProbes(): { x: number; y: number; side: { x: number; y: number }[] }[] {
+  const out: { x: number; y: number; side: { x: number; y: number }[] }[] = [];
+  const v = new THREE.Vector3();
+  const w = W();
+  const h = H();
+  const scr = (x: number, y: number, z: number) => {
+    v.set(x, y, z).project(camera);
+    return { x: Math.round((v.x * 0.5 + 0.5) * w), y: Math.round((1 - (v.y * 0.5 + 0.5)) * h) };
+  };
+  const open = (x: number, y: number) => {
+    if (x < 0 || y < 0 || x >= world.w || y >= world.h) return false;
+    const i = world.idx(x, y);
+    return SOLID[world.mat[i]!] !== 1 && (world.flags[i]! & TF.EXPLORED) !== 0 && world.cav[i] !== CAV.SKY && !world.fluidKind[i];
+  };
+  for (const pr of world.props) {
+    if (pr.type !== PROP.TORCH) continue;
+    const cy = pr.y - 0.6;
+    const ty = Math.floor(-cy);
+    const c = scr(pr.x, cy, pr.z + 0.02);
+    if (c.x < 4 || c.y < 4 || c.x > w - 4 || c.y > h - 4) continue;
+    const side: { x: number; y: number }[] = [];
+    for (const dx of [-3, 3]) {
+      const tx = Math.floor(pr.x + dx);
+      if (!open(tx, ty)) continue;
+      const z = -(world.depth[world.idx(tx, ty)]! / 32) + 0.02;
+      const s = scr(pr.x + dx, cy, z);
+      if (s.x >= 4 && s.y >= 4 && s.x <= w - 4 && s.y <= h - 4) side.push(s);
+    }
+    if (side.length) out.push({ ...c, side });
+  }
+  return out;
+}
+
 (window as unknown as { __lab: unknown }).__lab = {
+  lightProbes,
   styles: STYLES.map((s) => s.id),
   scenarios: SCEN.map((s) => s.id),
   styleId: styleDef.id,

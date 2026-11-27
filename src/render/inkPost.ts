@@ -183,6 +183,8 @@ export class InkPost {
     r.setRenderTarget(this.rt);
     r.render(this.scene, this.camera);
     const m = this.mips;
+    const autoClear = r.autoClear;
+    r.autoClear = false; // the up chain adds into the mips in place; every other pass covers the target
     if (this.o.bloom > 0) {
       this.pass(this.pre, this.rt.texture, this.rt.width, this.rt.height, m[0]!);
       for (let i = 1; i < m.length; i++) this.pass(this.down, m[i - 1]!.texture, m[i - 1]!.width, m[i - 1]!.height, m[i]!);
@@ -197,5 +199,6 @@ export class InkPost {
     this.quad.material = this.final;
     r.setRenderTarget(null);
     this.quad.render(r);
+    r.autoClear = autoClear;
   }
 }

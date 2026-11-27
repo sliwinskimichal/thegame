@@ -17,6 +17,7 @@ import { Rng } from '../../src/core/rng';
 import { M, SOLID } from '../../src/world/materials';
 import { FLUID } from '../../src/world/world';
 import { AStar, type PathFinder } from '../../src/sim/nav/astar';
+import { AGENT, NavAgent, NavPlanner } from '../../src/sim/nav/follow';
 import { NavGrid } from '../../src/sim/nav/grid';
 import { HpaStar } from '../../src/sim/nav/hpa';
 import { Path, scratchFor } from '../../src/sim/nav/search';
@@ -294,9 +295,90 @@ describe.runIf(BENCH)('navigation benchmark', () => {
       log(`\n(${changes.length} zmian: kopanie przy pustkach i zasypywanie; A* = sam NavGrid: mediana ${f2(pct(gridOnly, 0.5))} ms)`);
       finders.forEach((f) => f.dispose());
     }
+    // ---------------------------------------------------------------- 200 dwarves
+    log('\n### 200 krasnoludów w grodzie (kopalnia seed 2 + gród), 600 ticków × 50 ms, 1 wykop na tick');
+    log('');
+    log('| Algorytm | kolejka planowania | tick: mediana / p95 / maks. [ms] | pierwszy tick [ms] | planów / tick (śr.) | czekanie w kolejce: śr. / maks. [ticki] | przeplanowań po zmianach | dotarło do celu |');
+    log('|---|---|---|---|---|---|---|---|');
+    for (const a of ALGOS.slice(0, 3))
+      for (const budget of [0, 3000]) {
+        const sc = buildSyntheticMine(2);
+        addColony(sc);
+        const r = simulateColony(sc, a.make, budget);
+        log(`| ${a.name} | ${budget ? `${budget} rozwinięć/tick` : 'brak (od razu)'} | ${f2(pct(r.ticks, 0.5))} / ${f2(pct(r.ticks, 0.95))} / ${f2(Math.max(...r.ticks))} | ${f2(r.first)} | ` +
+          `${(r.plans / r.ticks.length).toFixed(2)} | ${budget ? `${r.waitMean.toFixed(1)} / ${r.waitMax}` : '—'} | ${r.replans} | ${r.arrived} |`);
+      }
     if (process.env.NAV_BENCH_OUT) writeFileSync(process.env.NAV_BENCH_OUT, lines.join('\n') + '\n');
   });
 });
+
+/**
+ * 200 agents in the colony block: 90% of new goals within 24 tiles, 10% anywhere in the colony;
+ * a new goal on arrival or after being blocked; one dig next to an open tile per tick.
+ */
+function simulateColony(sc: NavScenario, make: (g: NavGrid) => PathFinder, budget: number) {
+  const g = buildGrid(sc);
+  const f = make(g);
+  const planner = budget > 0 ? new NavPlanner(budget) : null;
+  const W = g.w;
+  const rng = new Rng('colony-200');
+  const home: number[] = [];
+  for (let y = 64; y < 64 + 4 * 36; y++) for (let x = 12; x < 140; x++) if (g.standable(0, y * W + x)) home.push(y * W + x);
+  const pickGoal = (from: number): number => {
+    if (rng.chance(0.1)) return home[Math.floor(rng.next() * home.length)];
+    for (let t = 0; t < 50; t++) {
+      const x = (from % W) + rng.int(-24, 24);
+      const y = Math.floor(from / W) + rng.int(-24, 24);
+      if (x >= 0 && y >= 0 && x < W && y < g.h && g.standable(0, y * W + x)) return y * W + x;
+    }
+    return home[Math.floor(rng.next() * home.length)];
+  };
+  const agents: NavAgent[] = [];
+  const blockedFor: number[] = [];
+  let plans = 0;
+  const t0 = now();
+  for (let k = 0; k < 200; k++) {
+    const a = new NavAgent(f, home[Math.floor(rng.next() * home.length)], planner);
+    a.go([pickGoal(a.cell)]);
+    plans++;
+    agents.push(a);
+    blockedFor.push(0);
+  }
+  planner?.run();
+  const first = now() - t0;
+  const ticks: number[] = [];
+  let arrived = 0;
+  for (let t = 0; t < 600; t++) {
+    // one tile dug per tick somewhere in the colony (mining, building work)
+    for (let tries = 0; tries < 40; tries++) {
+      const x = rng.int(12, 139);
+      const y = rng.int(64, 64 + 4 * 36);
+      const i = y * W + x;
+      if (SOLID[sc.world.mat[i]] && (!SOLID[sc.world.mat[i - 1]] || !SOLID[sc.world.mat[i + 1]])) {
+        sc.world.dig(x, y);
+        break;
+      }
+    }
+    const t1 = now();
+    planner?.run();
+    for (let k = 0; k < agents.length; k++) {
+      const a = agents[k];
+      const st = a.tick(50);
+      if (st === AGENT.ARRIVED || (st === AGENT.BLOCKED && ++blockedFor[k] > 40) || st === AGENT.LOST) {
+        if (st === AGENT.ARRIVED) arrived++;
+        if (st === AGENT.LOST) a.cell = home[Math.floor(rng.next() * home.length)];
+        blockedFor[k] = 0;
+        a.go([pickGoal(a.cell)]);
+        plans++;
+      }
+    }
+    ticks.push(now() - t1);
+  }
+  const replans = agents.reduce((s, a) => s + a.replans, 0);
+  f.dispose();
+  const waitMean = planner && planner.served ? planner.waitTotal / planner.served : 0;
+  return { ticks, first, plans: plans - 200, replans, arrived, waitMean, waitMax: planner ? planner.waitMax : 0 };
+}
 
 describe('navigation benchmark harness', () => {
   it('is skipped unless NAV_BENCH=1 (smoke: query sets are deterministic)', () => {

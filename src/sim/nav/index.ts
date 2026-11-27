@@ -18,5 +18,5 @@ export { Path, SearchScratch, scratchFor } from './search';
 export { AStar, type PathFinder, type FindOptions, type AStarOptions } from './astar';
 export { JumpTables } from './jump';
 export { HpaStar, type HpaOptions } from './hpa';
-export { NavAgent, AGENT } from './follow';
+export { NavAgent, NavPlanner, AGENT } from './follow';
 export { workSpots } from './spots';

@@ -3,7 +3,7 @@ import { Rng } from '../../src/core/rng';
 import { M, SOLID } from '../../src/world/materials';
 import { FLUID } from '../../src/world/world';
 import { AStar } from '../../src/sim/nav/astar';
-import { AGENT, NavAgent } from '../../src/sim/nav/follow';
+import { AGENT, NavAgent, NavPlanner } from '../../src/sim/nav/follow';
 import { NavGrid } from '../../src/sim/nav/grid';
 import { HpaStar } from '../../src/sim/nav/hpa';
 import { BAT, DWARF, DWARF_DIVER, GOBLIN, SPIDER, TROLL, WOLF, heuristicCoefficients } from '../../src/sim/nav/profiles';
@@ -364,6 +364,36 @@ describe('edge cases (F2-4)', () => {
     expect(agent.cell).toBe(grid.idx(1, 4));
     // from the lower tunnel the goal is out of reach (two-row step): blocked, not stuck in a loop
     expect(agent.state).toBe(AGENT.BLOCKED);
+  });
+
+  it('planner queue spreads a burst of plans over ticks, deterministically', () => {
+    const run = () => {
+      const sc = buildSyntheticMine(4);
+      const grid = new NavGrid(sc.world, { infra: sc.infra });
+      applyLinks(grid, sc);
+      const finder = new HpaStar(grid, 0, { cluster: 16 });
+      const planner = new NavPlanner(500);
+      const cells: number[] = [];
+      for (let i = 0; i < grid.n; i++) if (grid.standable(0, i)) cells.push(i);
+      const rng = new Rng('burst');
+      const agents: NavAgent[] = [];
+      for (let k = 0; k < 60; k++) {
+        const a = new NavAgent(finder, cells[Math.floor(rng.next() * cells.length)], planner);
+        expect(a.go([cells[Math.floor(rng.next() * cells.length)]])).toBe(AGENT.WAITING);
+        agents.push(a);
+      }
+      const servedPerTick: number[] = [];
+      for (let t = 0; t < 400; t++) {
+        servedPerTick.push(planner.run());
+        for (const a of agents) a.tick(50);
+      }
+      return { servedPerTick, cells: agents.map((a) => a.cell), states: agents.map((a) => a.state) };
+    };
+    const a = run();
+    expect(a.servedPerTick[0]).toBeGreaterThan(0);
+    expect(a.servedPerTick[0]).toBeLessThan(60); // the burst did not fit in one tick
+    expect(a.states.every((s) => s !== AGENT.WAITING)).toBe(true); // everyone was served
+    expect(run()).toEqual(a); // same seed, same result: the budget is in expansions, not milliseconds
   });
 
   it('goals and starts on the map border', () => {

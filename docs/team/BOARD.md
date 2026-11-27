@@ -39,7 +39,7 @@ Statusy: `kolejka` · `w toku` · `do przeglądu` · `zrobione` · `zablokowane 
 ## Fala 3 — postacie, efekty, dźwięk (M3–M4)
 | Id | Zadanie | Agent | Status |
 |---|---|---|---|
-| F3-1 | Krasnolud: model i ruch (turniej) | animator-ta | kolejka (czeka na M1) |
+| F3-1 | Krasnolud: model i ruch (turniej) | animator-ta | **w toku — etap 1** (start przed M1 na prośbę właściciela; styl zawężony do i08 + światło L00): ≥ 10 wariantów konstrukcji × 4 role, rig proceduralny, cykle spoczynek/chód/kopanie/wspinaczka/noszenie, stanowisko `dwarves.html`, `docs/variants/04-dwarf.md` |
 | F3-2 | Efekty: kopanie, iskry, zawał, Pieśń (turniej) | vfx-artist | kolejka (czeka na M1) |
 | F3-3 | Ikony surowców (turniej stylu) | artist-2d | kolejka (czeka na biblię sztuki) |
 | F3-4 | Dźwięki kopania per materiał (turniej) | sound-designer | kolejka |

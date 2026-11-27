@@ -1,7 +1,8 @@
 /**
  * F2-3 stage 2 / step 6: proof scenarios of the headless colony.
- *  "Mała kopalnia": 8 dwarves, the player orders a 10 x 4 chamber in a hillside and a stockpile on the
- *  meadow; the chamber gets dug, the loot ends in the stockpile, nobody dies, nothing deadlocks.
+ *  "Mała kopalnia": 8 dwarves, the player orders a 10 x 4 chamber in a hillside (behind a 2-tile entrance
+ *  drift) and a stockpile on the meadow; the chamber gets dug, the loot ends in the stockpile, nobody
+ *  dies, nothing deadlocks.
  *  Cave-in variants (limestone, roof wider than 6): with wood the dwarves stand timber props under the
  *  warned roof; without wood they flee and the roof falls on nobody.
  * Set SCENARIO_OUT=1 to print the ASCII views (copied into docs/design/sim/JOBS.md).
@@ -58,19 +59,23 @@ const STONE = resourceIndex('stone');
 describe('scenario: a small mine', () => {
   it('8 dwarves dig a 10 x 4 chamber in granite, haul the stone to the stockpile, nobody dies, nothing deadlocks', () => {
     const { c, rec } = mine(M.GRANITE, 0);
+    // a 2-tile entrance drift, then the chamber behind it: an opening straight onto the meadow would
+    // make its roof a cantilever over open air (the roof model fails it past maxSpan / 2)
+    c.orderDig(20, 11, 21, 12, 7);
     // the upper three rows first, the floor row last (it lowers the floor: the top row would be out of reach)
-    c.orderDig(20, 10, 29, 12, 6);
-    c.orderDig(20, 13, 29, 13, 4);
-    const before = view(c, 0, 8, 33, 15);
+    c.orderDig(22, 10, 31, 12, 6);
+    c.orderDig(22, 13, 31, 13, 4);
+    const before = view(c, 0, 8, 35, 15);
     let t = 0;
-    while (t < 6000 && !(c.board.openCount === 0 && c.items.total(STONE, (i) => c.stockpiles.isStorage(i)) === 40)) {
+    while (t < 6000 && !(c.board.openCount === 0 && c.items.total(STONE, (i) => c.stockpiles.isStorage(i)) === 44)) {
       c.step();
       t++;
     }
-    const after = view(c, 0, 8, 33, 15);
+    const after = view(c, 0, 8, 35, 15);
     if (OUT) console.log(`\nmała kopalnia: ${t} ticków (${(t / 20).toFixed(1)} s)\nprzed:\n${before}\npo:\n${after}\n`);
-    for (let y = 10; y <= 13; y++) for (let x = 20; x <= 29; x++) expect(c.world.isSolid(x, y), `${x},${y}`).toBe(false);
-    expect(c.items.total(STONE, (i) => c.stockpiles.isStorage(i))).toBe(40);
+    for (let y = 10; y <= 13; y++) for (let x = 22; x <= 31; x++) expect(c.world.isSolid(x, y), `${x},${y}`).toBe(false);
+    expect(c.items.total(STONE, (i) => c.stockpiles.isStorage(i))).toBe(44); // 40 chamber + 4 entrance
+    expect(c.sim.structure.stats.warnings).toBe(0);
     expect(c.items.total(STONE, (i) => !c.stockpiles.isStorage(i))).toBe(0);
     expect(rec.of('dwarfDied').length).toBe(0);
     expect(c.sim.structure.stats.collapses).toBe(0);

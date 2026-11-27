@@ -365,7 +365,7 @@ export class Dwarves implements DwarfView {
     const t = b.type[s];
     const [x, y] = this.xy(b.target[s]!);
     if (t === JT.DIG) {
-      const g = this.freeSpots(d, x, y);
+      const g = this.freeSpots(d, x, y, this.risky(s));
       if (!g) return false;
       this.claim(d, s, STEP.TO_SITE);
       this.agents[d]!.go(this.goals.subarray(0, g));
@@ -415,7 +415,7 @@ export class Dwarves implements DwarfView {
       return true;
     }
     const [x, y] = this.xy(b.target[s]!);
-    const g = this.freeSpots(d, x, y);
+    const g = this.freeSpots(d, x, y, this.risky(s));
     if (!g) return fresh ? false : this.abandon(d, false);
     if (fresh) this.claim(d, s, STEP.TO_SITE);
     else {
@@ -449,7 +449,7 @@ export class Dwarves implements DwarfView {
       if (owner && owner !== d + 1) {
         this.stats.spotConflicts++;
         const [x, y] = this.xy(b.target[s]!);
-        const g = this.freeSpots(d, x, y);
+        const g = this.freeSpots(d, x, y, this.risky(s));
         if (!g) this.abandon(d, false);
         else a.go(this.goals.subarray(0, g));
         return;
@@ -537,7 +537,7 @@ export class Dwarves implements DwarfView {
   /** After a pickup for a build: head for the site. */
   private buildLeg2(d: number, s: number): void {
     const [x, y] = this.xy(this.board.target[s]!);
-    const g = this.freeSpots(d, x, y);
+    const g = this.freeSpots(d, x, y, this.risky(s));
     if (!g) {
       this.abandon(d, false);
       return;
@@ -738,16 +738,29 @@ export class Dwarves implements DwarfView {
     this.bus.emit('dwarfDied', { dwarf: d, x, y, cause });
   }
 
-  /** Free work spots for tile (x, y) into `goals`; returns the count. */
-  private freeSpots(d: number, x: number, y: number): number {
+  /**
+   * Free work spots for tile (x, y) into `goals`; returns the count. While a roof is failing, spots
+   * under it are left out unless `risky` (a support or a rescue, where brave() decides).
+   */
+  private freeSpots(d: number, x: number, y: number, risky = false): number {
     const n = workSpots(this.grid, this.p, x, y, this.spots);
+    const careful = !risky && this.structure.failing > 0;
+    const W = this.world.w;
     let k = 0;
     for (let j = 0; j < n; j++) {
       const c = this.spots[j]!;
       const o = this.spotOwner[c]!;
-      if (!o || o === d + 1) this.goals[k++] = c;
+      if (o && o !== d + 1) continue;
+      if (careful && this.structure.dangerAt(c % W, Math.floor(c / W))) continue;
+      this.goals[k++] = c;
     }
     return k;
+  }
+
+  /** Jobs that may be worked under a failing roof (brave() decides how long). */
+  private risky(s: number): boolean {
+    const b = this.board;
+    return (b.type[s] === JT.DIG && (b.flags[s]! & JF.RESCUE) !== 0) || (b.type[s] === JT.BUILD && BUILD_SPECS[b.arg[s]!]!.support >= 0);
   }
 
   /** Cells from which a dwarf picks up or drops at tile i: the tile itself (if standable) and its work spots. */

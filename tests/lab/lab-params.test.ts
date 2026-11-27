@@ -69,9 +69,9 @@ describe('F2-12: tone scenes', () => {
       expect(SOLID[w.mat[w.idx(64, 16)]!]).toBe(1);
       const kinds = new Set(t.dressing.map((d) => d.kind));
       for (const k of ['forge', 'anvil', 'table', 'bench', 'barrel', 'shelf', 'ladder', 'pipe', 'planks', 'support', 'brokenSupport', 'debris', 'dust', 'crack']) expect(kinds.has(k as never), k).toBe(true);
+      for (const k of ['beam', 'toolrack', 'gearwheel', 'grindstone', 'lantern', 'chest', 'cauldron', 'valve']) expect(kinds.has(k as never), k).toBe(true);
       const hall = w.mannequins.filter((m) => m.x < 30);
-      expect(hall.length).toBeGreaterThanOrEqual(6);
-      expect(w.mannequins.length).toBeLessThanOrEqual(12); // lab lanterns: MAX_DYN_LIGHTS
+      expect(hall.length).toBeGreaterThanOrEqual(10); // a crowded hall (lanterns only for the first 12: MAX_DYN_LIGHTS)
     });
   }
   it('the seed changes the natural rock, not the staging', () => {

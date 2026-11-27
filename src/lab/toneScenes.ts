@@ -1,7 +1,8 @@
 /**
  * Tone scenes (F2-12, CHARTER §4): three static stagings every visual tournament is judged in.
- *  - izba  (evening hall): a crowded colony hall — tables, benches, barrels, shelves, anvil, forge,
- *          ladder, a pipe run, 8 dwarves, warm torches; a dressed-stone wall meets natural rock
+ *  - izba  (evening hall): a colony hall packed floor to roof — tables, benches, barrels, shelves,
+ *          anvil, forge, grindstone, a gear drive, tool racks, two pipe runs with valves, ceiling
+ *          timbers, hanging lanterns, chests, 12 dwarves, warm torches; a dressed-stone wall meets natural rock
  *          directly and part of the back wall is masonry (built vs natural must read apart).
  *  - przodek (working face in the dark): a dwarf with a lantern at the end of a timbered drift,
  *          the unknown ahead, an ore vein half exposed in the face.
@@ -130,6 +131,25 @@ export function buildToneScenes(seed = 1): ArenaInfo & { dressing: DressItem[] }
   d.push({ kind: 'shelf', x: 12.4, y: -11, z: -0.78 });
   d.push({ kind: 'barrel', x: 10.8, y: -11, z: -0.5 });
   for (let x = 5; x <= 29; x++) d.push({ kind: 'pipe', x: x + 0.5, y: -13.3, z: -0.86 });
+  // dense evening hall: timbers, a second pipe run, tools and machines on the walls, lamps, stores
+  for (let x = 6; x <= 28; x += 3) d.push({ kind: 'beam', x: x + 0.5, y: -13, z: 0 });
+  for (let x = 13; x <= 22; x++) d.push({ kind: 'pipe', x: x + 0.5, y: -13.75, z: -0.7 });
+  d.push({ kind: 'pipe', x: 13.5, y: -16.2, z: -0.7, sx: 4.9, rz: Math.PI / 2 });
+  d.push({ kind: 'valve', x: 13.5, y: -16.6, z: -0.62 });
+  d.push({ kind: 'valve', x: 18.5, y: -16.2, z: -0.78 });
+  d.push({ kind: 'toolrack', x: 12.9, y: hallFloor + 0.5, z: -0.9 });
+  d.push({ kind: 'toolrack', x: 24.6, y: hallFloor + 0.6, z: -0.9 });
+  d.push({ kind: 'gearwheel', x: 17.7, y: hallFloor, z: -0.72 });
+  d.push({ kind: 'grindstone', x: 11.9, y: hallFloor, z: -0.25 });
+  d.push({ kind: 'cauldron', x: 6.3, y: hallFloor, z: -0.2, sx: 0.8, sy: 0.8, sz: 0.8 });
+  for (const x of [8.5, 14.5, 20.5, 26.5]) d.push({ kind: 'lantern', x: x + j(0.1), y: -13.25, z: -0.45 });
+  d.push({ kind: 'chest', x: 21.8, y: hallFloor, z: -0.75 });
+  d.push({ kind: 'crate', x: 23.0, y: hallFloor + 0.9, z: -0.4, ry: 0.1 });
+  d.push({ kind: 'shelf', x: 26.6, y: hallFloor, z: -0.86 });
+  d.push({ kind: 'shelf', x: 9.9, y: -11, z: -0.85 });
+  d.push({ kind: 'sack', x: 27.6, y: hallFloor, z: -0.25 });
+  d.push({ kind: 'barrel', x: 28.9, y: hallFloor, z: -0.35 });
+  d.push({ kind: 'chest', x: 13.6, y: -11, z: -0.5 });
   d.push({ kind: 'pipe', x: 18.5, y: -14.6, z: -0.86, sx: 2.6, rz: Math.PI / 2 });
   for (const x of [36.5, 39.5, 42.5, 45.3]) d.push({ kind: 'support', x: x + j(0.1), y: -17, z: -0.5, sy: 2 });
   for (const x of [58.5, 60.6, 69.6, 71.5]) d.push({ kind: 'support', x: x + j(0.1), y: -17, z: -0.5, sy: 2 });
@@ -150,6 +170,10 @@ export function buildToneScenes(seed = 1): ArenaInfo & { dressing: DressItem[] }
     { x: 25.8, y: hallFloor, facing: -1, pose: 'walk' },
     { x: 27.3, y: hallFloor, facing: 1, pose: 'stand' },
     { x: 12.0, y: -11, facing: -1, pose: 'stand' },
+    { x: 12.4, y: hallFloor, facing: 1, pose: 'dig' },
+    { x: 18.6, y: hallFloor, facing: -1, pose: 'dig' },
+    { x: 23.6, y: hallFloor, facing: 1, pose: 'stand' },
+    { x: 20.0, y: hallFloor, facing: 1, pose: 'stand' },
     { x: 45.9, y: -17, facing: 1, pose: 'dig' },
     { x: 60.2, y: -17, facing: -1, pose: 'walk' },
     { x: 70.4, y: -17, facing: -1, pose: 'stand' },

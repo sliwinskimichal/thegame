@@ -231,6 +231,8 @@ export class JobBoard {
         const code = this.dig.canDig(x, y, 8);
         if (code !== DIG_FAIL.OK && code !== DIG_FAIL.TIER_TOO_LOW) return false;
         if (this.dig.jobAt(x, y)) return false;
+        if (this.flags[s]! & JF.RESCUE) return true; // digging out a buried dwarf is worth the risk
+        if (this.wait[s] && this.slot(this.wait[s]!) >= 0) return false; // the support it waits for is not up yet
         return !this.dangerous(x, y);
       }
       case JT.BUILD: {
@@ -383,6 +385,7 @@ export class JobBoard {
       else if (t === JT.HAUL && this.items.tile[this.arg[s]!]! < 0) this.end(s, 'gone');
       else if (t === JT.HAUL) this.target[s] = this.items.tile[this.arg[s]!]!;
       else if (t === JT.BUILD && SOLID[w.mat[i]!]) this.end(s, 'blocked');
+      else if (t === JT.BUILD && this.flags[s]! & JF.AUTO && !this.structure.dangerAt(i % w.w, Math.floor(i / w.w))) this.end(s, 'notNeeded');
       else if (this.wait[s] && this.slot(this.wait[s]!) < 0) this.wait[s] = 0;
     }
     for (let k = 0; k < this.nTouched; k++) this.touched[this.touchList[k]!] = 0;

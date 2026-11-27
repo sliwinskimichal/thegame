@@ -234,6 +234,7 @@ export function collectProps(world: World): PropInstances[] {
 export const DRESS_KINDS = [
   'table', 'bench', 'barrel', 'shelf', 'anvil', 'forge', 'ladder', 'pipe', 'planks', 'support',
   'brokenSupport', 'debris', 'dust', 'crack', 'crate', 'sack',
+  'beam', 'toolrack', 'gearwheel', 'grindstone', 'lantern', 'chest', 'cauldron', 'valve',
 ] as const;
 export type DressKind = (typeof DRESS_KINDS)[number];
 
@@ -354,6 +355,64 @@ export function buildDressingGeometry(kind: DressKind): THREE.BufferGeometry {
     case 'crate':
       b.add(box(0.55, 0.45, 0.45), WOOD, 0, T(0, 0.225));
       for (const y of [0.08, 0.37]) b.add(box(0.57, 0.06, 0.47), WOOD_D, 0, T(0, y));
+      break;
+    case 'beam': // ceiling timber running front to back (hangs below its anchor)
+      b.add(box(0.22, 0.26, 1.0), WOOD_D, 0, T(0, -0.13, -0.5));
+      b.add(box(0.3, 0.06, 0.3), WOOD, 0, T(0, -0.27, -0.05));
+      break;
+    case 'toolrack': {
+      b.add(box(1.3, 0.08, 0.06), WOOD, 0, T(0, 1.35));
+      for (const x of [-0.6, 0.6]) b.add(box(0.06, 0.5, 0.05), WOOD_D, 0, T(x, 1.15));
+      // hammer, pick, saw, tongs, shovel hanging from pegs
+      b.add(box(0.04, 0.42, 0.03), WOOD_L, 0, T(-0.45, 1.1));
+      b.add(box(0.17, 0.08, 0.07), IRON, 0, T(-0.45, 0.9));
+      b.add(box(0.04, 0.5, 0.03), WOOD_L, 0, T(-0.18, 1.08));
+      b.add(box(0.36, 0.05, 0.05), IRON, 0, T(-0.18, 0.84, 0, 0, 0, 0.12));
+      b.add(box(0.42, 0.12, 0.015), 0x8a8c92, 0, T(0.12, 1.05, 0, 0, 0, -0.3));
+      b.add(box(0.03, 0.4, 0.03), IRON, 0, T(0.38, 1.1, 0, 0, 0, 0.12));
+      b.add(box(0.03, 0.4, 0.03), IRON, 0, T(0.42, 1.1, 0, 0, 0, -0.12));
+      b.add(box(0.05, 0.7, 0.03), WOOD_L, 0, T(0.58, 0.98));
+      b.add(box(0.2, 0.22, 0.03), IRON, 0, T(0.58, 0.6));
+      break;
+    }
+    case 'gearwheel': { // a winch / bellows drive: frame, big gear, small gear, crank
+      for (const x of [-0.6, 0.6]) b.add(box(0.12, 1.7, 0.14), WOOD_D, 0, T(x, 0.85, -0.1));
+      b.add(box(1.32, 0.12, 0.16), WOOD, 0, T(0, 1.65, -0.1));
+      b.add(cyl(0.55, 0.55, 0.12, 18), WOOD, 0, T(0, 1.0, 0.05, Math.PI / 2));
+      for (let k = 0; k < 16; k++) {
+        const a = (k / 16) * Math.PI * 2;
+        b.add(box(0.1, 0.12, 0.12), WOOD_D, 0, T(Math.cos(a) * 0.6, 1.0 + Math.sin(a) * 0.6, 0.05, 0, 0, a));
+      }
+      b.add(cyl(0.08, 0.08, 0.3, 8), IRON, 0, T(0, 1.0, 0.1, Math.PI / 2));
+      b.add(cyl(0.22, 0.22, 0.1, 12), COPPER, 0, T(0.62, 0.4, 0.12, Math.PI / 2));
+      b.add(box(0.06, 0.45, 0.06), IRON, 0, T(0.15, 0.78, 0.16, 0, 0, 0.5));
+      break;
+    }
+    case 'grindstone':
+      for (const x of [-0.25, 0.25]) b.add(box(0.07, 0.55, 0.07), WOOD_D, 0, T(x, 0.27));
+      b.add(cyl(0.3, 0.3, 0.1, 16), STONE, 0, T(0, 0.62, 0, Math.PI / 2));
+      b.add(cyl(0.03, 0.03, 0.6, 6), IRON, 0, T(0, 0.62, 0, 0, 0, Math.PI / 2));
+      b.add(box(0.5, 0.2, 0.25), WOOD, 0, T(0, 0.12));
+      break;
+    case 'lantern': // hangs below its anchor on a chain
+      b.add(box(0.02, 0.4, 0.02), IRON, 0, T(0, -0.2));
+      b.add(box(0.16, 0.04, 0.16), IRON, 0, T(0, -0.42));
+      b.add(box(0.12, 0.16, 0.12), 0xffc878, 3.0, T(0, -0.52));
+      b.add(box(0.16, 0.04, 0.16), IRON, 0, T(0, -0.62));
+      break;
+    case 'chest':
+      b.add(box(0.7, 0.4, 0.4), WOOD, 0, T(0, 0.2));
+      b.add(box(0.72, 0.1, 0.42), WOOD_D, 0, T(0, 0.45));
+      for (const x of [-0.25, 0.25]) b.add(box(0.05, 0.52, 0.43), IRON, 0, T(x, 0.25));
+      break;
+    case 'cauldron':
+      b.add(new THREE.SphereGeometry(0.32, 12, 6, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), IRON, 0, T(0, 0.55));
+      b.add(cyl(0.3, 0.3, 0.04, 12), 0x8a6a3a, 0.4, T(0, 0.53));
+      for (const a of [0, 2.1, 4.2]) b.add(box(0.04, 0.6, 0.04), IRON, 0, T(Math.cos(a) * 0.3, 0.3, Math.sin(a) * 0.3, Math.sin(a) * 0.2, 0, -Math.cos(a) * 0.2));
+      break;
+    case 'valve':
+      b.add(cyl(0.04, 0.04, 0.3, 6), COPPER, 0, T(0, 0.15));
+      b.add(new THREE.TorusGeometry(0.12, 0.025, 6, 14), 0xc0392b, 0, T(0, 0.32, 0.03));
       break;
     case 'sack':
       b.add(new THREE.SphereGeometry(0.22, 8, 6), CLOTH, 0, T(0, 0.19, 0, 0, 0, 0, 1, 0.85, 0.8));

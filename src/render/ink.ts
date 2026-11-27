@@ -356,7 +356,7 @@ export function inkHullMaterial(u: Record<string, THREE.IUniform>, px: number, c
       varying vec2 vWp;
       void main() {
         if (texture(uFogTex, vec2(vWp.x / uWorldSize.x, -vWp.y / uWorldSize.y)).r < 0.5) discard;
-        gl_FragColor = vec4(uInkCol, 1.0);
+        gl_FragColor = vec4(uInkCol, 0.5); // alpha 0.5 = ink coverage for the bloom ink mask (InkPost)
       }`,
     side: THREE.BackSide,
   });

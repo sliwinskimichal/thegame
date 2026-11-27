@@ -67,9 +67,21 @@ export interface CaveForm {
   kind: CaveKind;
   /** Relative frequency inside the biome's void budget. */
   weight: number;
-  /** Width and height ranges, tiles. */
+  /** Width and height ranges, tiles (for chained forms: the whole chain). */
   w: Range;
   h: Range;
+  /**
+   * Roof shape against the structure model (`src/sim/structure.ts`, evaluated on every row at start):
+   * 'flat' = open runs as wide as the form (w <= 2 x natural capacity of the biome's roof rock, x2 when
+   * h <= 2); 'vault' = arched roof, the run under the crown is (w/2) x sqrt(2/h) wide.
+   */
+  roof: 'flat' | 'vault';
+  /** Chained forms (sea, lava rivers): width of one vault of the chain, separated by rock ribs or necks. */
+  vaultW?: Range;
+  /** Roof rock of this form when it differs from the band's `roofRock` (e.g. a lining around lava). */
+  roofRock?: string;
+  /** Long low passages: a squeeze (crawl pinch or floor bump, alternating) at most every this many tiles. */
+  squeezeEvery?: number;
   /** Share of the form's volume filled with water / lava from the floor up (0..1). */
   water?: number;
   lava?: number;
@@ -100,13 +112,21 @@ export interface BiomeBand {
   biome: BiomeId;
   /** Host rocks (spec of `Biome.rocks`). */
   rocks: readonly HostRock[];
+  /**
+   * Rock of the two rows above every natural void (its `ROCK_STRENGTH` sets the cave sizes). Linings and
+   * deposits weaker than it (sand, soil, coal, saltpeter, sulfur, mycelium) never form those roof rows.
+   */
+  roofRock: string;
   /** Mixing zone with the biome above, tiles (top boundary +- half of it). */
   transition: number;
   /** Top boundary undulation: amplitude (tiles) and wavelength (tiles). */
   undulation: { amp: number; wavelength: number };
-  /** Strata dip toward the Gorge axis, degrees (05 §1.4 leading line 2); offsets capped by dipMax. */
+  /** Strata dip inside the band toward the Gorge axis, degrees (05 §1.4 leading line 2): seams and veins follow it. */
   dipDeg: number;
-  /** Largest boundary offset caused by the dip, tiles. */
+  /**
+   * Range of the dip's shift of the band's top boundary, tiles: from -dipMax/2 at the far edge of a wing to
+   * +dipMax/2 at the axis. 0 for the Limestone Ledges: their top is the soil skin (SURFACE.mountain.skin).
+   */
   dipMax: number;
   /**
    * Cave-free rock under the top boundary (after the transition), tiles of this biome's host rock:
@@ -328,12 +348,13 @@ export const BANDS: readonly BiomeBand[] = [
   {
     biome: 'foothills',
     rocks: [{ rock: 'soil', share: 1, layout: 'matrix' }],
+    roofRock: 'soil',
     transition: 0, undulation: { amp: 0, wavelength: 1 }, dipDeg: 0, dipMax: 0, cap: 0,
     caves: {
       voidShare: [0.02, 0.06],
       forms: [
-        { kind: 'gallery', weight: 2, w: [8, 18], h: [2, 4] },
-        { kind: 'chasm', weight: 1, w: [6, 10], h: [8, 14] },
+        { kind: 'gallery', weight: 2, w: [8, 20], h: [2, 2], roof: 'flat' },
+        { kind: 'chasm', weight: 1, w: [4, 8], h: [8, 14], roof: 'vault' },
       ],
       pillarWidth: [1, 2],
       hazardCores: [{ hazard: 'night_predators', count: [1, 1], radius: [10, 14], cue: 'kości i wycie z wąwozu o zmierzchu' }],
@@ -346,15 +367,17 @@ export const BANDS: readonly BiomeBand[] = [
       { rock: 'sandstone', share: 0.25, layout: 'strata', thickness: [4, 10] },
       { rock: 'shale', share: 0.15, layout: 'strata', thickness: [2, 5] },
     ],
-    transition: 4, undulation: { amp: 4, wavelength: 70 }, dipDeg: 6, dipMax: 10, cap: 3,
+    roofRock: 'limestone',
+    transition: 4, undulation: { amp: 4, wavelength: 70 }, dipDeg: 6, dipMax: 0, cap: 3,
     caves: {
       voidShare: [0.1, 0.16],
       forms: [
-        { kind: 'gallery', weight: 3, w: [30, 90], h: [3, 5], water: 0.3 },
-        { kind: 'chimney', weight: 2, w: [2, 4], h: [10, 30] },
-        { kind: 'hall', weight: 2, w: [8, 14], h: [4, 7] },
-        { kind: 'bedding', weight: 3, w: [12, 40], h: [2, 3] },
-        { kind: 'dome', weight: 1, w: [16, 26], h: [10, 14] },
+        // karst passages: low, squeezed every <= 15 tiles (limestone natural low-roof run 30)
+        { kind: 'gallery', weight: 3, w: [30, 90], h: [2, 2], roof: 'flat', squeezeEvery: 15, water: 0.3 },
+        { kind: 'chimney', weight: 2, w: [2, 4], h: [10, 30], roof: 'flat' },
+        { kind: 'hall', weight: 2, w: [8, 14], h: [4, 7], roof: 'flat' },
+        { kind: 'bedding', weight: 3, w: [12, 30], h: [2, 2], roof: 'flat' },
+        { kind: 'dome', weight: 1, w: [16, 26], h: [10, 14], roof: 'vault' },
       ],
       pillarWidth: [2, 4],
       hazardCores: [
@@ -369,19 +392,20 @@ export const BANDS: readonly BiomeBand[] = [
       { rock: 'granite', share: 0.8, layout: 'matrix' },
       { rock: 'slate', share: 0.2, layout: 'bodies', thickness: [3, 8] },
     ],
+    roofRock: 'granite',
     transition: 6, undulation: { amp: 6, wavelength: 60 }, dipDeg: 5, dipMax: 9, cap: 4,
     caves: {
       voidShare: [0.06, 0.1],
       forms: [
-        { kind: 'fissure', weight: 4, w: [1, 2], h: [8, 25], water: 0.4 },
-        { kind: 'gallery', weight: 2, w: [20, 50], h: [3, 4], water: 0.2 },
-        { kind: 'hall', weight: 1, w: [10, 24], h: [5, 9] },
-        { kind: 'dome', weight: 1, w: [18, 30], h: [10, 16] },
+        // pressure fissures: sealed water pockets (breach = flood), 1-2 tiles wide
+        { kind: 'fissure', weight: 4, w: [1, 2], h: [8, 25], roof: 'flat', water: 0.4 },
+        { kind: 'gallery', weight: 2, w: [20, 34], h: [3, 4], roof: 'flat', water: 0.2 },
+        { kind: 'hall', weight: 1, w: [10, 24], h: [5, 9], roof: 'flat' },
+        { kind: 'dome', weight: 1, w: [18, 30], h: [10, 16], roof: 'vault' },
       ],
       pillarWidth: [2, 3],
       hazardCores: [
         { hazard: 'flooding', count: [3, 5], radius: [4, 8], cue: 'wilgotne zacieki i szum wody za ścianą' },
-        { hazard: 'hard_rock', count: [0, 0], radius: [0, 0], cue: 'krzesanie iskier przy kopaniu' },
       ],
     },
   },
@@ -391,14 +415,16 @@ export const BANDS: readonly BiomeBand[] = [
       { rock: 'sporeShale', share: 0.7, layout: 'matrix' },
       { rock: 'mycelium', share: 0.3, layout: 'lining', thickness: [1, 3] },
     ],
+    roofRock: 'sporeShale',
     transition: 6, undulation: { amp: 7, wavelength: 55 }, dipDeg: 4, dipMax: 8, cap: 3,
     caves: {
       voidShare: [0.22, 0.3],
       forms: [
-        { kind: 'dome', weight: 3, w: [40, 60], h: [22, 30] },
-        { kind: 'chimney', weight: 2, w: [3, 6], h: [20, 36] },
-        { kind: 'gallery', weight: 2, w: [20, 40], h: [3, 5] },
-        { kind: 'chasm', weight: 1, w: [8, 20], h: [12, 24] },
+        // grottos: vaults up to 48 wide (sporeShale crown); the 60-wide Great Grotto is two vaults
+        { kind: 'dome', weight: 3, w: [36, 48], h: [24, 30], roof: 'vault' },
+        { kind: 'chimney', weight: 2, w: [3, 6], h: [20, 36], roof: 'flat' },
+        { kind: 'gallery', weight: 2, w: [20, 40], h: [2, 2], roof: 'flat', squeezeEvery: 15 },
+        { kind: 'chasm', weight: 1, w: [8, 20], h: [12, 24], roof: 'vault' },
       ],
       pillarWidth: [2, 4],
       hazardCores: [
@@ -410,13 +436,15 @@ export const BANDS: readonly BiomeBand[] = [
   {
     biome: 'sunken',
     rocks: [{ rock: 'mudstone', share: 1, layout: 'matrix' }],
+    roofRock: 'mudstone',
     transition: 6, undulation: { amp: 5, wavelength: 80 }, dipDeg: 3, dipMax: 6, cap: 3,
     caves: {
       voidShare: [0.25, 0.35],
       forms: [
-        { kind: 'sea', weight: 4, w: [110, 130], h: [30, 40], water: 0.75 },
-        { kind: 'dome', weight: 2, w: [16, 28], h: [10, 16], water: 0.9 },
-        { kind: 'gallery', weight: 1, w: [20, 40], h: [3, 5], water: 0.5 },
+        // the sea: a chain of three water-filled vaults, rock ribs and islands between them
+        { kind: 'sea', weight: 4, w: [110, 130], h: [26, 34], roof: 'vault', vaultW: [32, 46], water: 0.75 },
+        { kind: 'dome', weight: 2, w: [16, 28], h: [10, 16], roof: 'vault', water: 0.9 },
+        { kind: 'gallery', weight: 1, w: [20, 40], h: [2, 2], roof: 'flat', squeezeEvery: 15, water: 0.5 },
       ],
       pillarWidth: [3, 6],
       hazardCores: [
@@ -428,14 +456,15 @@ export const BANDS: readonly BiomeBand[] = [
   {
     biome: 'crystal',
     rocks: [{ rock: 'schist', share: 1, layout: 'matrix' }],
+    roofRock: 'schist',
     transition: 6, undulation: { amp: 6, wavelength: 65 }, dipDeg: 5, dipMax: 9, cap: 4,
     caves: {
       voidShare: [0.15, 0.22],
       forms: [
-        { kind: 'geode', weight: 3, w: [30, 45], h: [30, 45] },
-        { kind: 'geode', weight: 3, w: [8, 16], h: [8, 16] },
-        { kind: 'gallery', weight: 2, w: [16, 36], h: [3, 4] },
-        { kind: 'dome', weight: 1, w: [14, 22], h: [8, 12] },
+        { kind: 'geode', weight: 3, w: [30, 45], h: [30, 45], roof: 'vault' },
+        { kind: 'geode', weight: 3, w: [8, 16], h: [8, 16], roof: 'vault' },
+        { kind: 'gallery', weight: 2, w: [16, 24], h: [3, 4], roof: 'flat' },
+        { kind: 'dome', weight: 1, w: [14, 22], h: [8, 12], roof: 'vault' },
       ],
       pillarWidth: [2, 3],
       hazardCores: [
@@ -450,14 +479,16 @@ export const BANDS: readonly BiomeBand[] = [
       { rock: 'basalt', share: 0.75, layout: 'matrix' },
       { rock: 'magmaRock', share: 0.25, layout: 'lining', thickness: [2, 4] },
     ],
+    roofRock: 'basalt',
     transition: 6, undulation: { amp: 5, wavelength: 50 }, dipDeg: 2, dipMax: 4, cap: 4,
     caves: {
       voidShare: [0.18, 0.26],
       forms: [
-        { kind: 'lavaRiver', weight: 3, w: [60, 140], h: [5, 8], lava: 0.45 },
-        { kind: 'lavaTube', weight: 2, w: [20, 50], h: [3, 5] },
-        { kind: 'dome', weight: 1, w: [40, 52], h: [18, 24] },
-        { kind: 'chimney', weight: 1, w: [2, 4], h: [10, 24] },
+        // lava rivers are lined with magma rock up to their crown: necks every 20-30 tiles (2 x 15)
+        { kind: 'lavaRiver', weight: 3, w: [60, 140], h: [5, 8], roof: 'flat', vaultW: [20, 30], roofRock: 'magmaRock', lava: 0.45 },
+        { kind: 'lavaTube', weight: 2, w: [20, 40], h: [3, 5], roof: 'flat' },
+        { kind: 'dome', weight: 1, w: [40, 52], h: [18, 24], roof: 'vault' },
+        { kind: 'chimney', weight: 1, w: [2, 4], h: [10, 24], roof: 'flat' },
       ],
       pillarWidth: [2, 4],
       hazardCores: [
@@ -473,13 +504,14 @@ export const BANDS: readonly BiomeBand[] = [
       { rock: 'deepstone', share: 0.8, layout: 'matrix' },
       { rock: 'ancientBrick', share: 0.2, layout: 'masonry', thickness: [1, 2] },
     ],
+    roofRock: 'deepstone',
     transition: 4, undulation: { amp: 3, wavelength: 90 }, dipDeg: 0, dipMax: 0, cap: 4,
     caves: {
       voidShare: [0.2, 0.28],
       forms: [
-        { kind: 'hexHall', weight: 4, w: [12, 24], h: [12, 24] },
-        { kind: 'gallery', weight: 3, w: [20, 60], h: [4, 4] },
-        { kind: 'chimney', weight: 1, w: [3, 3], h: [12, 30] },
+        { kind: 'hexHall', weight: 4, w: [12, 24], h: [12, 24], roof: 'vault' },
+        { kind: 'gallery', weight: 3, w: [20, 44], h: [4, 4], roof: 'flat' },
+        { kind: 'chimney', weight: 1, w: [3, 3], h: [12, 30], roof: 'flat' },
       ],
       pillarWidth: [2, 2],
       hazardCores: [
@@ -494,10 +526,11 @@ export const BANDS: readonly BiomeBand[] = [
       { rock: 'heartstone', share: 0.9, layout: 'matrix' },
       { rock: 'bedrock', share: 0.1, layout: 'shell', thickness: [2, 3] },
     ],
+    roofRock: 'heartstone',
     transition: 3, undulation: { amp: 0, wavelength: 1 }, dipDeg: 0, dipMax: 0, cap: 0,
     caves: {
       voidShare: [0.12, 0.2],
-      forms: [{ kind: 'dome', weight: 1, w: [36, 36], h: [34, 36] }],
+      forms: [{ kind: 'dome', weight: 1, w: [36, 36], h: [34, 36], roof: 'vault' }],
       pillarWidth: [0, 0],
       hazardCores: [{ hazard: 'dread', count: [1, 1], radius: [18, 18], cue: 'czerwony puls dna Gardzieli' }],
     },
@@ -515,7 +548,7 @@ export const LANDMARKS: readonly Landmark[] = [
   { id: 'waterfall', namePl: 'Wodospad Śnieżnika', biome: 'foothills', role: 'line', side: 'W', depth: [-24, -12], size: [4, 12], fromAxis: [46, 54], descPl: 'Strumień ze śnieżnika spada z progu skalnego i płynie łąką do ponoru.' },
   { id: 'crater', namePl: 'Krater Kuźnicy', biome: 'foothills', role: 'vista', side: 'axis', depth: [-36, -28], size: [12, 8], fromAxis: [0, 0], descPl: 'Łuna i para nad szczytem; pierwsze ujęcie gry kończy się na niej.' },
   // T1 Limestone
-  { id: 'first_ledge_hall', namePl: 'Sala Pierwszego Progu', biome: 'limestone', role: 'tutorial', side: 'W', depth: [24, 30], size: [14, 6], fromAxis: [100, 116], descPl: 'Sala chóru z niszami i sześcioma zbutwiałymi stemplami; miejsce zawału i grobu króla, potem hub Progów.' },
+  { id: 'first_ledge_hall', namePl: 'Sala Pierwszego Progu', biome: 'limestone', role: 'hub', side: 'W', depth: [24, 30], size: [14, 6], fromAxis: [100, 116], descPl: 'Sala chóru z niszami i sześcioma zbutwiałymi stemplami; miejsce zawału i grobu króla, potem hub Progów.' },
   { id: 'old_shaft', namePl: 'Stary Szyb', biome: 'limestone', role: 'tutorial', side: 'W', depth: [0, 24], size: [2, 24], fromAxis: [96, 110], descPl: 'Szyb dawnego królestwa z łąki do Sali Pierwszego Progu; górne 3 kafle zasypane, bez drabin.' },
   { id: 'karst_channel', namePl: 'Kanał Ponoru', biome: 'limestone', role: 'line', side: 'W', depth: [40, 60], size: [90, 4], fromAxis: [10, 100], descPl: 'Kanał krasowy, którym woda z ponoru płynie ku Gardzieli; koła wodne i droga w dół.' },
   { id: 'bat_grotto', namePl: 'Grota Królowej Nietoperzy', biome: 'limestone', role: 'lair', side: 'E', depth: [70, 95], size: [24, 14], fromAxis: [28, 52], descPl: 'Kopuła z guanem i naloty saletry; przy niej gaśnie każde nieosłonięte światło.' },
@@ -523,14 +556,15 @@ export const LANDMARKS: readonly Landmark[] = [
   // T2 Granite
   { id: 'throne_hall', namePl: 'Sala Tronowa', biome: 'granite', role: 'hub', side: 'E', depth: [112, 126], size: [40, 14], fromAxis: [14, 54], descPl: 'Sala królestwa z sześcioma filarami; hub Korzeni przy wschodnim oknie Gardzieli.' },
   { id: 'brood_fissure', namePl: 'Gniazdo Matki Pełzaczy', biome: 'granite', role: 'lair', side: 'W', depth: [150, 170], size: [12, 20], fromAxis: [10, 24], descPl: 'Zalana szczelina przy Pierwszej Pieczęci; kości przy wejściu.' },
+  { id: 'seal_vestibule', namePl: 'Przedsionek Pieczęci', biome: 'granite', role: 'key', side: 'W', depth: [146, 158], size: [12, 12], fromAxis: [6, 18], descPl: 'Sześciokątny przedsionek Prakowali za gniazdem Matki Pełzaczy; pierwszy Krążek Prakowali (KM2).' },
   // T3 Fungal
   { id: 'great_grotto', namePl: 'Wielka Grota', biome: 'fungal', role: 'hub', side: 'W', depth: [196, 226], size: [60, 30], fromAxis: [40, 100], descPl: 'Największa z trzech grot, las grzybów do 18 kafli; hub Grot.' },
   { id: 'web_chimney', namePl: 'Leże Królowej Pajęczyn', biome: 'fungal', role: 'lair', side: 'E', depth: [240, 275], size: [8, 35], fromAxis: [20, 40], descPl: 'Komin zasnuty jedwabiem nad przepaścią; kokony widać z mostu.' },
   { id: 'mycelium_heart', namePl: 'Serce Grzybni', biome: 'fungal', role: 'key', side: 'E', depth: [250, 270], size: [20, 14], fromAxis: [30, 60], descPl: 'Pulsująca bryła grzybni; najgęstsze kieszenie zarodników.' },
   // T4 Sunken
-  { id: 'west_harbor', namePl: 'Przystań Zachodnia', biome: 'sunken', role: 'hub', side: 'W', depth: [300, 312], size: [20, 10], fromAxis: [60, 90], descPl: 'Wyspa przy zachodnim brzegu morza; hub Głębi.' },
-  { id: 'sunken_sea', namePl: 'Podziemne Morze', biome: 'sunken', role: 'line', side: 'both', depth: [296, 340], size: [120, 40], fromAxis: [0, 70], descPl: 'Łańcuch zalanych kopuł z wyspami; prądy prowadzą ku Gardzieli.' },
-  { id: 'sunken_archive', namePl: 'Zatopione Archiwum', biome: 'sunken', role: 'key', side: 'W', depth: [344, 362], size: [24, 14], fromAxis: [20, 50], descPl: 'Ruina na dnie morza, Wielki Krążek; legowisko Lewiatana obok.' },
+  { id: 'west_harbor', namePl: 'Przystań Zachodnia', biome: 'sunken', role: 'hub', side: 'W', depth: [300, 312], size: [20, 10], fromAxis: [100, 128], descPl: 'Wyspa przy zachodnim brzegu morza; hub Głębi.' },
+  { id: 'sunken_sea', namePl: 'Podziemne Morze', biome: 'sunken', role: 'line', side: 'W', depth: [306, 340], size: [120, 34], fromAxis: [66, 80], descPl: 'Łańcuch trzech zalanych sklepień z wyspami w skrzydle zachodnim; prądy prowadzą ku Gardzieli.' },
+  { id: 'sunken_archive', namePl: 'Zatopione Archiwum', biome: 'sunken', role: 'lair', side: 'E', depth: [344, 362], size: [24, 14], fromAxis: [16, 50], descPl: 'Ruina na dnie zatoki wschodniej (za Gardzielą), Wielki Krążek; Lewiatan.' },
   // T5 Crystal
   { id: 'cathedral_geode', namePl: 'Geoda Katedralna', biome: 'crystal', role: 'hub', side: 'E', depth: [376, 416], size: [40, 40], fromAxis: [20, 60], descPl: 'Geoda wielkości katedry przy wschodnim oknie; hub Kryształowych.' },
   { id: 'pump_station', namePl: 'Stacja pomp Prakowali', biome: 'crystal', role: 'lair', side: 'W', depth: [424, 452], size: [30, 28], fromAxis: [20, 60], descPl: 'Lodowa komora z maszyną Prakowali; Kryształowy Kolos.' },
@@ -591,14 +625,14 @@ export const DEPOSIT_RULES: Readonly<Record<BiomeId, readonly DepositRule[]>> = 
   foothills: [
     { deposit: 'clay_bed', density: 35, form: 'pod', vein: [15, 40], band: [0.2, 1], cls: 'common', motherLodes: 0 },
     { deposit: 'sand_bed', density: 30, form: 'seam', vein: [15, 40], band: [0, 0.6], cls: 'common', motherLodes: 0, near: 'water' },
-    { deposit: 'copper_vein', density: 15, form: 'vein', vein: [12, 20], band: [0.1, 1], cls: 'strategic', motherLodes: 0 },
+    { deposit: 'copper_vein', density: 16, form: 'vein', vein: [12, 20], band: [0.1, 1], cls: 'strategic', motherLodes: 0 },
   ],
   limestone: [
     { deposit: 'clay_bed', density: 30, form: 'pod', vein: [15, 40], band: [0, 0.5], cls: 'common', motherLodes: 0 },
     { deposit: 'limestone_bed', density: 20, form: 'seam', vein: [20, 60], band: [0, 1], cls: 'common', motherLodes: 0 },
     { deposit: 'coal_seam', density: 40, form: 'seam', vein: [15, 40], band: [0.2, 1], cls: 'common', motherLodes: 0 },
-    { deposit: 'copper_vein', density: 14, form: 'vein', vein: [8, 20], band: [0, 1], cls: 'strategic', motherLodes: 2, near: 'cave_ins' },
-    { deposit: 'tin_vein', density: 6, form: 'vein', vein: [6, 12], band: [0.3, 1], cls: 'strategic', motherLodes: 1, near: 'darkness' },
+    { deposit: 'copper_vein', density: 20, form: 'vein', vein: [8, 20], band: [0, 1], cls: 'strategic', motherLodes: 2, near: 'cave_ins' },
+    { deposit: 'tin_vein', density: 10, form: 'vein', vein: [6, 12], band: [0.3, 1], cls: 'strategic', motherLodes: 2, near: 'darkness' },
     { deposit: 'saltpeter_crust', density: 4, form: 'lining', vein: [4, 10], band: [0.5, 1], cls: 'strategic', motherLodes: 1, near: 'darkness' },
   ],
   granite: [
@@ -607,29 +641,29 @@ export const DEPOSIT_RULES: Readonly<Record<BiomeId, readonly DepositRule[]>> = 
     { deposit: 'iron_vein', density: 14, form: 'vein', vein: [10, 25], band: [0.2, 1], cls: 'strategic', motherLodes: 2, near: 'flooding' },
     { deposit: 'lead_vein', density: 5, form: 'vein', vein: [6, 14], band: [0.3, 1], cls: 'strategic', motherLodes: 1, near: 'flooding' },
     { deposit: 'zinc_vein', density: 5, form: 'vein', vein: [6, 14], band: [0.3, 1], cls: 'strategic', motherLodes: 1, near: 'flooding' },
-    { deposit: 'quartz_vein', density: 6, form: 'vein', vein: [10, 30], band: [0, 1], cls: 'strategic', motherLodes: 0 },
+    { deposit: 'quartz_vein', density: 6, form: 'vein', vein: [10, 30], band: [0, 1], cls: 'strategic', motherLodes: 1, near: 'flooding' },
   ],
   fungal: [
     { deposit: 'coal_seam', density: 30, form: 'seam', vein: [15, 40], band: [0, 0.5], cls: 'common', motherLodes: 0 },
     { deposit: 'iron_vein', density: 12, form: 'vein', vein: [10, 25], band: [0, 1], cls: 'strategic', motherLodes: 1, near: 'poison' },
     { deposit: 'silver_vein', density: 5, form: 'vein', vein: [5, 12], band: [0.3, 1], cls: 'strategic', motherLodes: 1, near: 'spores' },
-    { deposit: 'sulfur_vent', density: 4, form: 'lining', vein: [3, 8], band: [0.4, 1], cls: 'strategic', motherLodes: 0, near: 'spores' },
+    { deposit: 'sulfur_vent', density: 4, form: 'lining', vein: [3, 8], band: [0.4, 1], cls: 'strategic', motherLodes: 1, near: 'spores' },
   ],
   sunken: [
     { deposit: 'sand_bed', density: 30, form: 'flow', vein: [20, 50], band: [0, 1], cls: 'common', motherLodes: 0, near: 'water' },
-    { deposit: 'salt_bed', density: 10, form: 'seam', vein: [20, 50], band: [0, 0.7], cls: 'common', motherLodes: 0 },
+    { deposit: 'salt_bed', density: 10, form: 'seam', vein: [20, 50], band: [0, 0.7], cls: 'common', motherLodes: 1, near: 'flooding' },
     { deposit: 'iron_vein', density: 12, form: 'vein', vein: [10, 25], band: [0, 1], cls: 'strategic', motherLodes: 0 },
     { deposit: 'silver_vein', density: 5, form: 'vein', vein: [5, 12], band: [0.2, 1], cls: 'strategic', motherLodes: 1, near: 'deep_water' },
     { deposit: 'nickel_vein', density: 4, form: 'pod', vein: [5, 10], band: [0.3, 1], cls: 'strategic', motherLodes: 1, near: 'deep_water' },
     { deposit: 'gold_vein', density: 2, form: 'vein', vein: [3, 6], band: [0.5, 1], cls: 'strategic', motherLodes: 0, near: 'deep_water' },
   ],
   crystal: [
-    { deposit: 'quartz_vein', density: 6, form: 'vein', vein: [10, 30], band: [0, 1], cls: 'strategic', motherLodes: 0 },
+    { deposit: 'quartz_vein', density: 6, form: 'vein', vein: [10, 30], band: [0, 1], cls: 'strategic', motherLodes: 1, near: 'cold' },
     { deposit: 'silver_vein', density: 5, form: 'vein', vein: [5, 12], band: [0, 0.6], cls: 'strategic', motherLodes: 0 },
     { deposit: 'gold_vein', density: 2, form: 'vein', vein: [3, 6], band: [0.3, 1], cls: 'strategic', motherLodes: 1, near: 'cold' },
     { deposit: 'cobalt_vein', density: 4, form: 'vein', vein: [5, 10], band: [0.2, 1], cls: 'strategic', motherLodes: 1, near: 'cold' },
-    { deposit: 'amethyst_geode', density: 3, form: 'lining', vein: [10, 30], band: [0, 1], cls: 'strategic', motherLodes: 0, near: 'geode' },
-    { deposit: 'sapphire_geode', density: 2, form: 'lining', vein: [10, 30], band: [0.4, 1], cls: 'strategic', motherLodes: 0, near: 'geode' },
+    { deposit: 'amethyst_geode', density: 3, form: 'lining', vein: [10, 30], band: [0, 1], cls: 'strategic', motherLodes: 1, near: 'cold' },
+    { deposit: 'sapphire_geode', density: 2, form: 'lining', vein: [10, 30], band: [0.4, 1], cls: 'strategic', motherLodes: 1, near: 'cold' },
     { deposit: 'frost_crystal_bed', density: 3, form: 'lining', vein: [10, 30], band: [0.2, 1], cls: 'strategic', motherLodes: 1, near: 'cold' },
   ],
   magma: [
@@ -764,15 +798,19 @@ export const SOFT_GATES: readonly SoftGate[] = [
   { biome: 'granite', hazard: 'flooding', effect: 'przebita szczelina zalewa ok. 200 kafli w 30 s', cue: 'wilgotne zacieki i szum wody za ścianą', counters: [{ kind: 'building', id: 'pump_station' }, { kind: 'infra', id: 'bulkhead' }, { kind: 'tech', id: 'pumps' }] },
   { biome: 'fungal', hazard: 'spores', effect: 'obrażenia co 5 s w chmurze zarodników', cue: 'turkusowa mgiełka i martwe ćmy', counters: [{ kind: 'item', id: 'filter_mask' }, { kind: 'infra', id: 'vent_shaft' }, { kind: 'tech', id: 'gas_masks' }] },
   { biome: 'fungal', hazard: 'poison', effect: 'zatrucie po ukąszeniu, bez antidotum rana ropieje', cue: 'kokony i pajęczyny w kominach', counters: [{ kind: 'item', id: 'antidote' }, { kind: 'item', id: 'chitin_vest' }] },
+  { biome: 'sunken', hazard: 'flooding', effect: 'przebity strop kawerny zalewa chodnik w kilka sekund', cue: 'kapiący strop nad nisko położonym chodnikiem', counters: [{ kind: 'building', id: 'pump_station' }, { kind: 'infra', id: 'bulkhead' }] },
   { biome: 'sunken', hazard: 'deep_water', effect: '20 s oddechu pod wodą', cue: 'czarna toń i bańki z głębi', counters: [{ kind: 'item', id: 'diving_helmet' }, { kind: 'item', id: 'eelskin_suit' }, { kind: 'tech', id: 'diving' }] },
   { biome: 'crystal', hazard: 'cold', effect: 'wychłodzenie w 90 s bez ogrzewania', cue: 'szron i para oddechu', counters: [{ kind: 'item', id: 'padded_coat' }, { kind: 'infra', id: 'heater' }, { kind: 'tech', id: 'heating' }] },
   { biome: 'crystal', hazard: 'darkness', effect: 'praca -40%, gasnące kryształy', cue: 'kryształy gasnące jeden po drugim', counters: [{ kind: 'infra', id: 'crystal_lamp_post' }, { kind: 'item', id: 'crystal_lamp' }] },
   { biome: 'magma', hazard: 'heat', effect: 'oparzenia w 60 s', cue: 'drżące powietrze i pękające skorupy', counters: [{ kind: 'item', id: 'scale_robe' }, { kind: 'infra', id: 'cooler' }, { kind: 'tech', id: 'cooling_grid' }] },
-  { biome: 'magma', hazard: 'lava', effect: 'wylewy niszczą budowle na drodze lawy', cue: 'czerwona poświata spod skorupy', counters: [{ kind: 'infra', id: 'obsidian_wall' }, { kind: 'infra', id: 'lava_gate' }] },
+  { biome: 'magma', hazard: 'lava', effect: 'wylewy niszczą budowle na drodze lawy', cue: 'czerwona poświata spod skorupy', counters: [{ kind: 'infra', id: 'obsidian_wall' }, { kind: 'infra', id: 'bulkhead' }] },
   { biome: 'magma', hazard: 'fumes', effect: 'duszenie przy wyziewach siarki', cue: 'żółte naloty i syk', counters: [{ kind: 'item', id: 'crystal_filter_mask' }, { kind: 'infra', id: 'vent_shaft' }] },
-  { biome: 'ancient', hazard: 'dread', effect: 'spadek nastroju, ucieczki, światło gaśnie szybciej', cue: 'drżąca kreska w głębi sal', counters: [{ kind: 'item', id: 'rune_cloak' }, { kind: 'infra', id: 'ward_stone' }, { kind: 'infra', id: 'glimmer_beacon' }] },
+  { biome: 'ancient', hazard: 'dread', effect: 'spadek nastroju, ucieczki, światło gaśnie szybciej', cue: 'drżąca kreska w głębi sal', counters: [{ kind: 'item', id: 'rune_cloak' }, { kind: 'infra', id: 'ward_stone' }, { kind: 'item', id: 'glimmer_lamp' }] },
+  { biome: 'ancient', hazard: 'darkness', effect: 'praca -40%, światło gaśnie szybciej w grozie', cue: 'gasnące lampy w głębi sal', counters: [{ kind: 'item', id: 'glimmer_lamp' }, { kind: 'infra', id: 'crystal_lamp_post' }] },
   { biome: 'ancient', hazard: 'constructs', effect: 'konstrukty odporne na zwykłą broń', cue: 'regularny stukot za ścianą', counters: [{ kind: 'item', id: 'runic_hammer' }, { kind: 'item', id: 'adamant_axe' }] },
-  { biome: 'heart', hazard: 'dread', effect: 'wszystko naraz: groza, żar, ciemność', cue: 'czerwony puls dna Gardzieli', counters: [{ kind: 'item', id: 'glimmer_amulet' }, { kind: 'infra', id: 'glimmer_beacon' }] },
+  { biome: 'heart', hazard: 'dread', effect: 'groza Raroga: nastrój i odwaga topnieją', cue: 'czerwony puls dna Gardzieli', counters: [{ kind: 'item', id: 'glimmer_amulet' }, { kind: 'item', id: 'glimmer_lamp' }] },
+  { biome: 'heart', hazard: 'heat', effect: 'żar komory: oparzenia w 60 s', cue: 'drżące powietrze nad Kowadłem', counters: [{ kind: 'item', id: 'frostcore_armor' }, { kind: 'item', id: 'fire_ward_potion' }] },
+  { biome: 'heart', hazard: 'darkness', effect: 'światło gaśnie: Pożeracz pochłania lampy', cue: 'gasnące lampy na dnie Gardzieli', counters: [{ kind: 'item', id: 'glimmer_lamp' }] },
 ];
 
 export const HARD_GATES: readonly HardGate[] = [
@@ -786,7 +824,7 @@ export const HARD_GATES: readonly HardGate[] = [
   { id: 'seal_fire', biome: 'magma', kind: 'seal', requires: [{ kind: 'quest', id: 'QDD-L8' }, { kind: 'infra', id: 'cooler' }], descPl: 'Brama Popiołu (gł. 470): chłodnice i pieśń albo rozbicie.' },
   { id: 'song_locks', biome: 'ancient', kind: 'songLock', requires: [{ kind: 'tech', id: 'rune_lore' }], descPl: 'Zamki śpiewane okien Prastarych (poziom 3-4): śpiewak albo kamertony Iskry.' },
   { id: 'grotto_chasms', biome: 'fungal', kind: 'chasm', requires: [{ kind: 'infra', id: 'rope_bridge' }, { kind: 'tech', id: 'silk_bridges' }], descPl: 'Przepaście między grotami do 20 kafli: most linowy.' },
-  { id: 'heart_gate', biome: 'heart', kind: 'noReturn', requires: [{ kind: 'quest', id: 'KM4' }, { kind: 'resource', id: 'heart_key' }], descPl: 'Brama Serca (gł. 640): Klucz Serca; otwarcie budzi Raroga.' },
+  { id: 'seal_heart', biome: 'heart', kind: 'noReturn', requires: [{ kind: 'quest', id: 'KM4' }, { kind: 'resource', id: 'heart_key' }], descPl: 'Brama Serca (gł. 640): Klucz Serca; otwarcie budzi Raroga.' },
 ];
 
 // =====================================================================================================
@@ -819,8 +857,12 @@ export const START = {
     nicheSide: 'W' as Side,
     /** Copper vein behind the east wall, this many tiles in (the trigger of the cave-in). */
     copperBehindEastWall: 3,
-    /** The hall is cut flat (CAV.DUG, an old room): wider than limestone's 6-tile span, so it warns. */
-    cavity: 'dug' as const,
+    /**
+     * Old settled room: natural cavity (CAV.NATURAL), so the structure model gives it limestone's natural
+     * flat run 2 x floor(3 x 2.5) = 14 = its width. It holds at start; widening it fails (the script's trigger).
+     * The 6-tile height is taller than a timber prop (maxHeight 3): see WORLDGEN.md, open questions.
+     */
+    cavity: 'natural' as const,
   },
   oldShaft: { landmark: 'old_shaft', width: 2, plugRows: 3, ladders: false },
 } as const;

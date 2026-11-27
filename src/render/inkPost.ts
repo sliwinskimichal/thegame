@@ -20,6 +20,8 @@ export interface InkPostOptions {
   inkMask: number;
   /** Linear luminance up to which a pixel counts as ink for the mask (anti-aliased edges included). */
   inkMaskHi?: number;
+  /** 'alpha': the scene writes ink coverage into alpha (1 - 0.5·ink), exact; 'luma': dark pixels count as ink. */
+  inkMaskMode?: 'alpha' | 'luma';
   depthInk: number;
   depthInkPx: number;
   saturation: number;
@@ -96,7 +98,11 @@ void main() {
 #endif
   vec3 b = texture2D(tBloom, vUv).rgb * uBloom;
   float l = dot(c, vec3(0.2126, 0.7152, 0.0722));
+#ifdef INK_ALPHA
+  b *= 1.0 - clamp((1.0 - texture2D(tScene, vUv).a) * 2.0, 0.0, 1.0) * uInkMask; // ink coverage from the scene
+#else
   b *= mix(1.0, smoothstep(0.003, uInkMaskHi, l), uInkMask); // ink stays ink inside a glow
+#endif
   c += b;
   l = dot(c, vec3(0.2126, 0.7152, 0.0722));
   c = max(mix(vec3(l), c, uSaturation), 0.0);
@@ -157,7 +163,7 @@ export class InkPost {
       uVignette: { value: o.vignette },
       uGrain: { value: o.grain },
     });
-    this.final.defines = { TONE: o.tone === 'aces' ? 1 : o.tone === 'agx' ? 2 : 3, ...(o.depthInk > 0 ? { DEPTH_INK: 1 } : {}) };
+    this.final.defines = { TONE: o.tone === 'aces' ? 1 : o.tone === 'agx' ? 2 : 3, ...(o.depthInk > 0 ? { DEPTH_INK: 1 } : {}), ...(o.inkMaskMode === 'alpha' ? { INK_ALPHA: 1 } : {}) };
     this.setSize(w, h);
   }
 

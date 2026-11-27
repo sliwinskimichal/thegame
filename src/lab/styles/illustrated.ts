@@ -109,6 +109,7 @@ export interface IllParams {
   propGlow: number; // emission of flames, mushrooms, crystal clusters
   inkMask: number; // bloom does not wash out dark ink pixels (InkPost only)
   inkMaskHi: number; // luminance up to which a pixel is protected (wider = anti-aliased edges too)
+  inkMaskAlpha: number; // 1: exact ink coverage from the scene alpha instead of a luminance guess
   tone: 'aces' | 'agx' | 'knee';
 }
 
@@ -183,6 +184,7 @@ export const ILL_BASE: IllParams = {
   propGlow: 1,
   inkMask: 0,
   inkMaskHi: 0.03,
+  inkMaskAlpha: 0,
   tone: 'aces',
 };
 
@@ -487,7 +489,7 @@ void main() {
 #ifdef PAPER
   col *= 1.0 + uPaper * paperGrain(wp.xy, wpp);
 #endif
-  gl_FragColor = vec4(col, 1.0);
+  gl_FragColor = vec4(col, 1.0 - 0.5 * clamp(ink, 0.0, 1.0)); // alpha carries ink coverage (InkPost mask)
 }
 `;
 
@@ -794,7 +796,12 @@ export function buildIllustratedScene(ctx: StyleContext, p: IllParams): Illustra
 
   const fluid = new THREE.Mesh(
     buildFluidGeometry(ctx.world),
-    new THREE.ShaderMaterial({ vertexShader: FLUID_VERT, fragmentShader: FLUID_FRAG, uniforms: u, transparent: true, depthWrite: false, side: THREE.DoubleSide }),
+    new THREE.ShaderMaterial({
+      vertexShader: FLUID_VERT, fragmentShader: FLUID_FRAG, uniforms: u, transparent: true, depthWrite: false, side: THREE.DoubleSide,
+      // colour blends over the scene, alpha (ink coverage) is kept
+      blending: THREE.CustomBlending, blendSrc: THREE.SrcAlphaFactor, blendDst: THREE.OneMinusSrcAlphaFactor,
+      blendSrcAlpha: THREE.ZeroFactor, blendDstAlpha: THREE.OneFactor,
+    }),
   );
   fluid.renderOrder = 2;
   scene.add(fluid);
@@ -809,7 +816,9 @@ export function buildIllustratedScene(ctx: StyleContext, p: IllParams): Illustra
         uniforms: { ...u, uStrength: { value: p.air } },
         transparent: true,
         depthWrite: false,
-        blending: THREE.AdditiveBlending,
+        // additive colour, alpha (ink coverage) kept
+        blending: THREE.CustomBlending, blendSrc: THREE.OneFactor, blendDst: THREE.OneFactor,
+        blendSrcAlpha: THREE.ZeroFactor, blendDstAlpha: THREE.OneFactor,
       }),
     );
     air.position.set(w / 2, -h / 2, -0.25);
@@ -870,6 +879,7 @@ function createInkPosted(ctx: StyleContext, p: IllParams): StyleInstance {
     bloomThreshold: p.bloomThreshold,
     inkMask: p.inkMask,
     inkMaskHi: p.inkMaskHi,
+    inkMaskMode: p.inkMaskAlpha > 0 ? 'alpha' : 'luma',
     depthInk: p.postInk,
     depthInkPx: p.postInkPx,
     saturation: p.saturation,
@@ -1019,20 +1029,20 @@ export const LIGHT_VARIANTS: readonly IllVariant[] = [
   {
     id: 'l12-r2b-ink',
     namePl: 'L12 Światło L00 + kreska L03',
-    descPl: 'Siła i barwa światła L00 (R2B), bloom mipmapowy dostrojony do szerokiego halo, kreska chroniona maską bloomu (z brzegami linii).',
-    params: { ...R2B_LIGHT, post: 'ink', bloom: 1.6, bloomRadius: 1.0, bloomThreshold: 0.62, inkMask: 1, inkMaskHi: 0.12 },
+    descPl: 'Siła i barwa światła L00 (R2B), bloom mipmapowy dostrojony do szerokiego halo, kreska nad bloomem (dokładna maska tuszu w kanale alfa).',
+    params: { ...R2B_LIGHT, post: 'ink', bloom: 2.2, bloomRadius: 1.15, bloomThreshold: 0.62, inkMask: 1, inkMaskAlpha: 1 },
   },
   {
     id: 'l13-r2b-ink-ember',
     namePl: 'L13 L12 + żar lawy',
     descPl: 'L12 + lawa z L08: emisja ×1,4, drganie gorąca, poświata krawędzi 0,6, kryształy i grzyby ×1,5.',
-    params: { ...R2B_LIGHT, post: 'ink', bloom: 1.6, bloomRadius: 1.0, bloomThreshold: 0.62, inkMask: 1, inkMaskHi: 0.12, lavaEmit: 1.4, heat: 0.04, rimGlow: 0.6, emissive: 2.0, propGlow: 1.5 },
+    params: { ...R2B_LIGHT, post: 'ink', bloom: 2.2, bloomRadius: 1.15, bloomThreshold: 0.62, inkMask: 1, inkMaskAlpha: 1, lavaEmit: 1.4, heat: 0.04, rimGlow: 0.6, emissive: 2.0, propGlow: 1.5 },
   },
   {
     id: 'l14-r2b-ink-amb',
     namePl: 'L14 L12 + jaśniejszy ambient',
     descPl: 'L12 z podniesionym ambientem lica i tła, żeby czerń < 15 L* spadła do ok. 25%.',
-    params: { ...R2B_LIGHT, post: 'ink', bloom: 1.6, bloomRadius: 1.0, bloomThreshold: 0.62, inkMask: 1, inkMaskHi: 0.12, cutAmb: 0.25, backAmb: 0.42 },
+    params: { ...R2B_LIGHT, post: 'ink', bloom: 2.2, bloomRadius: 1.15, bloomThreshold: 0.62, inkMask: 1, inkMaskAlpha: 1, cutAmb: 0.25, backAmb: 0.42 },
   },
   { id: 'l11-night', namePl: 'L11 Noc (dawca i12)', descPl: 'L03 + najstromszy spadek (γ 1,8), ciemniejszy ambient, mrok mocniej zabiera kolor.', params: { ...PLAN, inkMask: 1, lightCurve: 1.8, cutAmb: 0.55, backAmb: 0.38, darkDesat: 0.6 } },
 ];

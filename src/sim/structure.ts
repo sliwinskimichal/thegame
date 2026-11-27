@@ -122,12 +122,17 @@ export class StructureSystem {
    * (Dwarves flee from such tiles; dig jobs there wait for a support.)
    */
   dangerAt(x: number, y: number): boolean {
+    return this.countdownAt(x, y) > 0;
+  }
+
+  /** Ticks left on the failing roof above (x, y) (0 = it holds or there is no roof). */
+  countdownAt(x: number, y: number): number {
     const w = this.world;
-    if (!w.inBounds(x, y)) return false;
+    if (!w.inBounds(x, y)) return 0;
     const mat = w.mat;
     let i = y * w.w + x;
     while (i >= 0 && !SOLID[mat[i]!]) i -= w.w;
-    return i >= 0 && this.timer[i]! > 0;
+    return i >= 0 ? this.timer[i]! : 0;
   }
 
   /** Number of failing roof tiles in the world. */

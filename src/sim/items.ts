@@ -76,6 +76,11 @@ export class ItemPiles {
     return this.next[p]! - 1;
   }
 
+  /** Content id of a resource index. */
+  itemId(item: number): string {
+    return RES_IDS[item]!;
+  }
+
   /** Units of pile p not reserved by a job. */
   available(p: number): number {
     return this.count[p]! - this.reserved[p]!;

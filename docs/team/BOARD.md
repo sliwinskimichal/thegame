@@ -7,7 +7,7 @@ Statusy: `kolejka` · `w toku` · `do przeglądu` · `zrobione` · `zablokowane 
 |---|---|---|---|---|---|
 | F1-1 | Wizja v1 + ocena kierunku ilustrowanego | game-director | **zrobione** (przyjęte 2026-11-26) | `docs/team/vision/VISION.md` | struktura roli (5 sekcji), tabela decyzji kierunkowych, checklista „czy pasuje?” |
 | F1-2 | Biblia sztuki v1 (styl ilustrowany 2.5D) + karty: krasnolud, Palenisko, huta, tło wnęki | concept-artist | **zrobione** (v1.1; 4 pytania do game-director) | `docs/art/ART-BIBLE.md`, `docs/art/concepts/*.md` | parametry liczbowe (kontur, wartości, HEX per biom), różnice wobec referencji |
-| F1-3 | Turniej nr 3 — styl ilustrowany: ≥ 10 wariantów, metryki referencji, finaliści | engine-graphics-programmer | runda 1 **zrobiona**; **właściciel wybrał bazę i08 „Głębia warstw” i przywrócił efekty światła R2B** (bloom, poświata lamp i lawy); **runda 2 w toku**: etap B sceny tonu → C1 turniej warstwy światła (12 wariantów; **właściciel wybrał kierunek L00 = światło R2B 1:1**; hybrydy L12–L14 z konturem nad blaskiem, wybór końcowy na planszy) → C2 język skały naturalnej (2 warianty) → C3 finaliści łączeni + ślepe kadry | `src/lab/styles/illustrated*.ts`, `docs/variants/03-illustrated-style.md` | cele CHARTER §4; przeżywalność kreski w strefach światła; spadek plamy ≥ 20 L* na 3 kafle; natura ≠ mur; ore_ore_d ≥ 3; wybór właściciela na planszy; ms z poprawionym `frameMs`; testy i build zielone |
+| F1-3 | Turniej nr 3 — styl ilustrowany | engine-graphics-programmer | runda 1 **zrobiona**; runda 2: **A (BUG-001/002/005, `seed`) zrobione**, **B sceny tonu zrobione** (izba zagęszczona: 12 krasnoludów, regały, rury, maszyny), **C1 warstwa światła zrobiona** (L00–L15; plansza `r2_light_owner.jpg`; **czeka na wybór właściciela: L00 vs L12/L13/L14**); **C2** kod gotowy, przebieg wstrzymany; **C3** nierozpoczęte — wznowienie po sprincie krasnoludów | `src/lab/*`, `src/render/*`, `docs/variants/03-illustrated-style.md` | jak wyżej + alfa tuszu w shaderze lawy; krawędzie ≥ 15% w izbie (dziś 11%) |
 | F1-4 | Walidator treści `content:check` + przeglądarka danych + refstats w potoku | tools-programmer | **zrobione** (0 błędów, 7 ostrzeżeń → F2-14) | `scripts/`, `src/tools/`, `tests/tools/` | komunikaty błędów testowane na zepsutych danych |
 | F1-5 | Audyt jakości repozytorium i laboratorium + plan testów M1–M3 | qa-tester | **zrobione** (10 błędów, plan testów) | `docs/qa/` | raporty BUG-NNN z krokami; macierz ryzyka |
 | F1-6 | Harmonogram M1–M4 i rejestr ryzyk | producer | kolejka | `docs/team/production/` | zależności, bufory, decyzje do podjęcia |
@@ -52,15 +52,15 @@ Statusy: `kolejka` · `w toku` · `do przeglądu` · `zrobione` · `zablokowane 
 ## Triage błędów QA (2026-11-26)
 | Błąd | Priorytet | Właściciel | Kiedy |
 |---|---|---|---|
-| BUG-001 nieznany id stylu → cichy render innego stylu; turniej nie weryfikuje | P2 | engine-graphics (lab i `tournament.mjs` — jeden właściciel, mniej przekazań) | **w toku** (etap A rundy 2) |
-| BUG-002 `frameMs` nie mierzy renderu | P2 | engine-graphics | **w toku** (etap A rundy 2; zapytania czasowe GPU lub `gl.finish()`) |
+| BUG-001 nieznany id stylu → cichy render innego stylu; turniej nie weryfikuje | P2 | engine-graphics (lab i `tournament.mjs` — jeden właściciel, mniej przekazań) | **naprawiony** (runda 2, etap A) |
+| BUG-002 `frameMs` nie mierzy renderu | P2 | engine-graphics | **naprawiony** (runda 2, etap A) |
 | BUG-003 `World.fill()` psuje stan kafla | P2 (M3) | gameplay-programmer | **naprawiony** (F2-3 etap 1) |
 | BUG-004 model balansu: NaN, ukryty limit 500 h, ujemna populacja | P3 | systems-designer | z F2-1 / F2-14 |
-| BUG-005 tekstura kafli pokazuje rudę przez mgłę przy `bg = 0` | P3 | engine-graphics | **w toku** (etap A rundy 2) |
+| BUG-005 tekstura kafli pokazuje rudę przez mgłę przy `bg = 0` | P3 | engine-graphics | **naprawiony** (runda 2, etap A) |
 | BUG-006 `worldH` 480 vs świat 720 | P3 | level-systems-designer | **naprawiony** (`worldH` 736, test przełączony i rozszerzony; F2-2) |
 | BUG-007 test palety nie łapie par mylonych w renderze | P3 | engine-graphics + concept-artist | F2-13 |
 | BUG-008 81 materiałów vs „60–80” | — | — | nie błąd (brzmienie wymagania poprawione) |
 | BUG-009 EventBus | P4 | producent | **naprawiony** |
 | BUG-010 model balansu ma własną twardość skał | P4 | systems-designer | z F2-14 |
-| D4 laboratorium bez parametru `seed` (wymóg 2 seedów) | P3 | engine-graphics | **w toku** (etap A rundy 2) |
+| D4 laboratorium bez parametru `seed` (wymóg 2 seedów) | P3 | engine-graphics | **naprawiony** (runda 2, etap A) |
 

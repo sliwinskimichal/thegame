@@ -2,6 +2,7 @@
 
 > Lider: **animator-ta** · Data: 2026-11-27 · Decyzja właściciela: zespół 4 osób pracuje wyłącznie nad krasnoludami.
 > Producent uruchamia pracowników dokładnie na tych briefach i przekazuje liderowi ich raporty.
+> Pytania do lidera: SendMessage do lidera, awaryjnie plik `docs/team/dwarf-team/QUESTIONS-W<n>.md` (pracownik pisze tylko swój).
 > Zadanie: turniej ≥ 10 wariantów modelu krasnoluda × 4 role, rig proceduralny, cykle ruchu, maszyna stanów,
 > stanowisko zrzutów, metryki, plansza dla właściciela (`docs/variants/04-dwarf.md`).
 
@@ -40,7 +41,7 @@
 8. **Oryginalność**: żadnych postaci, sylwetek ani znaków z istniejących gier (zwłaszcza krasnoludów z gier
    o koloniach i z referencji właściciela). Bez chibi, rogów, kiltów, gagów. Zakaz oswojonych stworzeń.
 9. **Serwery**: laboratorium producenta działa na 5174 (HMR z pracy innych agentów). Do własnych testów
-   w przeglądarce używaj portu **5175 (W3)**, **5176 (W1)**, **5177 (W2)**: `npx vite --port 517x --strictPort`.
+   w przeglądarce używaj portu **5175 (W3)**, **5178 (W1)** (5176 bywa zajęty przez zamrożony build silnika), **5177 (W2)**: `npx vite --port 517x --strictPort`.
    Playwright ładuj przez `createRequire` (pakiet globalny), Chromium z SwiftShader jak w `scripts/tournament.mjs`.
    Pliki tymczasowe w swoim scratchpadzie.
 10. **Raport końcowy** (ostatnia wiadomość): co zrobione (ścieżki), dowody (testy, liczby, zrzuty),
@@ -151,7 +152,7 @@ z pól trójkątów), żadnej kości spoza `BONE`.
 
 **Raport**: tabela trójkątów (wariant × LOD, średnio na rolę), czego nie udało się zmieścić w budżecie,
 decyzje konstrukcyjne per technika, zrzut kontrolny (gdy strona W3 działa: `dwarves.html?variant=<id>&shot=izba`
-na porcie 5176), prośby o zmianę kontraktu.
+na porcie 5178), prośby o zmianę kontraktu.
 
 ---
 

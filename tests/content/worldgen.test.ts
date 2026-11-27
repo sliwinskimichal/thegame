@@ -2,7 +2,7 @@
  * World generator 2.0 spec (src/content/worldgen.ts) against the content bible, the world frame and the
  * structure model: bands cover the whole depth without gaps or overlaps, every deposit has a rule in each of
  * its biomes, every gate references an existing id, densities fit the rock, natural caves hold at start, the
- * Heart has no deposits and the generator's weighted pick survives it. Supply vs demand: WORLDGEN.md §4.
+ * Heart has no deposits and the generator's weighted pick survives it. Supply vs demand: WORLDGEN.md §2.
  */
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
@@ -342,7 +342,7 @@ describe('passes and acceptance', () => {
   });
 });
 
-describe('supply vs demand (WORLDGEN.md §4)', () => {
+describe('supply vs demand (WORLDGEN.md §2)', () => {
   const supply = supplyEstimate();
   const demand = completionRawDemand();
 
@@ -359,7 +359,7 @@ describe('supply vs demand (WORLDGEN.md §4)', () => {
     if (process.env.WORLDGEN_REPORT)
       console.log(rows.sort((a, b) => a.have / a.need - b.have / b.need).map((r) => `${r.id.padEnd(16)} supply ${Math.round(r.have).toString().padStart(6)}  demand ${Math.round(r.need).toString().padStart(6)}  x${(r.have / r.need).toFixed(2)}`).join('\n'));
     const deficits = rows.filter((r) => r.have < r.need).map((r) => r.id).sort();
-    // Known: research packs of T5-T7 eat gems and coal far beyond a readable world (WORLDGEN.md §4).
+    // Known: research packs of T5-T7 eat gems and coal far beyond a readable world (WORLDGEN.md §2).
     expect(deficits).toEqual(KNOWN_DEFICITS);
   });
 });
@@ -368,7 +368,7 @@ describe('supply vs demand (WORLDGEN.md §4)', () => {
  * Raws whose estimated world supply is below the completion demand today (alarm when the list changes).
  * Cause: research packs of T2-T7 consume raw gems and ores one per pack (ember_codex: a ruby, rune_tome: a
  * runestone, crystal_tablet: frost crystal + amethyst) at hundreds of packs per tier, and deposits yield 1-3
- * per tile. Proposals for systems-designer: WORLDGEN.md §4.
+ * per tile. Proposals for systems-designer: WORLDGEN.md §2.
  */
 const KNOWN_DEFICITS: string[] = [
   'adamantite_ore', 'amethyst', 'coal', 'copper_ore', 'emberite_ore', 'frost_crystal', 'glimmerite_ore', 'gold_ore',

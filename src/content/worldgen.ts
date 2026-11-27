@@ -632,7 +632,7 @@ export const NAV_DESIGN = {
 } as const;
 
 // =====================================================================================================
-// 5. Deposits per biome (05 §2.2; supply vs demand: WORLDGEN.md §4)
+// 5. Deposits per biome (05 §2.2; supply vs demand: WORLDGEN.md §2)
 // =====================================================================================================
 
 /** R1: mother lodes are larger, richer and sit inside hazard zones (or in the Gorge wall rock). */

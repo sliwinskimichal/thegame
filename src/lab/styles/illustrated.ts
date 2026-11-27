@@ -443,7 +443,7 @@ void main() {
 #ifdef CHUNKS
   float structure = max(rk.lines, rk.fine * 0.85) * (1.0 - grassMask);
   if (cut) ink = max(ink, structure);
-  else if (cap) col = mix(col, inkC, structure * uBackStruct * 0.6); // back walls: a lighter pencil line
+  else if (cap) ink = max(ink, structure * uBackStruct * 0.6); // back walls: a lighter pencil line
 #endif
   if (grassy && cap && !top) ink = max(ink, inkLine(abs(fract(-wp.y) - fringe), wE * 0.3, aa) * 0.8);
 #ifdef GRAIN_INK
@@ -486,7 +486,9 @@ void main() {
     fogc = mix(fogc, uFogCol * 2.6, max(f1, f2 * 0.6) * uFogHatch);
     col = mix(fogc, col, smoothstep(0.42, 0.58, ex));
     float fd = abs(ex - 0.5) / max(exW, 1e-4);
-    col = mix(col, uInk, (1.0 - smoothstep(wpx * 0.6, wpx * 0.6 + 1.0, fd)) * 0.9 * step(0.03, ex));
+    float fink = (1.0 - smoothstep(wpx * 0.6, wpx * 0.6 + 1.0, fd)) * 0.9 * step(0.03, ex);
+    col = mix(col, uInk, fink);
+    ink = max(ink, fink);
   }
 #ifdef PAPER
   col *= 1.0 + uPaper * paperGrain(wp.xy, wpp);

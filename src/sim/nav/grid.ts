@@ -65,6 +65,7 @@ export class NavGrid {
   readonly profiles: readonly MoveProfile[];
   /** Cached SOLID[mat] of every tile. */
   readonly solid: Uint8Array;
+  private readonly fluidSeen: Uint16Array;
   /** Infrastructure layer (`INFRA` kind + flags) — proposed as a `World` field. */
   readonly infra: Uint8Array;
   readonly mask: Uint16Array[] = [];
@@ -127,6 +128,7 @@ export class NavGrid {
     this.profiles = opts.profiles ?? [DWARF];
     if (this.profiles.length === 0 || this.profiles.length > 32) throw new Error('NavGrid: 1..32 profiles');
     this.solid = new Uint8Array(this.n);
+    this.fluidSeen = new Uint16Array(this.n);
     this.infra = new Uint8Array(this.n);
     if (opts.infra) this.infra.set(opts.infra);
     this.flags = new Uint8Array(this.n);
@@ -154,7 +156,7 @@ export class NavGrid {
     this.regionW = (this.w + 15) >> 4;
     this.regionStamp = new Uint32Array(this.regionW * ((this.h + 15) >> 4));
     this.worldSeen = world.changeCount;
-    for (let i = 0; i < this.n; i++) this.solid[i] = SOLID[world.mat[i]];
+    this.readWorld();
     this.updateHeuristics();
     this.rebuildAll();
   }
@@ -211,8 +213,16 @@ export class NavGrid {
       for (let x = Math.max(0, x0); x <= Math.min(this.w - 1, x1); x++) {
         const i = y * this.w + x;
         this.solid[i] = SOLID[this.world.mat[i]];
+        this.fluidSeen[i] = this.fluidState(i);
         this.queueTile(i);
       }
+  }
+
+  private readWorld(): void {
+    for (let i = 0; i < this.n; i++) {
+      this.solid[i] = SOLID[this.world.mat[i]];
+      this.fluidSeen[i] = this.fluidState(i);
+    }
   }
 
   /**
@@ -225,7 +235,7 @@ export class NavGrid {
       const ok = this.world.changesSince(this.worldSeen, this.onWorldTile);
       this.worldSeen = this.world.changeCount;
       if (!ok) {
-        for (let i = 0; i < this.n; i++) this.solid[i] = SOLID[this.world.mat[i]];
+        this.readWorld();
         for (let q = 0; q < this.pendingCount; q++) this.flags[this.pending[q]] = 0;
         for (let q = 0; q < this.changedCount; q++) this.flags[this.changed[q]] = 0;
         this.pendingCount = 0;
@@ -240,10 +250,18 @@ export class NavGrid {
     return this.flush();
   }
 
+  /** Fluid state (kind << 8 | level) the masks were built from. */
+  private fluidState(i: number): number {
+    const lv = this.world.fluid[i];
+    return lv === 0 ? 0 : (this.world.fluidKind[i] << 8) | lv;
+  }
+
   private readonly onWorldTile = (i: number): void => {
     const s = SOLID[this.world.mat[i]];
-    if (s !== this.solid[i]) {
+    const f = this.fluidState(i);
+    if (s !== this.solid[i] || f !== this.fluidSeen[i]) {
       this.solid[i] = s;
+      this.fluidSeen[i] = f;
       this.queueTile(i);
     }
   };
@@ -825,7 +843,7 @@ export class NavGrid {
 
   /** Bytes of the grid's own typed arrays (link table included). */
   bytes(): number {
-    let b = this.solid.byteLength + this.infra.byteLength + this.flags.byteLength + this.regionStamp.byteLength;
+    let b = this.solid.byteLength + this.fluidSeen.byteLength + this.infra.byteLength + this.flags.byteLength + this.regionStamp.byteLength;
     for (let p = 0; p < this.profiles.length; p++) b += this.mask[p].byteLength + this.drop[p].byteLength + this.mul[p].byteLength;
     b += this.pending.byteLength + this.visited.byteLength + this.changed.byteLength;
     b += this.linkFrom.byteLength * 6 + this.linkKind.byteLength * 2 + this.linkProfiles.byteLength;

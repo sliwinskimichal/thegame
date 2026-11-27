@@ -115,7 +115,7 @@ describe('world: change ring', () => {
 });
 
 describe('world: fill (construction) keeps the grid consistent', () => {
-  it.fails('BUG-003: fill() over water clears the fluid kind, not only the fluid amount', () => {
+  it('BUG-003 (fixed): fill() over water clears the fluid kind, not only the fluid amount', () => {
     const { world: w } = buildArena();
     let wi = -1;
     for (let i = 0; i < w.size; i++) if (w.fluidKind[i] === FLUID.WATER && w.fluid[i]) wi = i;
@@ -128,7 +128,7 @@ describe('world: fill (construction) keeps the grid consistent', () => {
     expect(w.fluidKind[wi]).toBe(FLUID.NONE);
   });
 
-  it.fails('BUG-003: building and then removing a block in the open sky gives the sky back', () => {
+  it('BUG-003 (fixed): building and then removing a block in the open sky gives the sky back', () => {
     const { world: w } = buildArena();
     const i = w.idx(2, 2);
     expect(w.cav[i]).toBe(CAV.SKY);
@@ -138,7 +138,7 @@ describe('world: fill (construction) keeps the grid consistent', () => {
     expect(w.cav[i]).toBe(CAV.SKY);
   });
 
-  it.fails('BUG-003: fill() with a non-solid material does not leave a "solid cavity" tile', () => {
+  it('BUG-003 (fixed): fill() with a non-solid material does not leave a "solid cavity" tile', () => {
     const w = slab(3, 3);
     const i = w.idx(1, 1);
     w.dig(1, 1);

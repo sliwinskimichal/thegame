@@ -52,6 +52,8 @@ export interface JobsSave {
   hi: number;
   nextSeq: number;
   ringSeen: number;
+  /** Stockpile zones changed since the last tick (haul jobs for loose piles still to be ordered). */
+  zonesPending: boolean;
 }
 
 export class JobBoard {
@@ -359,7 +361,7 @@ export class JobBoard {
       this.ringSeen = this.world.changeCount;
     }
     if (this.items.version !== this.seenItems || this.stockpiles.version !== this.seenZones) {
-      const zonesChanged = this.stockpiles.version !== this.seenZones;
+      const zonesChanged = this.seenZones === -1 || this.stockpiles.version !== this.seenZones;
       this.seenItems = this.items.version;
       this.seenZones = this.stockpiles.version;
       this.avail.fill(0);
@@ -398,7 +400,7 @@ export class JobBoard {
   save(): JobsSave {
     const arrays = {} as JobsSave['arrays'];
     for (const k of ARRAYS) arrays[k] = rleEncode(this[k]);
-    return { v: 1, arrays, free: Array.from(this.free.subarray(0, this.freeTop)), hi: this.hi, nextSeq: this.nextSeq, ringSeen: this.ringSeen };
+    return { v: 1, arrays, free: Array.from(this.free.subarray(0, this.freeTop)), hi: this.hi, nextSeq: this.nextSeq, ringSeen: this.ringSeen, zonesPending: this.stockpiles.version !== this.seenZones };
   }
 
   /** Restore; `ringSeen` refers to the world's change counter, which restarts at 0 after a world load. */
@@ -419,8 +421,9 @@ export class JobBoard {
       else if (this.type[j] === JT.BUILD) this.buildAt[this.target[j]!] = j + 1;
       else this.haulOf[this.arg[j]!] = j + 1;
     }
+    // availability is recomputed from the loaded piles; zone changes are replayed only if they were pending
     this.seenItems = -1;
-    this.seenZones = -1;
+    this.seenZones = s.zonesPending ? -1 : this.stockpiles.version;
   }
 
   // ------------------------------------------------------------- internals

@@ -46,6 +46,7 @@ export interface IllParams {
   chunk: number; // cell size in tiles (0 = off)
   chunkInk: number; // joint line width relative to the contour (one side)
   backStruct: number; // rock structure drawn on back walls as a lighter pencil line (0..1)
+  rockNatural: number; // 0 = mining-atlas structure (round 1), 1 = natural irregular (round 2, C2)
   bevel: number;
   darkDesat: number; // 0..1: darkness takes colour, not shape (unlit surfaces drift to cool grey)
   grainInk: number; // ore/gem grains traced in ink
@@ -125,6 +126,7 @@ export const ILL_BASE: IllParams = {
   chunk: 0.85,
   chunkInk: 0.32,
   backStruct: 0.8,
+  rockNatural: 0,
   bevel: 0.35,
   darkDesat: 0.25,
   grainInk: 0.75,
@@ -346,7 +348,11 @@ void main() {
   rk.bev = 0.0;
 #ifdef CHUNKS
   if (cap && !unexplored) {
+#ifdef ROCK_NATURAL
+    rk = rockInkNatural(pat, wp.xy, p3.x, wpp, uChunk, wE * uChunkInk, aa);
+#else
     rk = rockInk(pat, wp.xy, p3.x, wpp, uChunk, wE * uChunkInk, aa);
+#endif
     alb *= mix(1.0, (0.88 + 0.24 * rk.cell) * (1.0 + uBevel * rk.bev), cut ? 1.0 : 0.5);
   }
 #endif
@@ -705,6 +711,7 @@ function terrainDefines(p: IllParams): Record<string, number> {
   if (p.grainInk > 0) d.GRAIN_INK = 1;
   if (p.sparkle > 0) d.SPARKLE = 1;
   if (p.paper > 0) d.PAPER = 1;
+  if (p.rockNatural > 0) d.ROCK_NATURAL = 1;
   return d;
 }
 
@@ -1014,4 +1021,21 @@ export const LIGHT_STYLES: readonly RenderStyle[] = LIGHT_VARIANTS.map((v) => ({
   namePl: v.namePl,
   descPl: v.descPl,
   create: (ctx: StyleContext) => createIllustrated(ctx, illParams({ ...I08_DRAWING, ...v.params })),
+}));
+
+// ------------------------------------------------------------------ round 2, C2: natural rock language
+/** Light-layer leader of C1 (set from the C1 results). */
+export const LIGHT_LEADER = 'l03-inkmask';
+const leader = (): Partial<IllParams> => LIGHT_VARIANTS.find((v) => v.id === LIGHT_LEADER)!.params;
+
+export const ROCK_VARIANTS: readonly IllVariant[] = [
+  { id: 'n0-atlas', namePl: 'N0 Atlas (kontrola)', descPl: 'i08 + lider światła; struktura skały z rundy 1 (ławice, prostopadłe spękania, bloki Voronoi).', params: { rockNatural: 0 } },
+  { id: 'n1-natural', namePl: 'N1 Natura nieregularna', descPl: 'i08 + lider światła; falujące ławice o zmiennej miąższości, ukośne urwane spękania, bloki nierówne z zawirowanej siatki; mur bez zmian.', params: { rockNatural: 1 } },
+];
+
+export const ROCK_STYLES: readonly RenderStyle[] = ROCK_VARIANTS.map((v) => ({
+  id: v.id,
+  namePl: v.namePl,
+  descPl: v.descPl,
+  create: (ctx: StyleContext) => createIllustrated(ctx, illParams({ ...I08_DRAWING, ...leader(), ...v.params })),
 }));

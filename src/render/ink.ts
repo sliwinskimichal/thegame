@@ -198,6 +198,83 @@ RockInk rockInk(int pat, vec2 p, float sc, float wpp, float scale, float w, floa
   }
   return r;
 }
+// Natural, irregular structure (round 2): beds undulate and pinch and swell, joints are slanted,
+// unevenly spaced and stop inside the bed, blocks come from a domain-warped cell pattern with uneven
+// sizes; no straight line runs along the tile grid. Masonry (6) keeps its regular courses.
+RockInk rockInkNatural(int pat, vec2 p, float sc, float wpp, float scale, float w, float aa) {
+  RockInk r;
+  r.lines = 0.0;
+  r.fine = 0.0;
+  r.cell = 0.5;
+  r.bev = 0.0;
+  float ppt = 1.0 / wpp;
+  if (pat == 1) {
+    float k = 0.55 * sc;
+    float warp = fbm3(vec2(p.x * 0.07, p.y * 0.2)) * 2.2 + 0.55 * sin(p.x * 0.23 + fbm3(p * 0.11) * 3.0);
+    float t0 = (p.y + warp / k * 0.55) * k;
+    float t = t0 + 0.28 * sin(t0 * 1.7 + vnoise(vec2(p.x * 0.05, 3.0)) * 6.0); // pinch and swell
+    float id = floor(t);
+    float b = fract(t);
+    float bedH = 1.0 / k;
+    float bedLod = smoothstep(9.0, 20.0, bedH * ppt);
+    float lj = scale * (1.3 + 1.4 * hash12(vec2(id, 1.3)));
+    lj *= exp2(max(0.0, ceil(log2(18.0 * wpp / lj))));
+    float xs = (p.x + hash12(vec2(id, 4.1)) * lj) / lj;
+    float c = floor(xs);
+    float joint = 0.0;
+    for (int n = 0; n < 2; n++) {
+      float jc = c + float(n);
+      float h1 = hash12(vec2(id, jc) + 0.5);
+      float h2 = hash12(vec2(id, jc) + 7.3);
+      if (h1 > 0.72) continue;                                 // some joints missing: uneven blocks
+      float slant = (h2 - 0.5) * 1.3;                          // up to ~35 degrees
+      float jx = jc + (h1 - 0.36) * 0.9 + slant * (b - 0.5) + 0.05 * sin(b * 9.0 + h2 * 20.0);
+      float b0 = 0.1 * h2;                                     // joints stop inside the bed
+      float b1 = 1.0 - 0.45 * fract(h1 * 7.1);
+      float span = smoothstep(b0, b0 + 0.06, b) * (1.0 - smoothstep(b1 - 0.06, b1, b));
+      joint = max(joint, inkLine(abs(xs - jx) * lj, w, aa) * span);
+    }
+    float bed = inkLine(min(b, 1.0 - b) * bedH, w, aa) * (0.55 + 0.45 * smoothstep(0.25, 0.6, vnoise(vec2(p.x * 0.6, id))));
+    r.lines = max(bed, joint) * bedLod;
+    float t3 = fract(t * 3.0 + 0.3 * vnoise(p * 0.8));
+    r.fine = inkLine(min(t3, 1.0 - t3) * bedH / 3.0, w * 0.6, aa) * step(hash12(vec2(id, 9.2)), 0.6)
+           * smoothstep(0.35, 0.65, vnoise(vec2(p.x * 0.9, id * 3.0))) * smoothstep(9.0, 20.0, bedH / 3.0 * ppt);
+    r.cell = hash12(vec2(id, c));
+    r.bev = smoothstep(0.72, 1.0, b) - smoothstep(0.28, 0.0, b);
+    return r;
+  }
+  if (pat == 6 || pat == 0 || pat == 10) return rockInk(pat, p, sc, wpp, scale, w, aa);
+  float lvl = max(0.0, log2(22.0 * wpp / scale));
+  float s0 = scale * exp2(floor(lvl));
+  float f = lvl > 0.0 ? fract(lvl) : 0.0;
+  vec2 q = p / s0;
+  q += (vec2(fbm3(q * 0.45 + 2.0), fbm3(q * 0.45 + 9.0)) - 0.5) * 0.9; // curved, uneven cells
+  vec4 v = voronoi(q * vec2(0.9, 1.06));
+  float big = step(0.6, hash12(v.zw + 3.3));                           // some cells merge into big blocks
+  float e0 = (v.y - v.x) * 0.5 * s0 / 1.06;
+  float l0 = inkLine(e0, w, aa) * (1.0 - big * smoothstep(0.0, 0.4, hash12(floor(q * 0.5)))) ;
+  r.cell = hash12(v.zw);
+  vec2 rel = q * vec2(0.9, 1.06) - v.zw - hash22(v.zw);
+  float nearB = 1.0 - smoothstep(0.0, 0.5, v.y - v.x);
+  r.bev = nearB * dot(normalize(rel + 1e-4), vec2(-0.5, 0.866));
+  float ch = hash12(v.zw + 9.1);
+  for (int k = 0; k < 2; k++) {
+    float a = ch * 37.0 + float(k) * 2.1;
+    vec2 dir = vec2(cos(a), sin(a));
+    vec2 qq = rel - vec2(-dir.y, dir.x) * (float(k) * 0.22 - 0.06);
+    float along = dot(qq, dir);
+    float across = abs(dot(qq, vec2(-dir.y, dir.x)) + 0.07 * sin(along * 11.0));
+    float len = 0.22 + 0.2 * hash12(v.zw + float(k) * 3.7);
+    r.fine = max(r.fine, inkLine(across * s0, w * 0.55, aa) * step(abs(along), len) * step(hash12(v.zw + float(k) * 5.3), 0.7));
+  }
+  if (f > 0.0) {
+    vec4 v1 = voronoi(q * 0.5 + 31.7);
+    l0 = mix(l0, inkLine((v1.y - v1.x) * s0 / 1.06, w, aa), f);
+    r.fine *= 1.0 - f;
+  }
+  r.lines = l0;
+  return r;
+}
 `;
 
 /** Pixel-scale uniform for GLSL_INK: world units per pixel at unit view depth. */

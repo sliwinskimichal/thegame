@@ -44,6 +44,34 @@ export type SimEvents = {
   caveIn: { id: number; row: number; x0: number; x1: number; roof: number[]; filled: number[] };
   /** What the rubble of cave-in `id` buried: tiles (entities in them are buried), fluid destroyed, supports and props lost. */
   buried: { id: number; tiles: number[]; water: number; lava: number; supports: number; props: number };
+
+  // ---- items on the ground and stockpiles (stage 2) -------------------------------------------
+  /** `n` units of resource `item` (content id) landed on tile i (after falling to the floor). */
+  itemsDropped: { i: number; x: number; y: number; item: string; n: number };
+  itemsPicked: { i: number; item: string; n: number; dwarf: number };
+  /** A haul ended on a stockpile tile. */
+  itemsStored: { i: number; item: string; n: number; dwarf: number };
+  /** A pile ended up inside solid rock (rubble); it comes back when the tile is dug out. */
+  itemsBuried: { i: number; item: string; n: number };
+
+  // ---- jobs (stage 2) ---------------------------------------------------------------------------
+  jobOrdered: { job: number; type: number; x: number; y: number; priority: number };
+  jobClaimed: { job: number; type: number; dwarf: number };
+  jobDone: { job: number; type: number; x: number; y: number; dwarf: number };
+  jobCancelled: { job: number; type: number; x: number; y: number; reason: string };
+  /** Plans of `fails` different dwarves failed: nobody takes the job until it reopens. */
+  jobBlacklisted: { job: number; type: number; x: number; y: number; fails: number };
+  jobReopened: { job: number; type: number; x: number; y: number; reason: 'expired' | 'worldChanged' };
+
+  // ---- dwarves (stage 2) ------------------------------------------------------------------------
+  dwarfSpawned: { dwarf: number; x: number; y: number };
+  /** The dwarf fell `rows` rows; damage > 0 when beyond the safe drop. */
+  dwarfFell: { dwarf: number; x: number; y: number; rows: number; damage: number };
+  /** Running out from under a failing roof. */
+  dwarfFled: { dwarf: number; x: number; y: number };
+  dwarfBuried: { dwarf: number; x: number; y: number };
+  dwarfRescued: { dwarf: number; x: number; y: number };
+  dwarfDied: { dwarf: number; x: number; y: number; cause: 'fall' | 'buried' | 'lost' };
 };
 
 export type SimBus = EventBus<SimEvents>;

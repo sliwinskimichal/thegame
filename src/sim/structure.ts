@@ -117,6 +117,19 @@ export class StructureSystem {
     return this.world.inBounds(x, y) ? this.timer[y * this.world.w + x]! : 0;
   }
 
+  /**
+   * Is (x, y) under a failing roof: the first solid tile at or above it in its column is counting down?
+   * (Dwarves flee from such tiles; dig jobs there wait for a support.)
+   */
+  dangerAt(x: number, y: number): boolean {
+    const w = this.world;
+    if (!w.inBounds(x, y)) return false;
+    const mat = w.mat;
+    let i = y * w.w + x;
+    while (i >= 0 && !SOLID[mat[i]!]) i -= w.w;
+    return i >= 0 && this.timer[i]! > 0;
+  }
+
   /** Number of failing roof tiles in the world. */
   get failing(): number {
     let n = 0;

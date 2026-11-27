@@ -976,3 +976,42 @@ export const ILLUSTRATED: readonly RenderStyle[] = ILL_VARIANTS.map((v) => ({
   descPl: v.descPl,
   create: (ctx: StyleContext) => createIllustrated(ctx, illParams(v.params)),
 }));
+
+// ------------------------------------------------------------------ round 2, C1: light layer
+/** i08 "Głębia warstw" — the owner's base after round 1 (drawing: structure, ink, depth cues). */
+export const I08_DRAWING: Partial<IllParams> = ILL_VARIANTS.find((v) => v.id === 'i08-depth')!.params;
+
+/** R2B's light 1:1 (bloom, glowing air, lamp tint, rim glow, grade) on top of a drawing. */
+const R2B_LIGHT: Partial<IllParams> = {
+  post: 'r2b', bloom: 0.95, bloomRadius: 0.8, bloomThreshold: 0.62, saturation: 1.1, vignette: 0.55, grain: 0.035, exposure: 1.05,
+  ambCool: [1.0, 0.94, 0.84], cutAmb: 0.055, cutLight: 0.42, rimGlow: 0.35, backAmb: 0.3, backLight: 1.15,
+  bands: 0, lightDesat: 0, darkDesat: 0, desat: 0, air: 0.14, airSmooth: 1, shaft: 0.4, emissive: 1.5, lightCurve: 1,
+};
+/** Value plan of round 2 (producer): background out of light ~14 L* under the cut face, pools fall off. */
+const PLAN: Partial<IllParams> = {
+  post: 'ink', bloom: 0.9, bloomRadius: 0.8, bloomThreshold: 0.65, saturation: 1.05, vignette: 0.5, grain: 0.03, exposure: 1.05,
+  ambCool: [0.62, 0.74, 0.82], cutAmb: 0.65, cutLight: 0.42, rimGlow: 0.35, backAmb: 0.45, backLight: 1.15,
+  bands: 0, lightDesat: 0, darkDesat: 0.25, desat: 0.05, air: 0.12, airSmooth: 1, shaft: 0.4, emissive: 1.5, lightCurve: 1.4,
+};
+
+export const LIGHT_VARIANTS: readonly IllVariant[] = [
+  { id: 'l00-r2b', namePl: 'L00 Światło R2B 1:1', descPl: 'Rysunek i08 + światło R2B bez zmian (UnrealBloom 0,95/0,8/0,62, poświata powietrza, barwienie lampą, poświata krawędzi).', params: { ...R2B_LIGHT } },
+  { id: 'l01-mip', namePl: 'L01 R2B na bloomie mip', descPl: 'Jak L00, ale scalony post (bloom mipmapowy, jeden przebieg końcowy) — test kosztu.', params: { ...R2B_LIGHT, post: 'ink', bloom: 0.9 } },
+  { id: 'l02-plan', namePl: 'L02 Plan wartości', descPl: 'Ciemne tło poza światłem (≈ lico −14 L*), stromszy spadek plam (γ 1,4), światło R2B, bloom mip.', params: { ...PLAN } },
+  { id: 'l03-inkmask', namePl: 'L03 Kreska w blasku', descPl: 'L02 + maska bloomu z kreski: blask nie zamazuje ciemnej kreski.', params: { ...PLAN, inkMask: 1 } },
+  { id: 'l04-tint', namePl: 'L04 Barwa lampy częściowo', descPl: 'L03 z barwą lampy złagodzoną (40%).', params: { ...PLAN, inkMask: 1, lightDesat: 0.4 } },
+  { id: 'l05-neutral', namePl: 'L05 Światło neutralne', descPl: 'L03 bez barwienia kadru (80% odbarwienia światła).', params: { ...PLAN, inkMask: 1, lightDesat: 0.8 } },
+  { id: 'l06-haze', namePl: 'L06 Mgiełka i smugi', descPl: 'L03 + mocniejsza poświata powietrza i smugi światła nieba.', params: { ...PLAN, inkMask: 1, air: 0.22, shaft: 0.8 } },
+  { id: 'l07-emitters', namePl: 'L07 Rysowane plamy', descPl: 'L03 z bloomem tylko na emiterach (0,5, próg 0,9), 2 miękkie pasma plam, słaba mgiełka.', params: { ...PLAN, inkMask: 1, bloom: 0.5, bloomThreshold: 0.9, bands: 2, bandSoft: 0.2, air: 0.06 } },
+  { id: 'l08-lava', namePl: 'L08 Żar', descPl: 'L03 + mocniejsza lawa (emisja ×1,4, drganie gorąca), poświata krawędzi 0,6, kryształy i grzyby ×1,5.', params: { ...PLAN, inkMask: 1, lavaEmit: 1.4, heat: 0.04, rimGlow: 0.6, emissive: 2.0, propGlow: 1.5 } },
+  { id: 'l09-agx', namePl: 'L09 AgX', descPl: 'L03 z mapowaniem tonów AgX (ekspozycja 1,4).', params: { ...PLAN, inkMask: 1, tone: 'agx', exposure: 1.4 } },
+  { id: 'l10-knee', namePl: 'L10 Własne kolano', descPl: 'L03 z własnym kolanem świateł (tanh nad 0,6, ekspozycja 1,6) zamiast ACES.', params: { ...PLAN, inkMask: 1, tone: 'knee', exposure: 1.6 } },
+  { id: 'l11-night', namePl: 'L11 Noc (dawca i12)', descPl: 'L03 + najstromszy spadek (γ 1,8), ciemniejszy ambient, mrok mocniej zabiera kolor.', params: { ...PLAN, inkMask: 1, lightCurve: 1.8, cutAmb: 0.55, backAmb: 0.38, darkDesat: 0.6 } },
+];
+
+export const LIGHT_STYLES: readonly RenderStyle[] = LIGHT_VARIANTS.map((v) => ({
+  id: v.id,
+  namePl: v.namePl,
+  descPl: v.descPl,
+  create: (ctx: StyleContext) => createIllustrated(ctx, illParams({ ...I08_DRAWING, ...v.params })),
+}));

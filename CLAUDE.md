@@ -36,6 +36,9 @@ Projekt: **Underhearth** — przeglądarkowa gra o krasnoludzkiej kolonii w prze
 - **20 agentów-specjalistów** zdefiniowanych w `.claude/agents/*.md` (skład: `docs/team/ROSTER.md`), zasady
   współpracy, własność katalogów i przekazania: `docs/team/CHARTER.md`; plan produkcji: `docs/team/PRODUCTION.md`.
   Agenci nie commitują i nie edytują plików wspólnych; kończą raportem końcowym.
+- **Krasnoludy i budowle robi zespół: lider + 3 pracowników** (decyzja właściciela 2026-11-27). Lider pisze kontrakt
+  i briefy w `docs/team/<zespół>-team/BRIEFS.md`, producent uruchamia pracowników na tych briefach; w czasie sprintu
+  zespołu inne zadania tylko kończą rozpoczęte etapy (limit 4 agentów naraz).
 - Jeśli typ agenta nie jest jeszcze załadowany w sesji, uruchom `general-purpose` z poleceniem przeczytania
   `.claude/agents/<id>.md` i działania jako ta rola. Maks. 4 agentów równolegle (7 naraz wyczerpało 5-godzinny limit użycia); przerwanego agenta wznawiaj przez SendMessage, nie od nowa.
 

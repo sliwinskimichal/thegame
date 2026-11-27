@@ -7,7 +7,7 @@
  */
 import * as THREE from 'three';
 import { LIGHT_MAX, type LightField } from '../world/lightfield';
-import { SOLID } from '../world/materials';
+import { M, SOLID } from '../world/materials';
 import { TF, type World } from '../world/world';
 
 export class WorldTex {
@@ -43,7 +43,9 @@ export class WorldTex {
       const solid = SOLID[mat[i]!] === 1 || (!explored && cav[i] !== 1);
       this.fogData[i * 2] = explored ? 255 : 0;
       this.fogData[i * 2 + 1] = solid ? 255 : 0;
-      this.tileData[i * 4] = !explored ? bg[i] || mat[i]! : SOLID[mat[i]!] ? mat[i]! : bg[i]!;
+      // unknown tiles show their host rock; without one, the same fallback as the mesher (BUG-005:
+      // never the true material, or ores would read through the fog of war)
+      this.tileData[i * 4] = !explored ? bg[i] || M.LIMESTONE : SOLID[mat[i]!] ? mat[i]! : bg[i]!;
       this.tileData[i * 4 + 1] = cav[i]!;
       this.tileData[i * 4 + 2] = fluidKind[i]!;
       this.tileData[i * 4 + 3] = depth[i]!;

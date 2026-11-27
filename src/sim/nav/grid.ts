@@ -286,7 +286,8 @@ export class NavGrid {
     const W = this.w;
     const y0d = this.maxDropAll + 2;
     const y1d = this.maxHeightAll + 1;
-    for (let q = 0; q < this.pendingCount; q++) {
+    const np = this.pendingCount;
+    for (let q = 0; q < np; q++) {
       const t = this.pending[q];
       this.flags[t] &= ~F_PENDING;
       const tx = t % W;
@@ -295,13 +296,26 @@ export class NavGrid {
       for (let y = Math.max(0, ty - y0d); y <= Math.min(this.h - 1, ty + y1d); y++)
         for (let x = Math.max(0, tx - 2); x <= Math.min(W - 1, tx + 2); x++) this.visit(x, y);
     }
+    // a link source also depends on its far end being standable: re-check sources whose far end
+    // lies in a changed window (the same window as above, seen from the far end)
+    if (this.linkCount > 0 && np > 0)
+      for (let l = 0; l < this.linkCount; l++) {
+        const to = this.linkTo[l];
+        const lx = to % W;
+        const ly = (to - lx) / W;
+        for (let q = 0; q < np; q++) {
+          const t = this.pending[q];
+          const tx = t % W;
+          const ty = (t - tx) / W;
+          if (lx >= tx - 2 && lx <= tx + 2 && ly >= ty - y0d && ly <= ty + y1d) {
+            const f = this.linkFrom[l];
+            const fx = f % W;
+            this.visit(fx, (f - fx) / W);
+            break;
+          }
+        }
+      }
     this.pendingCount = 0;
-    // link sources depend on their far end being standable: re-check them all (links are few)
-    for (let l = 0; l < this.linkCount; l++) {
-      const f = this.linkFrom[l];
-      const fx = f % W;
-      this.visit(fx, (f - fx) / W);
-    }
     for (let q = 0; q < this.visitedCount; q++) this.flags[this.visited[q]] &= ~F_VISITED;
     this.visitedCount = 0;
     const n = this.changedCount;

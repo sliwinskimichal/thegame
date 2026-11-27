@@ -23,7 +23,7 @@ describe('fog of war in the tile texture', () => {
     }
   });
 
-  it.fails('BUG-005: an unexplored ore tile without a back-wall material does not reveal the ore', () => {
+  it('BUG-005 (fixed): an unexplored ore tile without a back-wall material does not reveal the ore', () => {
     const w = new World(3, 3, 1);
     for (let i = 0; i < 9; i++) {
       w.mat[i] = w.bg[i] = M.GRANITE;
@@ -37,6 +37,7 @@ describe('fog of war in the tile texture', () => {
     const tiles = new WorldTex(w, new LightField(3, 3)).tiles.image.data as Uint8Array;
     // heightfield falls back to limestone here; the texture must not show the gold either
     expect(tiles[c * 4]).not.toBe(M.GOLD);
+    expect(tiles[c * 4]).toBe(M.LIMESTONE); // same fallback as buildHeightfield
   });
 });
 

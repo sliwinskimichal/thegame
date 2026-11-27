@@ -53,6 +53,42 @@ export const SEALS = [150, 300, 470, 640] as const;
 
 const BAND_ROCK = [M.LIMESTONE, M.LIMESTONE, M.GRANITE, M.SPORE_SHALE, M.MUDSTONE, M.SCHIST, M.BASALT, M.DEEPSTONE, M.HEARTSTONE];
 
+/**
+ * Carve a dense colony into a scenario: `levels` storeys of 3-tile-tall halls
+ * spanning `w` columns, rock floors (every third one a platform deck), and
+ * ladders through each floor every 12 columns (staggered). This is the dense
+ * case for path finding: thousands of nodes in a small area.
+ */
+export function addColony(sc: NavScenario, x0 = 12, y0 = 64, w = 128, levels = 36): void {
+  const { world, infra } = sc;
+  const W = world.w;
+  const open = (x: number, y: number) => {
+    const i = y * W + x;
+    if (!SOLID[world.mat[i]] || world.mat[i] === M.BEDROCK) return;
+    world.bg[i] = world.mat[i];
+    world.mat[i] = M.AIR;
+    world.cav[i] = CAV.DUG;
+    world.depth[i] = 32;
+  };
+  for (let k = 0; k < levels; k++) {
+    const top = y0 + 4 * k;
+    if (top + 7 >= world.h - 4) break;
+    for (let y = top; y < top + 3; y++) for (let x = x0; x < x0 + w; x++) open(x, y);
+    if (k % 3 === 2)
+      for (let x = x0; x < x0 + w; x++) {
+        open(x, top + 3);
+        infra[(top + 3) * W + x] = INFRA.PLATFORM;
+      }
+    if (k + 1 < levels)
+      for (let x = x0 + 4 + (k % 2) * 6; x < x0 + w - 2; x += 12)
+        for (let y = top + 3; y <= top + 6; y++) {
+          open(x, y);
+          infra[y * W + x] = INFRA.LADDER;
+        }
+  }
+  sc.name += ' + gród';
+}
+
 export function buildSyntheticMine(seed = 1, W = 224, H = 720): NavScenario {
   const world = new World(W, H, seed);
   const rng = new Rng(seed * 7919 + 17);

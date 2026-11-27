@@ -20,7 +20,7 @@ import { AStar, type PathFinder } from '../../src/sim/nav/astar';
 import { NavGrid } from '../../src/sim/nav/grid';
 import { HpaStar } from '../../src/sim/nav/hpa';
 import { Path, scratchFor } from '../../src/sim/nav/search';
-import { applyLinks, buildSyntheticMine, type NavScenario } from '../../src/sim/nav/testmaps';
+import { addColony, applyLinks, buildSyntheticMine, type NavScenario } from '../../src/sim/nav/testmaps';
 import { INFRA, INFRA_KIND, NAV } from '../../src/sim/nav/types';
 import { arenaScenario } from './navfixtures';
 
@@ -131,10 +131,11 @@ function changeSequence(sc: NavScenario, n: number, seed: string): [number, numb
   const { world } = sc;
   const W = world.w;
   const out: [number, number, boolean][] = [];
+  const yLo = Math.min(42, Math.floor(world.h / 4));
   let guard = 0;
   while (out.length < n && guard++ < n * 500) {
     const x = rng.int(2, W - 3);
-    const y = rng.int(42, world.h - 6);
+    const y = rng.int(yLo, world.h - 6);
     const i = y * W + x;
     const solid = SOLID[world.mat[i]] === 1;
     const nearOpen = !SOLID[world.mat[i - 1]] || !SOLID[world.mat[i + 1]] || !SOLID[world.mat[i - W]] || !SOLID[world.mat[i + W]];
@@ -218,10 +219,12 @@ describe.runIf(BENCH)('navigation benchmark', () => {
       lines.push(s);
       console.log(s);
     };
+    const colony = buildSyntheticMine(2);
+    addColony(colony);
     const scenarios: [NavScenario, number][] = [
       [arenaScenario(), 300],
       [buildSyntheticMine(1), 300],
-      [buildSyntheticMine(2), 300],
+      [colony, 300],
     ];
     if (process.env.NAV_MAP_OUT) {
       const sc = scenarios[1][0];
@@ -243,8 +246,9 @@ describe.runIf(BENCH)('navigation benchmark', () => {
       runQueries(refFinder, global, null, refG);
       runQueries(refFinder, local, null, refL);
       log('');
-      log('| Algorytm | budowa [ms] | pamięć własna | lokalne: mediana / p95 [ms] | globalne: mediana / p95 [ms] | brak ścieżki: mediana / p95 [ms] | rozwinięte węzły (globalne) | koszt / optimum (śr. / maks.) |');
-      log('|---|---|---|---|---|---|---|---|');
+      log('| Algorytm | budowa [ms] | pamięć własna | lokalne: mediana / p95 [ms] | globalne: mediana / p95 [ms] | brak ścieżki: mediana / p95 [ms] | rozwinięte węzły (globalne) | koszt / optimum (śr. / maks.) | tick: 200 lok. + 20 glob. [ms] |');
+      log('|---|---|---|---|---|---|---|---|---|');
+      const tickSet = [...local.slice(0, 200), ...global.slice(0, 20)];
       for (const a of ALGOS) {
         const t0 = now();
         const f = a.make(g0);
@@ -252,8 +256,16 @@ describe.runIf(BENCH)('navigation benchmark', () => {
         const L = runQueries(f, local, refL, null);
         const G = runQueries(f, global, refG, null);
         expect(G.found).toBe(refG.size);
+        // CPU of one heavy tick: every dwarf of a 200-strong colony plans a local job, 10% plan far
+        const path = new Path();
+        let best = Infinity;
+        for (let rep = 0; rep < 5; rep++) {
+          const t1 = now();
+          for (const [s, t] of tickSet) f.find(s, [t], path);
+          best = Math.min(best, now() - t1);
+        }
         log(`| ${a.name} | ${f2(buildMs)} | ${kb(f.bytes())} | ${f2(L.medFound)} / ${f2(L.p95Found)} | ${f2(G.medFound)} / ${f2(G.p95Found)} | ` +
-          `${f2(G.medFail)} / ${f2(G.p95Fail)} (${G.failed}) | ${G.expFound.toFixed(0)} | ${G.ratioMean.toFixed(4)} / ${G.ratioMax.toFixed(3)} |`);
+          `${f2(G.medFail)} / ${f2(G.p95Fail)} (${G.failed}) | ${G.expFound.toFixed(0)} | ${G.ratioMean.toFixed(4)} / ${G.ratioMax.toFixed(3)} | ${f2(best)} |`);
         f.dispose();
       }
       log(`\nzapytań: lokalnych ${local.length} (cel ≤ 24 kafle), globalnych ${global.length} (w tym bez ścieżki: ${global.length - refG.size})`);

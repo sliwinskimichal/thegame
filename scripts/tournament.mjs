@@ -22,7 +22,10 @@ async function openLab(query) {
   page.on('pageerror', (e) => errors.push(e.message));
   page.on('console', (m) => m.type() === 'error' && errors.push(m.text().slice(0, 2000)));
   await page.goto(`${base}/lab.html?hud=0${query ? `&${query}` : ''}`, { waitUntil: 'load' });
-  await page.waitForFunction(() => !!window.__lab, null, { timeout: 120000 });
+  await page.waitForFunction(() => !!window.__lab || !!window.__labError, null, { timeout: 120000 });
+  // BUG-001: an unknown style/scenario/world/seed is an error, never a silent fallback
+  const labError = await page.evaluate(() => window.__labError ?? null);
+  if (labError) throw new Error(`lab refused "${query}": ${labError}`);
   return { page, errors };
 }
 
@@ -48,11 +51,15 @@ const manifest = { width: Number(W), height: Number(H), scenarios, styles: {} };
 async function runStyle(style) {
   const t0 = Date.now();
   const { page, errors } = await openLab(queryOf[style]);
-  const info = await page.evaluate(() => ({ id: window.__lab.style }));
+  const info = await page.evaluate(() => ({ id: window.__lab.styleId ?? window.__lab.style }));
+  const wanted = new URLSearchParams(queryOf[style]).get('style');
+  if (wanted && info.id !== wanted) throw new Error(`entry ${style}: requested style "${wanted}" but the lab rendered "${info.id}"`);
   mkdirSync(`${out}/${style}`, { recursive: true });
   const times = {};
   for (const sc of scenarios) {
     await page.evaluate((id) => window.__lab.setScenario(id, 6), sc);
+    const shown = await page.evaluate(() => window.__lab.scenarioId ?? null);
+    if (shown !== null && shown !== sc) throw new Error(`entry ${style}: requested scenario "${sc}" but the lab shows "${shown}"`);
     await page.waitForTimeout(400);
     await page.screenshot({ path: `${out}/${style}/${sc}.png` });
     times[sc] = await page.evaluate(() => window.__lab.frameMs);
@@ -62,10 +69,16 @@ async function runStyle(style) {
   console.log(`${style}: ${((Date.now() - t0) / 1000).toFixed(0)} s${errors.length ? `, ${errors.length} errors: ${errors[0].slice(0, 300)}` : ''}`);
 }
 const queue = [...styles];
-await Promise.all(
-  Array.from({ length: Number(CONC) }, async () => {
-    while (queue.length) await runStyle(queue.shift());
-  }),
-);
+try {
+  await Promise.all(
+    Array.from({ length: Number(CONC) }, async () => {
+      while (queue.length) await runStyle(queue.shift());
+    }),
+  );
+} catch (e) {
+  console.error(`tournament aborted: ${e.message}`);
+  await browser.close();
+  process.exit(1);
+}
 writeFileSync(`${out}/manifest.json`, JSON.stringify(manifest, null, 2));
 await browser.close();

@@ -2,8 +2,8 @@
  * Roof load, supports and cave-ins (F2-3 stage 3; hazard `cave_ins` of the Limestone Ledges).
  *
  * Model, evaluated per open row r of the grid (rows are independent, so only changed rows are
- * re-evaluated): a horizontal run of open tiles in row r is bounded by solid tiles (walls, rock pillars,
- * the map border). Supports split it: a support stands on the floor of a column and braces that whole
+ * re-evaluated): a horizontal run of open underground tiles in row r is bounded by solid tiles (walls,
+ * rock pillars, the map border) and by open sky (a hillside face is borne by the mountain above it). Supports split it: a support stands on the floor of a column and braces that whole
  * column segment if the segment is not taller than `maxHeight` (a truss also covers `reach` columns on
  * each side). A roof tile is a solid tile directly above the run. Its load `d` is the distance (tiles,
  * along the run) to the nearest wall or braced column. It holds while d <= capacity, where
@@ -335,12 +335,13 @@ export class StructureSystem {
 
   /** Sub-run of row r around column x between walls and braced columns. */
   private span(x: number, r: number): { L: number; R: number } {
-    const { w, mat } = this.world;
+    const { w, mat, cav } = this.world;
     const row = r * w;
+    const runs = (j: number) => !SOLID[mat[j]!] && cav[j] !== CAV.SKY && this.anchor[j]! < 0;
     let L = x;
-    while (L > 0 && !SOLID[mat[row + L - 1]!] && this.anchor[row + L - 1]! < 0) L--;
+    while (L > 0 && runs(row + L - 1)) L--;
     let R = x;
-    while (R < w - 1 && !SOLID[mat[row + R + 1]!] && this.anchor[row + R + 1]! < 0) R++;
+    while (R < w - 1 && runs(row + R + 1)) R++;
     return { L, R };
   }
 
@@ -394,7 +395,7 @@ export class StructureSystem {
   /** Re-evaluate the roof tiles of row r - 1 over the open runs of row r. */
   private evaluateRow(r: number, silent: boolean): void {
     if (r < 1) return;
-    const { w: W, mat } = this.world;
+    const { w: W, mat, cav } = this.world;
     const { stress, timer, anchor, dl, dr, mark, tmp } = this;
     const c = r - 1;
     const base = c * W;
@@ -406,14 +407,16 @@ export class StructureSystem {
     }
     let fails = 0;
     let averted: number[] | null = null;
+    // a run is a stretch of open underground tiles: rock and open sky (a hillside face, borne by the
+    // mountain above it) both end it
     let x = 0;
     while (x < W) {
-      if (SOLID[mat[rowR + x]!]) {
+      if (SOLID[mat[rowR + x]!] || cav[rowR + x] === CAV.SKY) {
         x++;
         continue;
       }
       const a = x;
-      while (x < W && !SOLID[mat[rowR + x]!]) x++;
+      while (x < W && !SOLID[mat[rowR + x]!] && cav[rowR + x] !== CAV.SKY) x++;
       const b = x - 1;
       let roofs = 0;
       for (let k = a; k <= b; k++) if (SOLID[mat[base + k]!]) roofs++;

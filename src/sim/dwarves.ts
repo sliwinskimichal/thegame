@@ -211,9 +211,24 @@ export class Dwarves implements DwarfView {
         if (--this.stun[d]! <= 0) this.state[d] = DS.IDLE;
         continue;
       }
-      if (failing && st !== DS.FLEE && this.inDanger(d) && !this.brave(d)) {
-        this.flee(d);
-        continue;
+      if (failing && st !== DS.FLEE && !this.brave(d)) {
+        const a = this.agents[d]!;
+        const [fx, fy] = this.xy(a.cell);
+        const cd = this.structure.countdownAt(fx, fy);
+        const cross = JOB_RULES.crossSec * CONFIG.tickRate;
+        if (cd > 0 && (st !== DS.GOTO || cd <= cross)) {
+          this.flee(d); // standing, working, or crossing too late: get out
+          continue;
+        }
+        if (st === DS.GOTO && a.state === AGENT.MOVING && a.step + 1 < a.path.length) {
+          const [nx, ny] = this.xy(a.path.cells[a.step + 1]!);
+          const nd = this.structure.countdownAt(nx, ny);
+          if (nd > 0 && nd <= cross) {
+            this.abandon(d, false); // do not walk under a roof about to fall: wait at its edge
+            this.thinkAt[d] = this.now + this.thinkTicks;
+            continue;
+          }
+        }
       }
       if (st === DS.IDLE) {
         // search again when the board changed since the last failed search, or after a long wait;

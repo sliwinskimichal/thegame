@@ -67,8 +67,9 @@ Przerwanie zostawia pracę na kaflu (`progressKept = 1`): kolejny krasnolud koń
 **Kafel stropu:** TRZYMA (`stress ≤ 100`) → PĘKA (`stress > 100`, `timer` odlicza `warnSec`) → ZAWAŁ (kolumna
 zasypana) lub z powrotem TRZYMA (`caveInAverted`).
 
-**Ocena stropu (wiersz r):** bieg otwartych kafli w wierszu r jest ograniczony litymi kaflami (ściany, filary skalne,
-krawędź mapy). Podpora stoi na podłodze kolumny i usztywnia cały segment kolumny, jeśli jest on nie wyższy niż
+**Ocena stropu (wiersz r):** bieg otwartych kafli podziemnych w wierszu r jest ograniczony litymi kaflami (ściany,
+filary skalne, krawędź mapy) oraz otwartym niebem (lico zbocza niesie masyw nad nim; decyzja z F2-3 etapu 2 —
+bez niej strop każdej komory za wejściem ze zbocza liczył się jak wspornik i pękał). Podpora stoi na podłodze kolumny i usztywnia cały segment kolumny, jeśli jest on nie wyższy niż
 `maxHeight` (kratownica dodatkowo `reach` kolumn w bok). Kafel stropu = lity kafel nad biegiem; `d` = odległość do
 najbliższej ściany lub usztywnionej kolumny; nośność = ⌊maxSpan/2 × 2,5 (naturalna jaskinia, nawis) × 2 (chodnik ≤ 2
 kafle)⌋. Płaska hala szerokości L trzyma ⇔ L ≤ maxSpan. Kafle, które przestają trzymać, startują odliczanie;

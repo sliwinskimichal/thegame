@@ -53,6 +53,11 @@ export const JOB_RULES = {
   autoSupport: true,
   /** A dwarf keeps working under a failing roof only while more than this remains of the countdown. */
   braveMarginSec: 5,
+  /**
+   * A walking dwarf crosses ground under a failing roof only while more than this is left of the
+   * countdown; closer to the fall it stops at the edge (standing or working dwarves flee at once).
+   */
+  crossSec: 5,
   /** How far (tiles) a fleeing dwarf looks sideways for a safe spot. */
   fleeRadius: 12,
   /** Candidate jobs the chooser checks for a free work spot before waiting for the next round. */

@@ -62,12 +62,17 @@ describe('scenario: a small mine', () => {
     // a 2-tile entrance drift, then the chamber behind it: an opening straight onto the meadow would
     // make its roof a cantilever over open air (the roof model fails it past maxSpan / 2)
     c.orderDig(20, 11, 21, 12, 7);
-    // the upper three rows first, the floor row last (it lowers the floor: the top row would be out of reach)
+    // the player digs the upper three rows first and the floor row when they are done (lowering the floor
+    // first would put the top row out of reach: dwarves reach one tile above their heads)
     c.orderDig(22, 10, 31, 12, 6);
-    c.orderDig(22, 13, 31, 13, 4);
     const before = view(c, 0, 8, 35, 15);
     let t = 0;
-    while (t < 6000 && !(c.board.openCount === 0 && c.items.total(STONE, (i) => c.stockpiles.isStorage(i)) === 44)) {
+    let floor = false;
+    while (t < 6000 && !(floor && c.board.openCount === 0 && c.items.total(STONE, (i) => c.stockpiles.isStorage(i)) === 44)) {
+      if (!floor && c.board.openCount === 0 && c.sim.dig.stats.done === 34) {
+        c.orderDig(22, 13, 31, 13, 4);
+        floor = true;
+      }
       c.step();
       t++;
     }

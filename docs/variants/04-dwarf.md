@@ -70,4 +70,64 @@ wzrostu bez nakrycia), rola nieczytelna z sylwetki przy 75 px, podobieństwo do 
 
 ## 6. Wyniki
 
-*(po E3: tabela metryk, tabela ocen, plansze `docs/variants/04-dwarf/`, finaliści, plan rundy 2)*
+*(po E3: tabela metryk, tabela ocen, plansze `docs/variants/04-dwarf/`, finaliści)*
+
+## 7. Konflikt do rozstrzygnięcia: prędkość chodu a anatomia (analiza lidera)
+
+Nawigacja liczy chód krasnoluda jako **400 ms/kafel = 2,5 kafla/s** (`src/sim/nav`, model balansu). Karta konceptu
+każe chodzić **„ciężko i pewnie”: 2 kroki / 0,9 s** przy nogach **0,30 kafla** (23% wzrostu).
+- Długość kroku przy takiej nodze (udo + goleń ≈ 0,22, but 0,22 z przetaczaniem stopy): ~0,33–0,40 kafla →
+  przy kadencji z karty prędkość **~0,75–0,9 kafla/s**.
+- Liczba Froude'a v² / (g·L) dla L = 0,30 m: przy 0,8 m/s ≈ 0,22 (spokojny chód), przy 2,5 m/s ≈ **2,1 (bieg)**;
+  naturalne przejście chód → bieg wypada przy Fr ≈ 0,5, czyli **~1,2 kafla/s**.
+- Wniosek: przy 2,5 kafla/s każdy krasnolud w grodzie musiałby stale truchtać z kadencją ~4 kroków/s albo
+  ślizgać stopami — oba wyniki łamią wizję („ruch ciężki i pewny”, „bez gagów”).
+- **Rekomendacja** (do systems-designer + gameplay, decyzja game-director/producenta): chód **1,0–1,2 kafla/s**
+  (~850–1000 ms/kafel) jako domyślny, trucht 2,0–2,5 kafla/s tylko dla ucieczki, alarmu i rozkazu „biegiem”;
+  utratę przepustowości logistyki oddać przez tory, windy i tragarzy (to i tak oś postępu gry). Do tego czasu
+  animator obsługuje cały zakres (blend chód ↔ trucht po prędkości, faza sterowana drogą — bez poślizgu).
+
+## 8. Plan rundy 2 (szkic, do potwierdzenia po E3)
+
+Runda 2 dopracowuje 2–3 finalistów i domyka **pełną maszynę stanów** na prawdziwej symulacji (`src/sim/dwarves.ts`).
+
+**Stany i wejścia** (kontrakt `AS`, `AnimInput`, `AnimEdge`, `AnimEvent`):
+
+| Stan | Wejście z symulacji | Klip / logika | Wyjście |
+|---|---|---|---|
+| IDLE | `SIM.IDLE`, brak krawędzi | `idle` + trzymanie wg roli, wiercenie z seeda co 6–12 s | każda krawędź, praca, zagrożenie |
+| WALK | krawędź `WALK_L/R` | blend `walk` ↔ `jog` po prędkości krawędzi, faza z drogi | koniec ścieżki → IDLE (krok domykający na kontakcie stopy) |
+| LEDGE | `STEP_UL/UR` (700 ms, półka 1 kafel) | wspięcie: dłonie na krawędzi półki → kolano → wstanie; korzeń po łuku | WALK / IDLE |
+| STAIRS | `STAIR_*` (600 / 500 ms) | chód z IK stóp na stopniach (`probe.floorAt`) | WALK |
+| DROP → LAND | `DROP_L/R`, `FALL` (`rows`) | odbicie / puszczenie szczebla, lot balistyczny, przysiad lądowania z siłą od `rows`; `fell.damage > 0` → STUNNED | IDLE / WALK |
+| CLIMB | `UP` / `DOWN` (900 / 600 ms na wiersz) | `climb` plecami do kamery, faza z wysokości, wejście i zejście z drabiny jako osobne pół-cykle | WALK / IDLE |
+| RIDE | `LINK` (winda, tory, lina, most) | stanie / trzymanie się / chód po moście | wg następnej krawędzi |
+| DIG / BUILD | `SIM.WORK` + `WORK.DIG` / `BUILD` | `dig` / `build`, cel z `workX/workY` (przed stopami, przed głową, pod stopami, strop) | `digDone` → ostatnie uderzenie i powrót → IDLE |
+| FLEE | `SIM.FLEE`, `danger = 1` | `jog` + osłona głowy, spojrzenie przez ramię | IDLE po wyjściu spod stropu |
+| STUNNED | `SIM.STUNNED` | przysiad, kołysanie, wstawanie | IDLE |
+| HIDDEN | `SIM.BURIED`, `SIM.DEAD` | nic nie rysujemy (tragedia przez odejmowanie); zgaszona lampka zostaje w świecie | `rescued` → STUNNED |
+
+**Przejścia** (czasy blendu): domyślnie 0,15–0,2 s; do DIG/BUILD 0,15 s z dosunięciem stóp; do FLEE i HIDDEN
+natychmiast lub 0,08 s; z DIG tylko w oknie przerwania (od trafienia do 20% kolejnego zamachu) — **gameplay czyta
+`canCancel()`** i kończy akcję po uderzeniu (wymaga uzgodnienia z gameplay-programmer); zmiana kierunku = lustro
+w klatce kontaktu stopy.
+
+**Zdarzenia animacji** (dla vfx-artist i sound-designer, przez `drainNotifies`):
+
+| Notify | Kiedy | Dane | Odbiorca |
+|---|---|---|---|
+| `FOOT_DOWN` | kontakt pięty (2 na cykl chodu) | pozycja stopy, siła (ładunek, trucht) | dźwięk kroku per podłoże, pył |
+| `DIG_WINDUP` | start zamachu | pozycja narzędzia | dźwięk napięcia (opcjonalnie) |
+| `TOOL_SWOOSH` | środek uderzenia | pozycja głowicy | świst |
+| `DIG_HIT` | klatka uderzenia (koniec fazy 0,15 s) | punkt `strike` w świecie, siła (ostatnie uderzenie = 1) | iskry/pył (F3-2), dźwięk per materiał (F3-4), synchronizacja z `digCrack` |
+| `RUNG_GRAB` | dłoń na szczeblu | pozycja dłoni | stuk drewna |
+| `LAND` | lądowanie | siła od `rows` | tąpnięcie, pył |
+| `PICK_UP` / `PUT_DOWN` | podjęcie / odłożenie ładunku | pozycja `LOAD` | dźwięk worka / kamienia |
+
+**Synchronizacja kopania z symulacją**: liczba uderzeń na kafel = zaokrąglony czas kopania / długość cyklu;
+cykl rozciągany ±15%, żeby **ostatnie uderzenie trafiło w `digDone`**, a pęknięcia `digCrack` (25/50/75%)
+wypadły na kolejnych `DIG_HIT` — wymaga od gameplay odczytu postępu (`dig.progressAt`) i przewidywanego czasu.
+
+**Integracja z silnikiem** (lista otwarta, uzupełniana raportem W3): materiał postaci i obrys skórowany jako
+część stylu w `src/render/` (dziś kopia w `src/render/characters/render/`), lampki krasnoludów w polu światła
+(dziś światła dynamiczne ≤ 12), obrys W1 postaci a kreska terenu (2,6 px w laboratorium vs 4 px w biblii).

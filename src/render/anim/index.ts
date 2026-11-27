@@ -74,3 +74,8 @@ class RestPoseAnimator implements DwarfAnimator {
 }
 
 export const createAnimator: CreateAnimator = (rig, opts) => new RestPoseAnimator(rig, (opts.viewYawDeg * Math.PI) / 180);
+
+/** Motion metrics (see AnimMetrics in characters/types.ts). STUB: NaN until W2 implements it. */
+export function animMetrics(_rig: RigInput): { slipWalk: number; slipNav: number; seamJump: number } {
+  return { slipWalk: Number.NaN, slipNav: Number.NaN, seamJump: Number.NaN };
+}

@@ -22,7 +22,7 @@ Statusy: `kolejka` · `w toku` · `do przeglądu` · `zrobione` · `zablokowane 
 | F2-3 | Rdzeń symulacji — etap 1: mutacje świata (BUG-003), kopanie, zawały i podpory | gameplay-programmer | **zrobione** (200 kopaczy 0,17 ms średnio / 0,60 ms p95 na tick; `docs/design/sim/WORLD-MUTATION.md`) |
 | F2-3b | Rdzeń symulacji — etap 2: zadania i priorytety, krasnoludy jako agenci, magazyn i noszenie, determinizm + zapis/odczyt | gameplay-programmer | **zrobione** (200 krasnoludów 1,65 ms p95 na pełny tick; „mała kopalnia” zaliczona; `docs/design/sim/JOBS.md`) |
 | F2-3c | Rdzeń symulacji — etap 3: `World.infra` (jedna warstwa infrastruktury w pierścieniu zmian), budowa budowli z `buildings.ts`, kamień Prakowali (kilof 9), samouczkowa sala zawału | gameplay-programmer | kolejka (po sprincie krasnoludów) |
-| F2-19 | Zatwierdzenie liczb rdzenia: rozpiętości stropów per skała, czasy ostrzeżeń (samouczek: ≥ 60 s), rumosz bez łupu, 1 blok z muru; udźwig i prędkości krasnoludów | systems-designer | kolejka (z F2-15) |
+| F2-19 | Zatwierdzenie liczb rdzenia: rozpiętości stropów per skała, czasy ostrzeżeń (samouczek: ≥ 60 s), rumosz bez łupu, 1 blok z muru; udźwig i prędkości krasnoludów (tymczasowo: chód 1,1 kafla/s, trucht 2,5 przy alarmie — skutki dla tempa 40 h) | systems-designer | kolejka (z F2-15) |
 | F2-4 | Nawigacja z grawitacją — benchmark 3 algorytmów | ai-programmer | **zrobione** (HPA\* 16×16 + kolejka planowania; 200 krasnoludów 0,29 ms mediany / 1,7 ms p95 na tick; `docs/design/ai/NAVIGATION.md`) |
 | F2-5 | HUD i sterowanie — specyfikacja + makiety do turnieju | ui-ux-designer | kolejka |
 | F2-6 | Zadania jako dane + testy kompletności | quest-designer | kolejka |

@@ -527,7 +527,7 @@ export const BANDS: readonly BiomeBand[] = [
       { rock: 'bedrock', share: 0.1, layout: 'shell', thickness: [2, 3] },
     ],
     roofRock: 'heartstone',
-    transition: 3, undulation: { amp: 0, wavelength: 1 }, dipDeg: 0, dipMax: 0, cap: 0,
+    transition: 3, undulation: { amp: 0, wavelength: 1 }, dipDeg: 0, dipMax: 0, cap: 2,
     caves: {
       voidShare: [0.12, 0.2],
       forms: [{ kind: 'dome', weight: 1, w: [36, 36], h: [34, 36], roof: 'vault' }],
@@ -628,7 +628,7 @@ export const DEPOSIT_RULES: Readonly<Record<BiomeId, readonly DepositRule[]>> = 
     { deposit: 'copper_vein', density: 16, form: 'vein', vein: [12, 20], band: [0.1, 1], cls: 'strategic', motherLodes: 0 },
   ],
   limestone: [
-    { deposit: 'clay_bed', density: 30, form: 'pod', vein: [15, 40], band: [0, 0.5], cls: 'common', motherLodes: 0 },
+    { deposit: 'clay_bed', density: 24, form: 'pod', vein: [15, 40], band: [0, 0.5], cls: 'common', motherLodes: 0 },
     { deposit: 'limestone_bed', density: 20, form: 'seam', vein: [20, 60], band: [0, 1], cls: 'common', motherLodes: 0 },
     { deposit: 'coal_seam', density: 40, form: 'seam', vein: [15, 40], band: [0.2, 1], cls: 'common', motherLodes: 0 },
     { deposit: 'copper_vein', density: 20, form: 'vein', vein: [8, 20], band: [0, 1], cls: 'strategic', motherLodes: 2, near: 'cave_ins' },
@@ -663,7 +663,7 @@ export const DEPOSIT_RULES: Readonly<Record<BiomeId, readonly DepositRule[]>> = 
     { deposit: 'gold_vein', density: 2, form: 'vein', vein: [3, 6], band: [0.3, 1], cls: 'strategic', motherLodes: 1, near: 'cold' },
     { deposit: 'cobalt_vein', density: 4, form: 'vein', vein: [5, 10], band: [0.2, 1], cls: 'strategic', motherLodes: 1, near: 'cold' },
     { deposit: 'amethyst_geode', density: 3, form: 'lining', vein: [10, 30], band: [0, 1], cls: 'strategic', motherLodes: 1, near: 'cold' },
-    { deposit: 'sapphire_geode', density: 2, form: 'lining', vein: [10, 30], band: [0.4, 1], cls: 'strategic', motherLodes: 1, near: 'cold' },
+    { deposit: 'sapphire_geode', density: 2, form: 'lining', vein: [8, 20], band: [0.4, 1], cls: 'strategic', motherLodes: 1, near: 'cold' },
     { deposit: 'frost_crystal_bed', density: 3, form: 'lining', vein: [10, 30], band: [0.2, 1], cls: 'strategic', motherLodes: 1, near: 'cold' },
   ],
   magma: [
@@ -910,8 +910,8 @@ export const ACCEPTANCE = {
   coverage: 1,
   /** Density per biome and deposit within +-20% of DEPOSIT_RULES. */
   densityTolerance: 0.2,
-  /** Smallest vein counted for coverage, tiles. */
-  minVein: 3,
+  /** Smallest vein counted for coverage, tiles (05 §2.2: the rarest veins are 2-6 tiles). */
+  minVein: 2,
   /** Natural roofs failing the structure model at generation. */
   roofFailures: 0,
   /** Fluid in solid tiles and water floating over open non-water tiles. */

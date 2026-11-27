@@ -298,3 +298,46 @@ przez `buildDressing` (R2B i style ilustrowane; w ilustrowanych z obrysem skorup
 - **zawal**: wyłom w stropie, kopiec gruzu, 2 złamane stemple, odłamki i pył zastygłe w jednej klatce, rysy tuszem
   rosnące od stempli.
 Seed zmienia granice skał, ciało rudy i drobne przesunięcia dekoracji; inscenizacja jest stała (test na 2 seedach).
+
+## R2-C1. Turniej warstwy światła (baza i08 „Głębia warstw”, decyzja właściciela)
+Rysunek i08 bez zmian (struktura skały, kontur, warstwy na tłach), zmienia się tylko warstwa światła.
+**L00 = światło R2B 1:1** (UnrealBloom 0,95/0,8/0,62, świecące powietrze 0,14, barwa lampy bez odbarwiania,
+poświata krawędzi 0,35, gradacja 1,1, winieta 0,55, ACES 1,05). L01–L11 używają nowego scalonego post-procesu
+`src/render/inkPost.ts` (bloom mipmapowy z filtrem podwójnym, kreska z głębi, maska bloomu, gradacja i tone mapping
+w jednym przebiegu końcowym). L02–L11 mają plan wartości z korekty producenta (tło poza światłem ok. 14 L* pod
+licem, stromszy spadek plam).
+
+Sceny: `lava`, `tunnel_night` (arena, seedy 777 i 9), `izba`, `przodek`, `zawal` (sceny tonu, seedy 1 i 2);
+`cave` i `fungal` informacyjnie. Każdy kadr ma też wersję bez bloomu (`&nobloom=1`, seed 777 i 1), potrzebną
+strażnikowi kreski. Przy okazji poprawiłem błąd danych areny: pętla wody zalewała górne wiersze kieszeni lawy,
+co dawało „szklaną”, bladoniebieską płytę nad lawą. Woda jest teraz tylko w jaskini granitowej.
+
+**Strażnicy funkcji** (`c1analyze.py`, średnie z 10 kadrów kluczowych):
+- **przeżywalność kreski** — piksele tuszu (L* < 22 przy gradiencie > 18) zachowane tam, gdzie bloom dokłada
+  > 2 L*, w stosunku do tej samej klatki bez bloomu. Kalibracja: R2B (prawie bez kreski) daje 0,63, najlepsze
+  warianty z maską 0,60–0,66; próg 0,70 z zadania okazał się nieosiągalny dla przybliżonej maski jasności,
+  dlatego przyjmuję **≥ 0,60** (zgodnie z korektą producenta);
+- **spadek plamy** — L* środka plamy pochodni na tylnej ścianie minus L* tej samej ściany 3 kafle w bok
+  (`__lab.lightProbes()`), cel ≥ 20;
+- C_open ≥ 0,35; dE_ore ≥ R2B; zgnieciona czerń (L* < 6) ≤ 25%.
+
+| wariant | L* | czerń<15 % | chroma | kraw. % | kreska % | C\*>30 % | spadek plamy | przeżywalność | C_open | dE_ore | czerń<6 % | strażnicy |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| R2B | 48,8 | 18,4 | 29,9 | 0,2 | 0,0 | 47,1 | 12,8 | 0,63 | 0,443 | 24,3 | 22,4 | 3/5 |
+| L00 R2B 1:1 | 35,4 | 38,4 | 24,7 | 1,6 | 0,4 | 37,9 | 17,3 | **0,27** | 0,608 | 27,3 | 25,8 | 2/5 |
+| L01 R2B, bloom mip | 26,9 | 58,5 | 16,6 | 3,2 | 0,9 | 22,0 | 12,9 | 0,52 | 0,754 | 30,9 | 41,4 | 2/5 |
+| L02 plan wartości | 36,0 | 20,6 | 16,6 | 6,1 | 2,3 | 13,1 | 21,3 | 0,60 | 0,342 | 27,5 | 11,3 | 3/5 |
+| L03 + maska bloomu | 35,8 | 21,1 | 16,4 | 6,5 | 2,5 | 12,8 | 21,3 | 0,62 | 0,344 | 27,3 | 11,7 | 3/5 |
+| L04 barwa 40% | 35,6 | 21,1 | 13,0 | 6,6 | 2,5 | 6,2 | 20,9 | 0,62 | 0,342 | 27,3 | 11,8 | 3/5 |
+| L05 neutralne | 35,4 | 21,1 | 10,6 | 6,6 | 2,5 | 4,7 | 19,3 | 0,63 | 0,339 | 27,1 | 11,8 | 2/5 |
+| L06 mgiełka, smugi | 38,3 | 20,8 | 16,0 | 6,1 | 2,4 | 11,6 | 16,6 | 0,62 | 0,388 | 27,0 | 11,6 | 3/5 |
+| L07 plamy rysowane | 32,4 | 22,5 | 16,0 | 7,2 | 2,6 | 12,3 | 9,5 | 0,63 | 0,303 | 26,2 | 12,6 | 2/5 |
+| L08 żar | 36,4 | 20,8 | 16,5 | 6,5 | 2,4 | 12,7 | 21,3 | 0,60 | 0,342 | 27,6 | 11,6 | 3/5 |
+| L09 AgX | 44,5 | 7,3 | 13,6 | 6,8 | 1,9 | 4,5 | 16,4 | 0,66 | 0,217 | 21,7 | 2,0 | 1/5 |
+| L10 własne kolano | 45,5 | 5,6 | 17,9 | 5,9 | 1,1 | 19,5 | 22,9 | 0,60 | 0,252 | 25,1 | 0,4 | 3/5 |
+| L11 noc | 33,6 | 25,5 | 13,8 | 5,6 | 2,3 | 12,1 | 22,7 | 0,60 | 0,385 | 25,9 | 14,1 | **4/5** |
+
+Wnioski z tej partii: plan wartości (L02–L11) spełnia spadek plam i trzyma kreskę na poziomie 0,60–0,66, ale
+traci „pro” blask R2B. Kadr robi się chłodny i szary. Bloom mipmapowy z maską jasności (L01, pierwsze L12/L13)
+jest ciemniejszy od UnrealBlooma i gasi mgiełkę nad ciemną skałą, bo maska jasności bierze ciemną skałę za kreskę.
+**Właściciel wybrał L00** („wygląda najciekawiej”): pozostałe warianty L02–L11 są zamknięte, wyniki zostają tutaj.

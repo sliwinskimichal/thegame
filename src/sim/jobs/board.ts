@@ -54,6 +54,7 @@ export interface JobsSave {
   ringSeen: number;
   /** Stockpile zones changed since the last tick (haul jobs for loose piles still to be ordered). */
   zonesPending: boolean;
+  epoch: number;
 }
 
 export class JobBoard {
@@ -98,9 +99,19 @@ export class JobBoard {
   hasRoom = false;
   private seenItems = -1;
   private seenZones = -1;
+  private seenRoofs = -1;
   /** Current tick and colony size (set by the colony each tick). */
   now = 0;
   dwarfCount = 1;
+  /**
+   * Bumped whenever the set of open jobs may have changed (orders, releases, reopenings, world, items or
+   * zone changes). Idle dwarves only search again after it changed (or after a long wait).
+   */
+  epoch = 0;
+  /** Per-tick memo of the dwarf-independent part of isOpen, and the pick tier a dig job needs. */
+  private readonly validTick = new Int32Array(MAX_JOBS).fill(-1);
+  private readonly validVal = new Uint8Array(MAX_JOBS);
+  readonly needTier = new Uint8Array(MAX_JOBS);
   readonly stats = { ordered: 0, done: 0, cancelled: 0, blacklisted: 0, reopened: 0 };
 
   constructor(
@@ -224,6 +235,41 @@ export class JobBoard {
   /** Is job s open for some dwarf right now (state, target still valid, no danger, materials, room)? */
   isOpen(s: number): boolean {
     if (this.state[s] !== JS.OPEN) return false;
+    // the memo holds while the tick, the world and the roofs (and, except for digging, the piles and
+    // zones) are unchanged; it only caches a pure function of that state, so it never changes results
+    const w = this.world;
+    if (this.memoNow !== this.now || this.memoRing !== w.changeCount || this.memoRoofs !== this.structure.version) {
+      this.memoNow = this.now;
+      this.memoRing = w.changeCount;
+      this.memoRoofs = this.structure.version;
+      this.memoDig++;
+      this.memoAll++;
+    }
+    if (this.memoItems !== this.items.version || this.memoZones !== this.stockpiles.version) {
+      this.memoItems = this.items.version;
+      this.memoZones = this.stockpiles.version;
+      this.memoAll++;
+    }
+    const stamp = this.type[s] === JT.DIG ? this.memoDig : this.memoAll;
+    if (this.validTick[s] === stamp && this.validKind[s] === this.type[s]) return this.validVal[s] === 1;
+    const ok = this.valid(s);
+    this.validTick[s] = stamp;
+    this.validKind[s] = this.type[s]!;
+    this.validVal[s] = ok ? 1 : 0;
+    return ok;
+  }
+  private memoNow = -1;
+  private memoRing = -1;
+  private memoItems = -1;
+  private memoZones = -1;
+  private memoRoofs = -1;
+  /** Separate stamp spaces (even = dig, odd = others) so the two counters never collide. */
+  private memoDig = 0;
+  private memoAll = 1 << 30;
+  private readonly validKind = new Uint8Array(MAX_JOBS);
+
+  /** Dwarf-independent validity of an open job (memoized per tick by isOpen). */
+  private valid(s: number): boolean {
     const w = this.world;
     const i = this.target[s]!;
     const x = i % w.w;
@@ -233,6 +279,7 @@ export class JobBoard {
         const code = this.dig.canDig(x, y, 8);
         if (code !== DIG_FAIL.OK && code !== DIG_FAIL.TIER_TOO_LOW) return false;
         if (this.dig.jobAt(x, y)) return false;
+        this.needTier[s] = Math.min(255, this.dig.needTier(i));
         if (this.flags[s]! & JF.RESCUE) return true; // digging out a buried dwarf is worth the risk
         if (this.wait[s] && this.slot(this.wait[s]!) >= 0) return false; // the support it waits for is not up yet
         return !this.dangerous(x, y);
@@ -257,6 +304,7 @@ export class JobBoard {
   /** Is the work area of solid tile (x, y) under a failing roof? */
   dangerous(x: number, y: number): boolean {
     const st = this.structure;
+    if (st.failing === 0) return false;
     return st.dangerAt(x - 1, y) || st.dangerAt(x + 1, y) || st.dangerAt(x, y - 1) || st.dangerAt(x, y + 1);
   }
 
@@ -281,6 +329,7 @@ export class JobBoard {
     if (this.state[s] !== JS.CLAIMED) return;
     this.state[s] = JS.OPEN;
     this.claim[s] = 0;
+    this.epoch++;
   }
 
   /** The dwarf's plan to reach the job failed; blacklist after enough different dwarves failed. */
@@ -309,6 +358,7 @@ export class JobBoard {
         this.state[s] = JS.OPEN;
         this.claim[s] = 0;
         this.target[s] = this.items.tile[p]!;
+        this.epoch++;
         return;
       }
     }
@@ -359,15 +409,16 @@ export class JobBoard {
     if (this.world.changeCount !== this.ringSeen) {
       if (!this.world.changesSince(this.ringSeen, this.onRing)) this.touchedAll = true;
       this.ringSeen = this.world.changeCount;
+      this.epoch++;
+    }
+    if (this.structure.version !== this.seenRoofs) {
+      this.seenRoofs = this.structure.version;
+      this.epoch++;
     }
     if (this.items.version !== this.seenItems || this.stockpiles.version !== this.seenZones) {
       const zonesChanged = this.seenZones === -1 || this.stockpiles.version !== this.seenZones;
-      this.seenItems = this.items.version;
-      this.seenZones = this.stockpiles.version;
-      this.avail.fill(0);
-      const it = this.items;
-      for (let p = 0; p < it.span; p++) if (it.tile[p]! >= 0 && !this.world.isSolid(it.tile[p]! % this.world.w, Math.floor(it.tile[p]! / this.world.w))) this.avail[it.item[p]!] = this.avail[it.item[p]!]! + it.available(p);
-      this.hasRoom = this.stockpiles.zones.length > 0 && this.stockpiles.totalRoom > 0;
+      this.refreshCaches();
+      this.epoch++;
       if (zonesChanged) this.scanLoose();
     }
     const w = this.world;
@@ -400,7 +451,7 @@ export class JobBoard {
   save(): JobsSave {
     const arrays = {} as JobsSave['arrays'];
     for (const k of ARRAYS) arrays[k] = rleEncode(this[k]);
-    return { v: 1, arrays, free: Array.from(this.free.subarray(0, this.freeTop)), hi: this.hi, nextSeq: this.nextSeq, ringSeen: this.ringSeen, zonesPending: this.stockpiles.version !== this.seenZones };
+    return { v: 1, arrays, free: Array.from(this.free.subarray(0, this.freeTop)), hi: this.hi, nextSeq: this.nextSeq, ringSeen: this.ringSeen, zonesPending: this.stockpiles.version !== this.seenZones, epoch: this.epoch };
   }
 
   /** Restore; `ringSeen` refers to the world's change counter, which restarts at 0 after a world load. */
@@ -421,9 +472,26 @@ export class JobBoard {
       else if (this.type[j] === JT.BUILD) this.buildAt[this.target[j]!] = j + 1;
       else this.haulOf[this.arg[j]!] = j + 1;
     }
-    // availability is recomputed from the loaded piles; zone changes are replayed only if they were pending
-    this.seenItems = -1;
-    this.seenZones = s.zonesPending ? -1 : this.stockpiles.version;
+    // the caches dwarves read at the start of the next tick come from the loaded piles and zones;
+    // a zone change is replayed only if it was still pending when the game was saved
+    this.refreshCaches();
+    if (s.zonesPending) this.seenZones = -1;
+    this.seenRoofs = this.structure.version; // the loaded roofs were already seen
+    this.epoch = s.epoch;
+  }
+
+  /** Unreserved units per resource and whether any stockpile has room (read by dwarves via isOpen). */
+  private refreshCaches(): void {
+    this.seenItems = this.items.version;
+    this.seenZones = this.stockpiles.version;
+    this.avail.fill(0);
+    const it = this.items;
+    const W = this.world.w;
+    for (let p = 0; p < it.span; p++) {
+      const t = it.tile[p]!;
+      if (t >= 0 && !this.world.isSolid(t % W, Math.floor(t / W))) this.avail[it.item[p]!] = this.avail[it.item[p]!]! + it.available(p);
+    }
+    this.hasRoom = this.stockpiles.zones.length > 0 && this.stockpiles.totalRoom > 0;
   }
 
   // ------------------------------------------------------------- internals
@@ -447,6 +515,8 @@ export class JobBoard {
     this.got.fill(0, s * MAX_NEEDS, s * MAX_NEEDS + MAX_NEEDS);
     this.seq[s] = this.nextSeq++;
     this.stats.ordered++;
+    this.validTick[s] = -1;
+    this.epoch++;
     return s;
   }
 
@@ -486,6 +556,7 @@ export class JobBoard {
     this.state[s] = JS.FREE;
     this.claim[s] = 0;
     this.free[this.freeTop++] = s;
+    this.epoch++;
   }
 
   private reopen(s: number, reason: 'expired' | 'worldChanged'): void {
@@ -493,6 +564,7 @@ export class JobBoard {
     this.fails[s] = 0;
     this.failBy.fill(0, s * 3, s * 3 + 3);
     this.stats.reopened++;
+    this.epoch++;
     const { x, y } = this.xy(s);
     this.bus.emit('jobReopened', { job: this.handle(s), type: this.type[s]!, x, y, reason });
   }

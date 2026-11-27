@@ -473,3 +473,62 @@ export class DepthInkPass extends Pass {
     this.quad.dispose();
   }
 }
+
+/**
+ * "Ink over bloom" for the R2B post chain: InkCapturePass copies the scene right after the render
+ * (its alpha carries ink coverage, 1 - 0.5 * ink), InkOverPass runs after the bloom and puts the
+ * pre-bloom colour back where there is ink. Everything else stays pixel-identical to the chain
+ * without it, so the look of the light layer is kept and only the lines survive the glow.
+ */
+const COPY_FRAG = /* glsl */ `uniform sampler2D tDiffuse; varying vec2 vUv; void main() { gl_FragColor = texture2D(tDiffuse, vUv); }`;
+const OVER_FRAG = /* glsl */ `
+uniform sampler2D tDiffuse; uniform sampler2D tPre; uniform float uStrength; varying vec2 vUv;
+void main() {
+  vec4 pre = texture2D(tPre, vUv);
+  float ink = clamp((1.0 - pre.a) * 2.0, 0.0, 1.0) * uStrength;
+  vec3 c = texture2D(tDiffuse, vUv).rgb;
+  gl_FragColor = vec4(mix(c, pre.rgb, ink), 1.0);
+}`;
+const FS_VERT = /* glsl */ `varying vec2 vUv; void main() { vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }`;
+
+export class InkCapturePass extends Pass {
+  readonly target: THREE.WebGLRenderTarget;
+  private quad: FullScreenQuad;
+  constructor(w: number, h: number) {
+    super();
+    this.needsSwap = false;
+    this.target = new THREE.WebGLRenderTarget(w, h, { type: THREE.HalfFloatType, depthBuffer: false });
+    this.quad = new FullScreenQuad(new THREE.ShaderMaterial({ vertexShader: FS_VERT, fragmentShader: COPY_FRAG, uniforms: { tDiffuse: { value: null } }, depthTest: false, depthWrite: false, toneMapped: false }));
+  }
+  override setSize(w: number, h: number): void {
+    this.target.setSize(w, h);
+  }
+  override render(renderer: THREE.WebGLRenderer, _w: THREE.WebGLRenderTarget, readBuffer: THREE.WebGLRenderTarget): void {
+    (this.quad.material as THREE.ShaderMaterial).uniforms.tDiffuse!.value = readBuffer.texture;
+    renderer.setRenderTarget(this.target);
+    this.quad.render(renderer);
+  }
+}
+
+export class InkOverPass extends Pass {
+  private quad: FullScreenQuad;
+  private mat: THREE.ShaderMaterial;
+  constructor(private capture: InkCapturePass, strength = 1) {
+    super();
+    this.mat = new THREE.ShaderMaterial({
+      vertexShader: FS_VERT,
+      fragmentShader: OVER_FRAG,
+      uniforms: { tDiffuse: { value: null }, tPre: { value: null }, uStrength: { value: strength } },
+      depthTest: false,
+      depthWrite: false,
+      toneMapped: false,
+    });
+    this.quad = new FullScreenQuad(this.mat);
+  }
+  override render(renderer: THREE.WebGLRenderer, writeBuffer: THREE.WebGLRenderTarget, readBuffer: THREE.WebGLRenderTarget): void {
+    this.mat.uniforms.tDiffuse!.value = readBuffer.texture;
+    this.mat.uniforms.tPre!.value = this.capture.target.texture;
+    renderer.setRenderTarget(this.renderToScreen ? null : writeBuffer);
+    this.quad.render(renderer);
+  }
+}

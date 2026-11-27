@@ -23,6 +23,7 @@ import { AGENT, INFRA_BY_CONTENT, NavAgent, workSpots, type NavGrid, type NavPla
 import { loadAgent, saveAgent, type AgentSave } from './navsave';
 import type { Stockpiles } from './stockpile';
 import type { StructureSystem } from './structure';
+import { TAG } from './world/mutate';
 import { rleDecode, rleEncode } from './world/snapshot';
 
 export const DS = { IDLE: 0, GOTO: 1, WORK: 2, FLEE: 3, STUNNED: 4, BURIED: 5, DEAD: 6 } as const;
@@ -31,7 +32,7 @@ export const STEP = { NONE: 0, TO_SITE: 1, TO_PILE: 2, TO_DEST: 3 } as const;
 
 const TICK_MS = 1000 / CONFIG.tickRate;
 const NW = WORK_TYPES.length;
-const ARRAYS = ['state', 'hp', 'job', 'step', 'spot', 'digH', 'work', 'carryItem', 'carryN', 'pile', 'dest', 'plan', 'pickTier', 'pickSpeed', 'stun', 'thinkAt', 'avoidJob', 'avoidUntil', 'prio', 'falls'] as const;
+const ARRAYS = ['state', 'hp', 'job', 'step', 'spot', 'digH', 'work', 'carryItem', 'carryN', 'pile', 'dest', 'plan', 'pickTier', 'pickSpeed', 'stun', 'thinkAt', 'retryAt', 'seenEpoch', 'avoidJob', 'avoidUntil', 'prio', 'falls'] as const;
 
 export interface DwarvesSave {
   v: 1;
@@ -67,6 +68,9 @@ export class Dwarves implements DwarfView {
   readonly pickSpeed: Float64Array;
   readonly stun: Int32Array;
   readonly thinkAt: Int32Array;
+  /** A dwarf that found nothing searches again when the board epoch changes or at retryAt. */
+  readonly retryAt: Int32Array;
+  readonly seenEpoch: Int32Array;
   readonly avoidJob: Int32Array;
   readonly avoidUntil: Int32Array;
   /** Personal priority per work type (cap x WORK_TYPES.length), 0 = never. */
@@ -114,6 +118,8 @@ export class Dwarves implements DwarfView {
     this.pickSpeed = new Float64Array(cap);
     this.stun = new Int32Array(cap);
     this.thinkAt = new Int32Array(cap);
+    this.retryAt = new Int32Array(cap);
+    this.seenEpoch = new Int32Array(cap).fill(-1);
     this.avoidJob = new Int32Array(cap);
     this.avoidUntil = new Int32Array(cap);
     this.prio = new Uint8Array(cap * NW);
@@ -185,6 +191,7 @@ export class Dwarves implements DwarfView {
   /** Decisions and actions (before the planner runs). */
   think(): void {
     const failing = this.structure.failing > 0;
+    let searches = 0;
     for (let d = 0; d < this.n; d++) {
       const st = this.state[d];
       if (st === DS.DEAD) continue;
@@ -209,7 +216,16 @@ export class Dwarves implements DwarfView {
         continue;
       }
       if (st === DS.IDLE) {
-        if (this.now >= this.thinkAt[d]! && !this.pickJob(d)) this.thinkAt[d] = this.now + this.thinkTicks;
+        // search again when the board changed since the last failed search, or after a long wait;
+        // within a per-tick budget, on the dwarf's own phase so searches spread evenly over ticks
+        if (this.now >= this.thinkAt[d]! && (this.board.epoch !== this.seenEpoch[d] || this.now >= this.retryAt[d]!) && searches < JOB_RULES.searchesPerTick) {
+          searches++;
+          if (!this.pickJob(d)) {
+            this.seenEpoch[d] = this.board.epoch;
+            this.retryAt[d] = this.now + 6 * this.thinkTicks;
+            this.thinkAt[d] = this.nextPhase(d);
+          }
+        }
       } else if (st === DS.GOTO) this.goto(d);
       else if (st === DS.WORK) this.doWork(d);
       else if (st === DS.FLEE) {
@@ -283,14 +299,28 @@ export class Dwarves implements DwarfView {
     return Math.max(1, Math.round(JOB_RULES.thinkSec * CONFIG.tickRate));
   }
 
+  /** Next tick after now on dwarf d's search phase (d mod thinkTicks). */
+  private nextPhase(d: number): number {
+    const T = this.thinkTicks;
+    const phase = d % T;
+    const r = this.now % T;
+    return this.now + (phase > r ? phase - r : T - r + phase);
+  }
+
   private xy(cell: number): [number, number] {
     const x = cell % this.world.w;
     return [x, (cell - x) / this.world.w];
   }
 
+  /**
+   * Buried: rock fills the feet cell, or rubble lies over the head (plain rock over the head is a
+   * crawl space the profile can squeeze through, not a burial).
+   */
   private bodyBlocked(d: number): boolean {
     const w = this.world;
-    for (let k = 0, c = this.agents[d]!.cell; k < this.height && c >= 0; k++, c -= w.w) if (SOLID[w.mat[c]!]) return true;
+    const c = this.agents[d]!.cell;
+    if (SOLID[w.mat[c]!]) return true;
+    for (let k = 1, j = c - w.w; k < this.height && j >= 0; k++, j -= w.w) if (SOLID[w.mat[j]!] && this.dig.mut.tag[j]! & TAG.RUBBLE) return true;
     return false;
   }
 

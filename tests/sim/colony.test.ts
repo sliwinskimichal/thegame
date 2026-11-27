@@ -61,12 +61,14 @@ describe('colony determinism and save/load', () => {
     expect(a.dwarves.stats.deaths).toBe(0);
   });
 
-  it('save -> JSON -> load at tick 1000 and finishing gives the same hash as the run without a break', () => {
+  it('save -> JSON -> load at tick 1000 (and at uneven ticks) and finishing gives the same hash as the run without a break', () => {
     const a = play(2000).c;
-    const { c, saved } = play(2000, { saveAt: 1000 });
-    expect(saved).not.toBeNull();
-    expect(c.hash()).toBe(a.hash());
-    expect(c.tick).toBe(2000);
+    for (const saveAt of [1000, 137, 613, 1499]) {
+      const { c, saved } = play(2000, { saveAt });
+      expect(saved, `save at ${saveAt}`).not.toBeNull();
+      expect(c.hash(), `save at ${saveAt}`).toBe(a.hash());
+      expect(c.tick).toBe(2000);
+    }
   });
 
   it('the same holds with plain A* paths', () => {

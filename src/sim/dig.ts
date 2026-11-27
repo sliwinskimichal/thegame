@@ -156,6 +156,12 @@ export class DigSystem {
     return this.mut.tag[i]! & TAG.RUBBLE ? this.hardness[m]! * STRUCTURE.rubbleHardnessMul : this.hardness[m]!;
   }
 
+  /** Pick tier needed to dig tile i as it is now (rubble is easier; >= TIER_NEVER = never). */
+  needTier(i: number): number {
+    const t = this.tier[this.world.mat[i]!]!;
+    return this.mut.tag[i]! & TAG.RUBBLE ? Math.min(t, STRUCTURE.rubbleTier) : t;
+  }
+
   /** Dig progress of a tile in [0, 1] (render: cracks). */
   progressAt(x: number, y: number): number {
     if (!this.world.inBounds(x, y)) return 0;

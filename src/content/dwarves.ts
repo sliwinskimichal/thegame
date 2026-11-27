@@ -56,7 +56,9 @@ export const JOB_RULES = {
   /** How far (tiles) a fleeing dwarf looks sideways for a safe spot. */
   fleeRadius: 12,
   /** Candidate jobs the chooser checks for a free work spot before waiting for the next round. */
-  chooseAttempts: 4,
+  chooseAttempts: 8,
+  /** Job searches per tick for the whole colony (the rest wait a tick: smooth cost, deterministic). */
+  searchesPerTick: 24,
 };
 
 export const STOCKPILE_RULES = {

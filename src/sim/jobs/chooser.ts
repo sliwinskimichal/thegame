@@ -5,7 +5,6 @@
  * replace it without touching the board or the dwarves.
  */
 import { JOB_RULES } from '../../content/dwarves';
-import { DIG_FAIL } from '../dig';
 import type { JobBoard } from './board';
 import { JS, JT, JT_WORK, WORK_INDEX } from './types';
 
@@ -41,10 +40,10 @@ export class PriorityDistanceChooser implements JobChooser {
       const wp = dw.workPriority(d, WORK_INDEX[JT_WORK[t]!]);
       if (wp <= 0) continue;
       if (!board.isOpen(s)) continue;
+      if (t === JT.DIG && tier < board.needTier[s]!) continue;
       const i = board.target[s]!;
       const x = i % W;
       const y = (i - x) / W;
-      if (t === JT.DIG && board.dig.canDig(x, y, tier) !== DIG_FAIL.OK) continue;
       if (dw.avoids(d, board.handle(s))) continue;
       // higher is better: personal priority, job priority, then nearer, then older
       const dist = Math.abs(x - cx) + Math.abs(y - cy);

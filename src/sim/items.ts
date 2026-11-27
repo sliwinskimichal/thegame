@@ -224,11 +224,15 @@ export class ItemPiles {
   private onTileChanged(e: TileChanged): void {
     const w = this.world;
     if (SOLID[e.after]) {
+      if (this.head[e.i]) this.version++; // buried piles stop counting as available
       for (let p = this.first(e.i); p >= 0; p = this.nextOf(p)) this.bus.emit('itemsBuried', { i: e.i, item: RES_IDS[this.item[p]!]!, n: this.count[p]! });
       return;
     }
     // opened: piles on this (dug-out) tile and piles standing on it from above fall down
-    if (this.head[e.i]) this.fall(e.i);
+    if (this.head[e.i]) {
+      this.version++;
+      this.fall(e.i);
+    }
     if (e.y > 0 && this.head[e.i - w.w]) this.fall(e.i - w.w);
   }
 }

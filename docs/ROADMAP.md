@@ -84,3 +84,19 @@ automatycznie co 5 h. Każda sesja zaczyna od pierwszego niezaznaczonego punktu.
   5,3% — nasz R2B ma 10× mniej kreski i detalu, a nocą 3× więcej czerni; cele w CHARTER §4, skrypt
   `scripts/refstats.py`); (2) zespół 20 agentów-specjalistów zarządzany przez sesję główną jako Executive
   Producer — statut, skład, plan produkcji M1–M7, tablica zadań i rejestr decyzji w `docs/team/`.
+- **2026-11-26 (dzień 2, popołudnie i noc)** — Fala 1 zespołu zintegrowana: wizja v1 (game-director; dusza
+  „ciepło paleniska niesione w głąb głodnej światła góry”, słownik znaczeń, 4 poziomy zoomu), biblia sztuki v1.1
+  (concept-artist; wagi kreski w px, tusz, zakresy L* per warstwa, paleta ilustrowana, karty: krasnolud,
+  Palenisko, huta, tylna ściana wnęki), walidator treści `npm run content:check` (57 reguł, krok CI) i przeglądarka
+  danych `tools.html` (tools-programmer), audyt QA (10 błędów, plan testów M1–M3; BUG-009 w EventBus naprawiony
+  od ręki), ekonomia F2-1 (waluta księgowa srebrny, odpływy, czarne złoto, kierunek Kręgów Otchłani). Pomiar
+  tempa zespołu: 7 równoległych agentów wyczerpuje 5-godzinne okno limitu w ok. 1 h → maks. 4 naraz.
+- **2026-11-27 (dzień 3, noc)** — Turniej nr 3 (styl ilustrowany), runda 1: 13 wariantów + kontrola R2B,
+  252 rendery z zamrożonego builda, metryki per kontekst (gród / dzika głębia). Kreska 0,2% → 3,1% (i10),
+  rozróżnialność skał w galerii ΔE 8,9 → 22–30, rudy względem skały bez straty. Finaliści: i10 Hybryda,
+  i08 Głębia warstw, i12 Ciemna kopalnia; zawodnik biblioteczny (pmndrs/postprocessing) odpada. Przegląd
+  producenta wykrył dwie wady wspólne finalistom, których rubryka nie złapała: naturalna skała wygląda jak mur
+  (łamie test „kreska to kultura”) i tła wnęk są białawe (średnie L* ukrywało dwumodalny kadr). Runda 2: najpierw
+  poprawki QA (BUG-001/002/005, `seed`) i trzy sceny tonu, potem finaliści × języki struktury skały naturalnej
+  i nowa metryka regularności siatki. Równolegle: nawigacja z grawitacją (benchmark 3 algorytmów) i rdzeń
+  symulacji etap 1 (mutacje świata, kopanie, zawały).

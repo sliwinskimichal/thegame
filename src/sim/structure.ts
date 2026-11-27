@@ -493,6 +493,13 @@ export class StructureSystem {
       const cj = c * W + k;
       if (this.timer[cj]! > 0 && SOLID[mat[cj]!] && !SOLID[mat[rowR + k]!]) roof.push(cj);
     }
+    if (!roof.includes(ci)) {
+      // cannot happen after the flush at the start of the tick; never let a stale countdown spin
+      this.timer[ci] = 0;
+      this.rowFail[c] = Math.max(0, this.rowFail[c]! - 1);
+      this.markRow(r);
+      if (!roof.length) return;
+    }
     const id = this.nextId++;
     const filled: number[] = [];
     let water = 0;

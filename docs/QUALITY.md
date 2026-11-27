@@ -27,13 +27,13 @@ Statusy: `⬜ nie zaczęte` · `🟨 w pracy` · `🟦 do przeglądu` · `✅ sp
 
 ## Fundamenty świata
 
-### E1. Model danych świata (`src/world/world.ts`) — 🟨
+### E1. Model danych świata (`src/world/world.ts`) — 🟨 (pkt 2–5 spełnione 2026-11-27: `src/sim/world/*`, `tests/sim/world-mutation.test.ts`, `tests/qa/world-state.test.ts`; pkt 1 do weryfikacji QA)
 - [ ] Wszystkie dane kafla w tablicach typowanych (SoA), indeks `y*w+x`, bez alokacji w gorących pętlach.
-- [ ] Każda zmiana kafla przechodzi przez jedną ścieżkę (`dig`/`place`/`setFluid`) i unieważnia:
+- [x] Każda zmiana kafla przechodzi przez jedną ścieżkę (`dig`/`place`/`setFluid`) i unieważnia:
       chunki do przebudowy, światło, mgłę, stan nawigacji, dekoracje — pokryte testami.
-- [ ] Zdarzenia zmian (tile changed / revealed / decor removed) emitowane do subskrybentów.
-- [ ] Serializacja i deserializacja świata (kompresja) z testem „zapisz → wczytaj → identyczny”.
-- [ ] Testy: granice świata, ujawnianie, oznaczanie chunków na krawędziach.
+- [x] Zdarzenia zmian (tile changed / revealed / decor removed) emitowane do subskrybentów.
+- [x] Serializacja i deserializacja świata (kompresja) z testem „zapisz → wczytaj → identyczny”.
+- [x] Testy: granice świata, ujawnianie, oznaczanie chunków na krawędziach.
 
 ### E2. Materiały (`src/world/materials.ts`, `src/render/palette.ts`) — 🟨 (turniej nr 2 rozstrzygnięty)
 - [ ] Każdy materiał ma: nazwę PL/EN, twardość, łup, kolorystykę, wzór, połysk, emisję, dźwięk kopania,

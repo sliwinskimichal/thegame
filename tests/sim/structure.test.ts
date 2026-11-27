@@ -13,7 +13,7 @@ import { SUPPORT_FAIL } from '../../src/sim/structure';
 import { TAG } from '../../src/sim/world/mutate';
 import { WorldSim } from '../../src/sim/worldsim';
 import { M, SOLID } from '../../src/world/materials';
-import { CAV, FLUID, type World } from '../../src/world/world';
+import { CAV, CHANGE, FLUID, type World } from '../../src/world/world';
 import { carve, record, slab } from './helpers';
 
 const WARN = 30 * 20;
@@ -73,7 +73,7 @@ describe('span limit, warning and collapse', () => {
   });
 
   it('a hall taller than rubbleMaxRows (8) falls in warned steps until the failed columns are full', () => {
-    const { s, rec, untilCaveIn, w } = sim(carve(slab(30, 16), 5, 2, 12, 12)); // 11 tall
+    const { rec, untilCaveIn, w } = sim(carve(slab(30, 16), 5, 2, 12, 12)); // 11 tall
     expect(untilCaveIn()).toBe(WARN);
     expect(rec.of('caveIn')[0]!.filled.length).toBe(2 * 8);
     expect(untilCaveIn()).toBe(WARN); // the roof still spans 8: a second, warned fall fills the rest
@@ -190,6 +190,16 @@ describe('edges: map border, fluids, scripted holds, determinism, save/load', ()
     expect(roofRow(w, cave!.roof)).toEqual([3, 4, 5, 6]);
     expect(cave!.filled.length).toBe(12);
     expect(cave!.filled.every((i) => i >= 0 && i < w.size && SOLID[w.mat[i]!])).toBe(true);
+  });
+
+  it('every rubble tile of a cave-in goes through the change ring as TERRAIN (nav repaths from it)', () => {
+    const w = carve(slab(20, 8), 4, 3, 11, 5);
+    const { rec, untilCaveIn } = sim(w);
+    const since = w.changeCount;
+    untilCaveIn();
+    const ring = new Map<number, number>();
+    expect(w.changesSince(since, (i, kind) => ring.set(i, (ring.get(i) ?? 0) | kind))).toBe(true);
+    for (const i of rec.of('caveIn')[0]!.filled) expect(ring.get(i)! & CHANGE.TERRAIN).toBe(CHANGE.TERRAIN);
   });
 
   it('a cave-in burying water destroys and reports it; no fluid remains in rubble', () => {

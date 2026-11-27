@@ -63,6 +63,9 @@ export interface Mannequin {
 
 const CHANGE_RING = 1 << 14;
 
+/** What a change-ring entry changed (bits); consumers skip kinds they do not read (nav ignores FOG). */
+export const CHANGE = { TERRAIN: 1, FLUID: 2, FOG: 4 } as const;
+
 /** Tile row a prop stands in (floor/ground props sit on the top edge of the tile below them). */
 export function propTileY(p: Prop): number {
   return Math.floor(-p.y + (p.attach === 'floor' || p.attach === 'ground' ? -0.01 : 0.01));
@@ -98,8 +101,9 @@ export class World {
   fogVersion = 0;
   propVersion = 0;
   fluidVersion = 0;
-  /** Ring buffer of changed tile indices (for incremental consumers). */
+  /** Ring buffer of changed tile indices and CHANGE kinds (for incremental consumers). */
   private readonly ring = new Int32Array(CHANGE_RING);
+  private readonly ringKind = new Uint8Array(CHANGE_RING);
   changeCount = 0;
 
   constructor(w: number, h: number, seed = 1) {
@@ -136,19 +140,24 @@ export class World {
     return this.inBounds(x, y) && (this.flags[y * this.w + x]! & TF.EXPLORED) !== 0;
   }
 
-  /** Record a change to tile i for incremental consumers. */
-  private log(i: number): void {
-    this.ring[this.changeCount & (CHANGE_RING - 1)] = i;
+  /** Record a change of `kind` (CHANGE bits) to tile i for incremental consumers. */
+  private log(i: number, kind: number): void {
+    const k = this.changeCount & (CHANGE_RING - 1);
+    this.ring[k] = i;
+    this.ringKind[k] = kind;
     this.changeCount++;
   }
 
   /**
-   * Visit tiles changed since `since` (a previous changeCount). Returns false
-   * when the ring overflowed and the consumer must rebuild everything.
+   * Visit tiles changed since `since` (a previous changeCount) with the CHANGE bits of each entry.
+   * Returns false when the ring overflowed and the consumer must rebuild everything.
    */
-  changesSince(since: number, fn: (i: number) => void): boolean {
+  changesSince(since: number, fn: (i: number, kind: number) => void): boolean {
     if (this.changeCount - since > CHANGE_RING) return false;
-    for (let k = since; k < this.changeCount; k++) fn(this.ring[k & (CHANGE_RING - 1)]!);
+    for (let k = since; k < this.changeCount; k++) {
+      const j = k & (CHANGE_RING - 1);
+      fn(this.ring[j]!, this.ringKind[j]!);
+    }
     return true;
   }
 
@@ -173,7 +182,7 @@ export class World {
     for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) this.reveal(x + dx, y + dy);
     this.removeProps(i, false);
     this.terrainVersion++;
-    this.log(i);
+    this.log(i, CHANGE.TERRAIN);
     return m;
   }
 
@@ -194,14 +203,16 @@ export class World {
     this.mat[i] = m;
     this.cav[i] = CAV.SOLID;
     this.depth[i] = 0;
+    let kind: number = CHANGE.TERRAIN;
     if (this.fluid[i] || this.fluidKind[i]) {
       this.fluid[i] = 0;
       this.fluidKind[i] = FLUID.NONE;
       this.fluidVersion++;
+      kind |= CHANGE.FLUID;
     }
     this.removeProps(i, true);
     this.terrainVersion++;
-    this.log(i);
+    this.log(i, kind);
     return true;
   }
 
@@ -219,7 +230,7 @@ export class World {
     this.fluid[i] = a;
     this.fluidKind[i] = k;
     this.fluidVersion++;
-    this.log(i);
+    this.log(i, CHANGE.FLUID);
     return true;
   }
 
@@ -229,7 +240,7 @@ export class World {
     if (this.flags[i]! & TF.EXPLORED) return false;
     this.flags[i] = this.flags[i]! | TF.EXPLORED;
     this.fogVersion++;
-    this.log(i);
+    this.log(i, CHANGE.FOG);
     return true;
   }
 

@@ -9,7 +9,7 @@ import { DIRTY, DirtyMap } from '../../src/sim/world/dirty';
 import { TAG, WorldMutator } from '../../src/sim/world/mutate';
 import { hashWorld, loadWorld, rleDecode, rleEncode, saveWorld } from '../../src/sim/world/snapshot';
 import { M, SOLID } from '../../src/world/materials';
-import { CAV, FLUID, PROP, type Prop, TF, World } from '../../src/world/world';
+import { CAV, CHANGE, FLUID, PROP, type Prop, TF, World } from '../../src/world/world';
 import { carve, record, slab } from './helpers';
 
 const prop = (type: number, x: number, y: number, attach: Prop['attach'], anchor: number): Prop => ({ type, x, y, z: -0.5, scale: 1, rot: 0, attach, anchor, seed: 1 });
@@ -91,6 +91,26 @@ describe('World.fill / dig keep tiles consistent (BUG-003)', () => {
     expect(w.setFluid(0, 0, FLUID.WATER, 10)).toBe(false);
     expect(w.setFluid(1, 1, 7, 10)).toBe(false); // unknown kind
     expect(w.fluidVersion).toBe(2);
+  });
+});
+
+describe('change ring kinds (for nav: terrain / fluid / fog)', () => {
+  it('tags each ring entry with what changed', () => {
+    const w = carve(slab(4, 4), 1, 1, 2, 1);
+    for (let i = 0; i < w.size; i++) w.flags[i] = 0;
+    w.setFluid(1, 1, FLUID.WATER, 50);
+    const since = w.changeCount;
+    w.fill(1, 1, M.STONE_BRICK); // over water
+    w.dig(0, 0);
+    w.setFluid(2, 1, FLUID.LAVA, 9);
+    const seen: [number, number][] = [];
+    expect(w.changesSince(since, (i, kind) => seen.push([i, kind]))).toBe(true);
+    expect(seen[0]).toEqual([w.idx(1, 1), CHANGE.TERRAIN | CHANGE.FLUID]);
+    // the corner dig reveals its 2x2 neighbourhood first, then logs the dug tile itself
+    expect(seen.slice(1, 5)).toEqual([0, 1, 4, 5].map((i) => [i, CHANGE.FOG]));
+    expect(seen[5]).toEqual([0, CHANGE.TERRAIN]);
+    expect(seen[6]).toEqual([w.idx(2, 1), CHANGE.FLUID]);
+    expect(seen.length).toBe(7);
   });
 });
 

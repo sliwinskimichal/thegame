@@ -115,8 +115,10 @@ pomieszczenia, ciepłe plamy światła), **trochę ciemniejszy** niż referencja
 assetów. Cele mierzalne w `docs/team/CHARTER.md` §4, pomiar `python3 scripts/refstats.py <zrzut>`; referencja
 leży lokalnie w `.reference/owner-style.jpg` (git-ignored — to zrzut innej gry, nigdy nie commitować).
 Rozstrzyga turniej nr 3 (styl ilustrowany). Wizja gry i słownik znaczeń: `docs/team/vision/VISION.md`.
-Z R2B (`src/lab/styles/round2.ts`) przechodzą tylko pole światła, ciepłe źródła na chłodnym tle i nastrój nocy;
-poświata zamiast kreski, zgnieciona czerń, barwienie kadru i mgła bloomu — nie (R2A i Kuwahara wycofane).
+Z R2B (`src/lab/styles/round2.ts`) przechodzą pole światła, ciepłe źródła na chłodnym tle, nastrój nocy i —
+**decyzja właściciela 2026-11-27** — efekty światła (bloom wokół źródeł, poświata lamp i lawy, ciepłe plamy; wzorzec:
+lawa i tunel nocą w R2B), dobrane turniejem warstwy światła tak, by kreska przeżyła; poświata zamiast kreski
+i zgnieciona czerń — nie (R2A i Kuwahara wycofane). Baza stylu po rundzie 1: **i08 „Głębia warstw”** (wybór właściciela).
 Model renderingu: płyta skalna oglądana z przodu. Lita skała = płaszczyzna cięcia z=0, wnętrza
 jaskiń/tuneli = wgłębienia (gładka tylna ściana z uśrednionych głębokości narożników), na
 powierzchni pas gruntu o głębokości `CONFIG.groundDepth` przechodzi w krajobraz w tle.

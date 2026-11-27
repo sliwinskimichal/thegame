@@ -58,9 +58,12 @@ gęsto zastawione maszynami, rurami i drabinami, ciepłe żarówki dające plamy
   w kadrze grodu ≤ 8% pikseli o chroma > 30.
 - **Słownik znaczeń** (jeden dla obrazu, dźwięku i UI): mrok zabiera kolor, nie kształt; drżenie kreski = groza;
   kreskowanie = nieznane; nasycony kolor = informacja (rudy, magia, zagrożenie); Raróg jako jedyny nie ma kreski.
-- **Z R2B przechodzą**: pole światła, ciepłe źródła na chłodnym tle, nastrój nocy. **Nie przechodzą**: poświata
-  jako krawędź, zgnieciona czerń, barwienie całego kadru barwą lampy, mgła bloomu. Wariant R2A i filtr Kuwahary
-  wycofane (dostępność: suwak jasności i tryb mocnej kreski).
+- **Z R2B przechodzą**: pole światła, ciepłe źródła na chłodnym tle, nastrój nocy oraz — **decyzja właściciela
+  2026-11-27** — **efekty światła**: bloom wokół źródeł, poświata lamp, lawy i kryształów, ciepłe plamy z miękkim
+  spadkiem („te efekty robią grę bardziej pro”; wzorzec: lawa i tunel nocą w R2B). Siłę i formę rozstrzyga turniej
+  warstwy światła; warunek funkcjonalny: kreska konturu przeżywa w strefach światła. **Nie przechodzą**: poświata
+  jako zamiennik kreski i zgnieciona czerń. Wariant R2A i filtr Kuwahary wycofane (dostępność: suwak jasności
+  i tryb mocnej kreski).
 - **Każdy turniej wizualny** ocenia warianty w **trzech scenach tonu**: *izba wieczorem* (przytulność),
   *przodek w mroku* (groza pracy), *zawał* (katastrofa) — wariant wygrywa tylko, gdy niesie wszystkie trzy.
   W finale **ślepy test oryginalności**: kadry wymieszane z wycinkami referencji; jeśli oceniający się pomyli,

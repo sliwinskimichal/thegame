@@ -18,6 +18,8 @@ export interface InkPostOptions {
   bloomThreshold: number;
   /** 0..1: keep dark (ink) pixels free of bloom spill. */
   inkMask: number;
+  /** Linear luminance up to which a pixel counts as ink for the mask (anti-aliased edges included). */
+  inkMaskHi?: number;
   depthInk: number;
   depthInkPx: number;
   saturation: number;
@@ -66,7 +68,7 @@ const FINAL = /* glsl */ `
 #include <tonemapping_pars_fragment>
 uniform sampler2D tScene; uniform sampler2D tBloom; uniform sampler2D tDepth;
 uniform vec2 uRes; uniform float uTime; uniform float uNear; uniform float uFar;
-uniform float uBloom; uniform float uInkMask; uniform float uDepthInk; uniform float uDepthInkPx; uniform vec3 uInk;
+uniform float uBloom; uniform float uInkMask; uniform float uInkMaskHi; uniform float uDepthInk; uniform float uDepthInkPx; uniform vec3 uInk;
 uniform float uSaturation; uniform float uVignette; uniform float uGrain;
 varying vec2 vUv;
 ${GLSL_NOISE}
@@ -94,7 +96,7 @@ void main() {
 #endif
   vec3 b = texture2D(tBloom, vUv).rgb * uBloom;
   float l = dot(c, vec3(0.2126, 0.7152, 0.0722));
-  b *= mix(1.0, smoothstep(0.003, 0.03, l), uInkMask); // ink stays ink inside a glow
+  b *= mix(1.0, smoothstep(0.003, uInkMaskHi, l), uInkMask); // ink stays ink inside a glow
   c += b;
   l = dot(c, vec3(0.2126, 0.7152, 0.0722));
   c = max(mix(vec3(l), c, uSaturation), 0.0);
@@ -147,6 +149,7 @@ export class InkPost {
       uFar: { value: camera.far },
       uBloom: { value: o.bloom },
       uInkMask: { value: o.inkMask },
+      uInkMaskHi: { value: o.inkMaskHi ?? 0.03 },
       uDepthInk: { value: o.depthInk },
       uDepthInkPx: { value: o.depthInkPx },
       uInk: { value: o.ink.clone() },

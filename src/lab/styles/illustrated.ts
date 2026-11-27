@@ -108,6 +108,7 @@ export interface IllParams {
   heat: number; // lava heat shimmer amplitude (tiles)
   propGlow: number; // emission of flames, mushrooms, crystal clusters
   inkMask: number; // bloom does not wash out dark ink pixels (InkPost only)
+  inkMaskHi: number; // luminance up to which a pixel is protected (wider = anti-aliased edges too)
   tone: 'aces' | 'agx' | 'knee';
 }
 
@@ -181,6 +182,7 @@ export const ILL_BASE: IllParams = {
   heat: 0,
   propGlow: 1,
   inkMask: 0,
+  inkMaskHi: 0.03,
   tone: 'aces',
 };
 
@@ -867,6 +869,7 @@ function createInkPosted(ctx: StyleContext, p: IllParams): StyleInstance {
     bloomRadius: p.bloomRadius,
     bloomThreshold: p.bloomThreshold,
     inkMask: p.inkMask,
+    inkMaskHi: p.inkMaskHi,
     depthInk: p.postInk,
     depthInkPx: p.postInkPx,
     saturation: p.saturation,
@@ -1013,6 +1016,24 @@ export const LIGHT_VARIANTS: readonly IllVariant[] = [
   { id: 'l08-lava', namePl: 'L08 Żar', descPl: 'L03 + mocniejsza lawa (emisja ×1,4, drganie gorąca), poświata krawędzi 0,6, kryształy i grzyby ×1,5.', params: { ...PLAN, inkMask: 1, lavaEmit: 1.4, heat: 0.04, rimGlow: 0.6, emissive: 2.0, propGlow: 1.5 } },
   { id: 'l09-agx', namePl: 'L09 AgX', descPl: 'L03 z mapowaniem tonów AgX (ekspozycja 1,4).', params: { ...PLAN, inkMask: 1, tone: 'agx', exposure: 1.4 } },
   { id: 'l10-knee', namePl: 'L10 Własne kolano', descPl: 'L03 z własnym kolanem świateł (tanh nad 0,6, ekspozycja 1,6) zamiast ACES.', params: { ...PLAN, inkMask: 1, tone: 'knee', exposure: 1.6 } },
+  {
+    id: 'l12-r2b-ink',
+    namePl: 'L12 Światło L00 + kreska L03',
+    descPl: 'Siła i barwa światła L00 (R2B), bloom mipmapowy dostrojony do szerokiego halo, kreska chroniona maską bloomu (z brzegami linii).',
+    params: { ...R2B_LIGHT, post: 'ink', bloom: 1.6, bloomRadius: 1.0, bloomThreshold: 0.62, inkMask: 1, inkMaskHi: 0.12 },
+  },
+  {
+    id: 'l13-r2b-ink-ember',
+    namePl: 'L13 L12 + żar lawy',
+    descPl: 'L12 + lawa z L08: emisja ×1,4, drganie gorąca, poświata krawędzi 0,6, kryształy i grzyby ×1,5.',
+    params: { ...R2B_LIGHT, post: 'ink', bloom: 1.6, bloomRadius: 1.0, bloomThreshold: 0.62, inkMask: 1, inkMaskHi: 0.12, lavaEmit: 1.4, heat: 0.04, rimGlow: 0.6, emissive: 2.0, propGlow: 1.5 },
+  },
+  {
+    id: 'l14-r2b-ink-amb',
+    namePl: 'L14 L12 + jaśniejszy ambient',
+    descPl: 'L12 z podniesionym ambientem lica i tła, żeby czerń < 15 L* spadła do ok. 25%.',
+    params: { ...R2B_LIGHT, post: 'ink', bloom: 1.6, bloomRadius: 1.0, bloomThreshold: 0.62, inkMask: 1, inkMaskHi: 0.12, cutAmb: 0.25, backAmb: 0.42 },
+  },
   { id: 'l11-night', namePl: 'L11 Noc (dawca i12)', descPl: 'L03 + najstromszy spadek (γ 1,8), ciemniejszy ambient, mrok mocniej zabiera kolor.', params: { ...PLAN, inkMask: 1, lightCurve: 1.8, cutAmb: 0.55, backAmb: 0.38, darkDesat: 0.6 } },
 ];
 

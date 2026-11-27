@@ -20,13 +20,14 @@ import * as THREE from 'three';
 import { buildFluidGeometry } from '../../render/fluids';
 import { buildHeightfield } from '../../render/heightfield';
 import { DepthInkPass, GLSL_INK, GLSL_ROCK_INK, hullGeometry, inkHullMaterial, pxScale } from '../../render/ink';
+import { InkPost } from '../../render/inkPost';
 import { PostFX } from '../../render/post';
 import { buildMannequin, buildPropGeometries, collectProps } from '../../render/propsGeo';
 import { GLSL_LIGHT, GLSL_NOISE, GLSL_ROCK } from '../../render/shaderlib';
 import { SkyView } from '../../render/sky';
 import { GLSL_WORLD } from '../../render/worldTex';
 import { PROP } from '../../world/world';
-import { updateWorldUniforms, WINDY, worldUniforms, type WorldUniforms } from '../common';
+import { buildDressing, updateWorldUniforms, WINDY, worldUniforms, type WorldUniforms } from '../common';
 import type { FrameState, RenderStyle, StyleContext, StyleInstance } from '../style';
 
 export interface IllParams {
@@ -96,6 +97,17 @@ export interface IllParams {
   vignette: number;
   grain: number;
   exposure: number;
+  // --- light layer (round 2)
+  post: 'r2b' | 'ink'; // r2b: RenderPass + UnrealBloom + grade (R2B 1:1); ink: merged InkPost (mip bloom)
+  lightCurve: number; // pool falloff shaping: l' = l^gamma (1 = light field as is)
+  rimGlow: number; // R2B rim glow: cut face next to open space takes the light (0..)
+  airSmooth: number; // 0 banded air sheet, 1 R2B smooth dusty glow
+  shaft: number; // sky light in the air (shafts from openings)
+  lavaEmit: number;
+  heat: number; // lava heat shimmer amplitude (tiles)
+  propGlow: number; // emission of flames, mushrooms, crystal clusters
+  inkMask: number; // bloom does not wash out dark ink pixels (InkPost only)
+  tone: 'aces' | 'agx' | 'knee';
 }
 
 /** Shared defaults: a 3-band illustrated look with stones in ink (variants override). */
@@ -158,6 +170,16 @@ export const ILL_BASE: IllParams = {
   vignette: 0.42,
   grain: 0.025,
   exposure: 1.05,
+  post: 'r2b',
+  lightCurve: 1,
+  rimGlow: 0,
+  airSmooth: 0,
+  shaft: 0.3,
+  lavaEmit: 1,
+  heat: 0,
+  propGlow: 1,
+  inkMask: 0,
+  tone: 'aces',
 };
 
 const TERRAIN_VERT = /* glsl */ `
@@ -191,6 +213,7 @@ uniform vec3 uCamPos;
 uniform float uGlint;
 uniform float uGlintBase;
 uniform float uOreAura;
+uniform float uRimTint;
 uniform vec3 uInk;
 uniform float uInkTint;
 uniform float uContour;
@@ -234,6 +257,13 @@ uniform vec3 uFogCol;
 uniform float uFogHatch;
 uniform float uFogHatchPx;
 uniform float uPaper;
+uniform float uLightCurve;
+uniform float uRimGlow;
+uniform float uAirSmooth;
+uniform float uShaft;
+uniform float uLavaEmit;
+uniform float uHeat;
+uniform float uPropGlow;
 vec3 desat(vec3 c, float k) { return mix(vec3(lum(c)), c, 1.0 - k); }
 `;
 
@@ -344,9 +374,10 @@ void main() {
   float sunMix = outdoor ? 1.0 : (grassy ? 0.7 : 0.0);
   vec3 spec;
   vec3 L = worldLight(wp, N, sp, V, 12.0, sunMix, spec);
-  float l = max(max(L.r, L.g), L.b);
-  vec3 hue = desat(L / max(l, 1e-3), uLightDesat);
-  float lb = lightBands(min(l, 1.8), uBands, uBandSoft);
+  float l0 = max(max(L.r, L.g), L.b);
+  vec3 hue = desat(L / max(l0, 1e-3), uLightDesat);
+  float l = pow(l0, uLightCurve); // pool falloff shaping
+  float lb = lightBands(min(l, uBands > 0.5 ? 1.8 : 3.0), uBands, uBandSoft);
   float amb;
   float gain;
   if (cut) { amb = uCutAmb; gain = uCutLight; }
@@ -362,6 +393,11 @@ void main() {
   float dk = 1.0 - smoothstep(0.05, 0.45, l);
   col = mix(col, vec3(lum(col)) * vec3(0.92, 0.98, 1.08), uDarkDesat * dk * (1.0 - 0.6 * sf.mask));
   col += sf.emissive * uEmissive;
+  if (cut && uRimGlow > 0.0) {
+    // R2B rim: the cut face next to open space catches the light in the rock's own colour
+    float rim = smoothstep(0.92, 0.55, fogAt(wp.xy).y);
+    col += hue * l * rim * uRimGlow * mix(vec3(1.0), min(alb * 2.5, vec3(1.2)), uRimTint);
+  }
 
   // ---- shadow marks
   float dark = 1.0 - smoothstep(uShadowAt * 0.3, uShadowAt, l);
@@ -505,7 +541,7 @@ void main() {
   vec3 col = base * (uAmbCool * uPropAmb + hue * lb * uPropLight) * mix(0.66, 1.0, form);
   float dk = 1.0 - smoothstep(0.05, 0.45, l);
   col = mix(col, vec3(lum(col)) * vec3(0.92, 0.98, 1.08), uDarkDesat * dk);
-  col += vColor * vEmi;
+  col += vColor * vEmi * uPropGlow;
   gl_FragColor = vec4(col, 1.0);
 }
 `;
@@ -557,12 +593,13 @@ void main() {
     gl_FragColor = vec4(col, face ? 0.82 : 0.9);
   } else {
     // lava: hot flat body, dark crust plates outlined in ink, ink line on the surface
+    p += uHeat * vec2(sin(p.y * 7.0 + uTime * 5.0), sin(p.x * 5.0 + uTime * 4.3)) * 0.5;
     vec2 q = p * 1.5 + vec2(uTime * 0.05, -uTime * 0.02);
     vec4 v = voronoi(q);
     float e = (v.y - v.x) * 0.5 / 1.5;
     float crust = step(0.6, hash12(v.zw));
     float f = vnoise(p * 1.1 + uTime * 0.1);
-    vec3 hot = mix(vec3(1.2, 0.3, 0.04), vec3(1.7, 0.72, 0.15), step(0.5, f));
+    vec3 hot = mix(vec3(1.2, 0.3, 0.04), vec3(1.7, 0.72, 0.15), step(0.5, f)) * uLavaEmit;
     vec3 col = mix(hot, vec3(0.08, 0.03, 0.02), crust);
     col = mix(col, uInk, inkLine(e, wW * 0.45, aa) * crust);
     if (face && vSurf > 0.01) col = mix(col, uInk, inkLine(dTop, wW * 0.8, aa));
@@ -587,8 +624,11 @@ void main() {
   vec4 L = lightAt(p);
   float l = max(max(L.r, L.g), L.b);
   vec3 hue = desat(L.rgb / max(l, 1e-3), uLightDesat);
-  float lb = lightBands(min(l, 1.6), uBands, uBandSoft);
-  vec3 c = (hue * lb + L.a * uSkyLight * 0.3) * uStrength * (1.0 - fg.y) * fg.x;
+  float lb = lightBands(min(pow(l, uLightCurve), 1.6), uBands, uBandSoft);
+  vec3 banded = hue * lb;
+  vec3 smoothL = hue * pow(l, uLightCurve);
+  float dust = mix(1.0, 0.75 + 0.5 * fbm3(p * 0.7 + vec2(uTime * 0.04, uTime * 0.015)), uAirSmooth);
+  vec3 c = (mix(banded, smoothL, uAirSmooth) + L.a * uSkyLight * uShaft) * uStrength * (1.0 - fg.y) * dust * fg.x;
   gl_FragColor = vec4(c, 1.0);
 }
 `;
@@ -643,6 +683,13 @@ function styleUniforms(p: IllParams): WorldUniforms {
     uFogHatch: { value: p.fogHatch },
     uFogHatchPx: { value: p.fogHatchPx },
     uPaper: { value: p.paper },
+    uLightCurve: { value: p.lightCurve },
+    uRimGlow: { value: p.rimGlow },
+    uAirSmooth: { value: p.airSmooth },
+    uShaft: { value: p.shaft },
+    uLavaEmit: { value: p.lavaEmit },
+    uHeat: { value: p.heat },
+    uPropGlow: { value: p.propGlow },
     uPropAmb: { value: p.propAmb },
     uPropLight: { value: p.propLight },
   };
@@ -717,6 +764,7 @@ export function buildIllustratedScene(ctx: StyleContext, p: IllParams): Illustra
     }
   }
   scene.add(props);
+  scene.add(buildDressing(ctx, propFill, (geo) => (hullStill ? { geo: hullGeometry(geo), material: hullStill } : null)));
 
   const dwarfFill = new THREE.ShaderMaterial({
     vertexShader: PROP_VERT,
@@ -762,8 +810,14 @@ export function buildIllustratedScene(ctx: StyleContext, p: IllParams): Illustra
   return { scene, sky, u, params: p };
 }
 
-/** Our post chain: optional depth-buffer ink, bloom on emitters only, grade, ACES output. */
+/** Lab knob: `nobloom=1` renders the same frame without bloom (line-survival guard). */
+function noBloom(): boolean {
+  return new URLSearchParams(globalThis.location?.search ?? '').get('nobloom') === '1';
+}
+
+/** Post chain: R2B's (RenderPass, UnrealBloom, grade, ACES output) or the merged InkPost. */
 export function createIllustrated(ctx: StyleContext, p: IllParams): StyleInstance {
+  if (p.post === 'ink') return createInkPosted(ctx, p);
   const { scene, sky, u } = buildIllustratedScene(ctx, p);
   const post = new PostFX(ctx.renderer, scene, ctx.camera, ctx.width, ctx.height);
   let inkPass: DepthInkPass | null = null;
@@ -775,7 +829,7 @@ export function createIllustrated(ctx: StyleContext, p: IllParams): StyleInstanc
     post.composer.insertPass(inkPass, 1);
   }
   ctx.renderer.toneMappingExposure = p.exposure;
-  post.bloom.strength = p.bloom;
+  post.bloom.strength = noBloom() ? 0 : p.bloom;
   post.bloom.radius = p.bloomRadius;
   post.bloom.threshold = p.bloomThreshold;
   const g = post.grade.uniforms;
@@ -788,6 +842,37 @@ export function createIllustrated(ctx: StyleContext, p: IllParams): StyleInstanc
       updateWorldUniforms(u, f, ctx.camera);
       sky.update(f.day, f.time, ctx.camera.position);
       if (inkPass) inkPass.material.uniforms.uTime!.value = f.time;
+      post.render(f.time);
+    },
+    resize(w: number, h: number) {
+      post.setSize(w, h);
+      (u.uRes!.value as THREE.Vector2).set(w, h);
+      u.uPxScale!.value = pxScale(ctx.camera, h);
+    },
+  };
+}
+
+function createInkPosted(ctx: StyleContext, p: IllParams): StyleInstance {
+  const { scene, sky, u } = buildIllustratedScene(ctx, p);
+  ctx.renderer.toneMappingExposure = p.exposure;
+  const post = new InkPost(ctx.renderer, scene, ctx.camera, ctx.width, ctx.height, {
+    bloom: noBloom() ? 0 : p.bloom,
+    bloomRadius: p.bloomRadius,
+    bloomThreshold: p.bloomThreshold,
+    inkMask: p.inkMask,
+    depthInk: p.postInk,
+    depthInkPx: p.postInkPx,
+    saturation: p.saturation,
+    vignette: p.vignette,
+    grain: p.grain,
+    tone: p.tone,
+    exposure: p.exposure,
+    ink: u.uInk!.value as THREE.Color,
+  });
+  return {
+    render(f: FrameState) {
+      updateWorldUniforms(u, f, ctx.camera);
+      sky.update(f.day, f.time, ctx.camera.position);
       post.render(f.time);
     },
     resize(w: number, h: number) {

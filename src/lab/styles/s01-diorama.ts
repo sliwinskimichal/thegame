@@ -9,7 +9,7 @@ import { PostFX } from '../../render/post';
 import { GLSL_LIGHT, GLSL_NOISE, GLSL_ROCK } from '../../render/shaderlib';
 import { SkyView } from '../../render/sky';
 import { GLSL_WORLD } from '../../render/worldTex';
-import { buildFluids, buildMannequins, buildProps, litMaterial, updateWorldUniforms, WINDY, worldUniforms, type WorldUniforms } from '../common';
+import { buildDressing, buildFluids, buildMannequins, buildProps, litMaterial, updateWorldUniforms, WINDY, worldUniforms, type WorldUniforms } from '../common';
 import type { RenderStyle, StyleContext } from '../style';
 
 const VERT = /* glsl */ `
@@ -161,6 +161,7 @@ export function buildDioramaScene(ctx: StyleContext): { scene: THREE.Scene; sky:
   const propWind = litMaterial(u, { wind: 0.05, doubleSide: true });
   scene.add(buildProps(ctx, (t) => (WINDY.has(t) ? propWind : propLit)));
   scene.add(buildMannequins(ctx, litMaterial(u, { rim: 0.35 })));
+  scene.add(buildDressing(ctx, propLit));
   scene.add(buildFluids(ctx, u));
   return { scene, sky, u, terrain };
 }

@@ -5,7 +5,7 @@
 import * as THREE from 'three';
 import { buildFluidGeometry, fluidMaterial } from '../render/fluids';
 import { lookTexture } from '../render/palette';
-import { buildMannequin, buildPropGeometries, collectProps } from '../render/propsGeo';
+import { buildDressingGeometry, buildMannequin, buildPropGeometries, collectProps, type DressKind } from '../render/propsGeo';
 import { GLSL_LIGHT, GLSL_NOISE, MAX_DYN_LIGHTS } from '../render/shaderlib';
 import { GLSL_WORLD } from '../render/worldTex';
 import { PROP } from '../world/world';
@@ -167,4 +167,35 @@ export function buildFluids(ctx: StyleContext, u: WorldUniforms, material?: THRE
   const mesh = new THREE.Mesh(buildFluidGeometry(ctx.world), material ?? fluidMaterial(u));
   mesh.renderOrder = 2;
   return mesh;
+}
+
+/** Lab set dressing (tone scenes) as one instanced mesh per kind; `extra` adds e.g. an ink hull. */
+export function buildDressing(
+  ctx: StyleContext,
+  material: THREE.Material,
+  extra?: (geo: THREE.BufferGeometry) => { geo: THREE.BufferGeometry; material: THREE.Material } | null,
+): THREE.Group {
+  const g = new THREE.Group();
+  const items = ctx.arena.dressing ?? [];
+  const byKind = new Map<DressKind, THREE.Matrix4[]>();
+  const q = new THREE.Quaternion();
+  for (const it of items) {
+    q.setFromEuler(new THREE.Euler(0, it.ry ?? 0, it.rz ?? 0));
+    const m = new THREE.Matrix4().compose(new THREE.Vector3(it.x, it.y, it.z), q, new THREE.Vector3(it.sx ?? 1, it.sy ?? 1, it.sz ?? 1));
+    if (!byKind.has(it.kind)) byKind.set(it.kind, []);
+    byKind.get(it.kind)!.push(m);
+  }
+  for (const [kind, ms] of byKind) {
+    const geo = buildDressingGeometry(kind);
+    const add = (gg: THREE.BufferGeometry, mat: THREE.Material) => {
+      const mesh = new THREE.InstancedMesh(gg, mat, ms.length);
+      ms.forEach((m, i) => mesh.setMatrixAt(i, m));
+      mesh.frustumCulled = false;
+      g.add(mesh);
+    };
+    add(geo, material);
+    const e = kind === 'crack' || kind === 'dust' || kind === 'planks' ? null : extra?.(geo);
+    if (e) add(e.geo, e.material);
+  }
+  return g;
 }

@@ -272,3 +272,29 @@ col = mix(col, inkColour, ink);                               // ink over light,
 - Woda rysowana jako płaska płyta; lawa poprawna tylko w naszym łańcuchu post.
 - Rendery surowe: `/tmp/underhearth-engine/t3r1` (arena), `t3r1g` (galeria); dane: `round1_analysis.json`,
   `round1_bench.json` w katalogu plansz.
+
+---
+
+# Runda 2 (w toku)
+
+## R2-A. Poprawki laboratorium (QA)
+| Zgłoszenie | Poprawka | Dowód |
+|---|---|---|
+| BUG-001 | `src/lab/params.ts`: walidacja `style`, `scenario`, `world`, `seed`; nieznany id = błąd w HUD, `window.__labError`, wyjątek strony (bez cichego fallbacku). `__lab.styleId`/`scenarioId` = to, co faktycznie wyrenderowano; `setScenario` z nieznanym id odrzuca obietnicę. `scripts/tournament.mjs` czeka na `__lab` albo `__labError`, porównuje id stylu i scenariusza każdego renderu i przerywa przebieg (kod 1) przed utworzeniem katalogu wariantu. | `tests/lab/lab-params.test.ts` |
+| BUG-002 | `src/lab/frametime.ts`: `__lab.measure(n, warmup)` — `EXT_disjoint_timer_query_webgl2` (czas GPU), a bez rozszerzenia render ujęty w `gl.finish()`; wynik ma pole `method`, min/p50/p95/średnia. `__lab.frameMs` = p50 próbek `gl.finish()` po zmianie scenariusza (bez klatek kompilacji), `__lab.frameMethod`. | test statystyk w `tests/lab/lab-params.test.ts` |
+| BUG-005 | `WorldTex`: nieodkryty kafel bez `bg` dostaje ten sam fallback co mesher (wapień), nigdy prawdziwy materiał. | `tests/qa/render-data.test.ts` (`it.fails` → `it`) |
+| D4 | parametr `seed` dla `arena`, `gallery` i `tone` (domyślne: 777, 4242, 1); `__lab.seed`. | `tests/lab/lab-params.test.ts` |
+
+## R2-B. Sceny tonu (F2-12)
+`lab.html?world=tone&scenario=izba|przodek|zawal[&seed=N]` — `src/lab/toneScenes.ts`, scenariusze w
+`src/lab/scenarios.ts`, dekoracje greybox w `src/render/propsGeo.ts` (`DRESS_KINDS`: stół, ława, beczka, regał,
+kowadło, palenisko, drabina, rura, deski, stempel, złamany stempel, gruz, pył, rysa, skrzynia, worek), rysowane
+przez `buildDressing` (R2B i style ilustrowane; w ilustrowanych z obrysem skorupy).
+- **izba**: hala 25×6 kafli + izba górna i szyb z drabiną; ściana z kamienia ciosanego (`STONE_BRICK`) styka się
+  wprost z naturalnym wapieniem, lewa część tylnej ściany to mur, prawa — naturalna skała; podłoga z desek,
+  palenisko, kowadło, 2 stoły z ławami, beczki, skrzynie, worki, regały, ciąg rur, 8 krasnoludów, 6 pochodni.
+- **przodek**: chodnik obudowany stemplami, krasnolud z latarnią przy czole, za czołem nieznane, żyła żelaza
+  częściowo odsłonięta w czole; jedyne inne światło na drugim końcu chodnika.
+- **zawal**: wyłom w stropie, kopiec gruzu, 2 złamane stemple, odłamki i pył zastygłe w jednej klatce, rysy tuszem
+  rosnące od stempli.
+Seed zmienia granice skał, ciało rudy i drobne przesunięcia dekoracji; inscenizacja jest stała (test na 2 seedach).

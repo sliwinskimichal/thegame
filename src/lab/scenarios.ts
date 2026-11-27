@@ -34,3 +34,10 @@ export const GALLERY_SCENARIOS: readonly Scenario[] = [
     return { id: `g_${b.id}`, namePl: `Galeria — ${b.namePl}`, x: o.x + BLOCK_SIZE.w / 2, y: -(o.y + BLOCK_SIZE.h / 2), d: 50, t: 0.0 };
   }),
 ];
+
+/** Tone scenes (toneScenes.ts, CHARTER §4): every visual tournament is judged in all three. */
+export const TONE_SCENARIOS: readonly Scenario[] = [
+  { id: 'izba', namePl: 'Izba wieczorem', x: 14.6, y: -15.2, d: 22, t: 0.78 },
+  { id: 'przodek', namePl: 'Przodek w mroku', x: 42.5, y: -15.6, d: 15, t: 0.0 },
+  { id: 'zawal', namePl: 'Zawał', x: 64.6, y: -14.6, d: 17, t: 0.0 },
+];

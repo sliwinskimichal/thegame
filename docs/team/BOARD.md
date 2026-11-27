@@ -16,7 +16,7 @@ Statusy: `kolejka` · `w toku` · `do przeglądu` · `zrobione` · `zablokowane 
 | Id | Zadanie | Agent | Status |
 |---|---|---|---|
 | F2-1 | Ekonomia: źródła i odpływy wszystkich zasobów i mierników (Weksel, Przebudzenie, Autorytet) | systems-designer | **zrobione** (ECONOMY.md) |
-| F2-2 | Specyfikacja generatora 2.0 jako dane + metryki | level-systems-designer | kolejka |
+| F2-2 | Specyfikacja generatora 2.0 jako dane + metryki (+ BUG-006: propozycja `worldH` 736 = 23 chunki) | level-systems-designer | w toku (`src/content/worldgen.ts`, `src/world/worldgenMetrics.ts`, `docs/design/levels/WORLDGEN.md`) |
 | F2-3 | Kopanie, zawały i podpory, zadania (rdzeń symulacji) — etap 1: mutacje świata (BUG-003), kopanie, zawały | gameplay-programmer | w toku |
 | F2-4 | Nawigacja z grawitacją — benchmark 3 algorytmów | ai-programmer | w toku (start wcześniej — niezależne od sztuki) |
 | F2-5 | HUD i sterowanie — specyfikacja + makiety do turnieju | ui-ux-designer | kolejka |

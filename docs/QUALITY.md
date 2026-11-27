@@ -50,7 +50,8 @@ Statusy: `⬜ nie zaczęte` · `🟨 w pracy` · `🟦 do przeglądu` · `✅ sp
       fiolet pod turkusową grzybnią → czarno-zielona woda → zimna lawenda → czerń i ogień → śliwka i runy.
 
 ### E3. Generator świata (do zbudowania w M2: `src/world/worldgen*.ts`; dziś arena i galeria laboratorium) — 🟨
-- [ ] Deterministyczny (test), < 400 ms dla 224×480 (test), żadnych „pływających” kafli płynów.
+- [ ] Deterministyczny (test), < 600 ms dla 224×736 (ten sam koszt na kafel co 400 ms dla 224×480; test), żadnych „pływających” kafli płynów.
+- [ ] Metryki akceptacji (`src/world/worldgenMetrics.ts`, `evaluateWorld`) zaliczone na 10 seedach; wynik w `docs/variants/05-worldgen.md`. Specyfikacja jako dane: `src/content/worldgen.ts`, `docs/design/levels/WORLDGEN.md`.
 - [ ] Warstwy geologiczne z fałdami, uskokami i strefami przejściowymi (nie proste pasy).
 - [ ] Rudy: żyły wzdłuż warstw i uskoków, gniazda, rzadkie „żyły-matki”; bogactwo rośnie z głębokością.
 - [ ] Jaskinie zróżnicowane: korytarze, kominy, komory, zalane groty, rozpadliny, geody (puste kule
@@ -64,7 +65,7 @@ Statusy: `⬜ nie zaczęte` · `🟨 w pracy` · `🟦 do przeglądu` · `✅ sp
 - [ ] Pochodnia oświetla tunel ~10 kafli, nie przebija się przez >2 kafle skały (test).
 - [ ] Światło dzienne wpada szybem i wejściami jaskiń (test), zmienia barwę z porą dnia.
 - [ ] Brak widocznych schodków/pasm na przejściach światła w skale.
-- [ ] Przeliczenie całego świata < 50 ms; aktualizacje lokalne < 5 ms (pomiar).
+- [ ] Przeliczenie całego świata (224×736) < 50 ms; aktualizacje lokalne < 5 ms (pomiar).
 - [ ] Ruchome światła (latarnie krasnoludów) z okluzją przez skałę.
 
 ### E5. Renderer terenu (`src/render/heightfield.ts`, `shaderlib.ts`, `ink.ts`, style w `src/lab/styles/`) — 🟨

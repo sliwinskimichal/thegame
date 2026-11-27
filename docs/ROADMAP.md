@@ -107,3 +107,11 @@ automatycznie co 5 h. Każda sesja zaczyna od pierwszego niezaznaczonego punktu.
   0,29 ms mediany / 1,7 ms p95 na tick. **Rdzeń symulacji, etap 1 (F2-3)**: jedna ścieżka mutacji świata z pierścieniem
   zmian, kopanie z tierami narzędzi, naprężenia stropów, podpory i zawały, zapis/odczyt świata; BUG-003 i BUG-006
   zamknięte; świat 224 × 736 kafli. Zewnętrzna biblioteka post-processingu usunięta (przegrała turniej nr 3).
+- **2026-11-27 (dzień 3, popołudnie i wieczór)** — Dwa kolejne przestoje limitu użycia (każdy ok. 4 h) przy 3–4
+  agentach naraz. Właściciel: kierunek warstwy światła = **L00** (światło R2B 1:1 na rysunku i08; hybrydy z konturem
+  nad blaskiem do wyboru na planszy) i **zespoły lider + 3 pracowników dla krasnoludów i budowli** — sprint
+  zespołu krasnoludów ruszył (F3-1). **Specyfikacja generatora 2.0 (F2-2)** przyjęta: świat 224×736, Gardziel
+  z oknami-czopami, reguła sklepienia, gęstości złóż jako dane, metryki akceptacji; ujawniła **deficyt surowców**
+  (19 z 23 surowców kopalnych — księgi badań zużywają surowce głębi) → F2-20 dla systems-designera.
+  Rdzeń symulacji etap 2 w toku: krasnoludy jako agenci, zadania z rezerwacjami, noszenie do magazynu,
+  determinizm z zapisem/odczytem (102/102 testów symulacji), scenariusz „mała kopalnia”.

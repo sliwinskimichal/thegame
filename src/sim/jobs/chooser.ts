@@ -34,12 +34,13 @@ export class PriorityDistanceChooser implements JobChooser {
     const cy = (cell - cx) / W;
     const tier = dw.pickTierOf(d);
     let n = 0;
-    for (let s = 0; s < board.span; s++) {
-      if (board.state[s] !== JS.OPEN) continue;
+    const open = board.openJobs();
+    for (let k0 = 0; k0 < open.n; k0++) {
+      const s = open.list[k0]!;
+      if (board.state[s] !== JS.OPEN) continue; // claimed since the list was built
       const t = board.type[s]!;
       const wp = dw.workPriority(d, WORK_INDEX[JT_WORK[t]!]);
       if (wp <= 0) continue;
-      if (!board.isOpen(s)) continue;
       if (t === JT.DIG && tier < board.needTier[s]!) continue;
       const i = board.target[s]!;
       const x = i % W;

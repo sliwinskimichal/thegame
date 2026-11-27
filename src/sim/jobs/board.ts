@@ -235,8 +235,40 @@ export class JobBoard {
   /** Is job s open for some dwarf right now (state, target still valid, no danger, materials, room)? */
   isOpen(s: number): boolean {
     if (this.state[s] !== JS.OPEN) return false;
-    // the memo holds while the tick, the world and the roofs (and, except for digging, the piles and
-    // zones) are unchanged; it only caches a pure function of that state, so it never changes results
+    this.refreshMemo();
+    const stamp = this.type[s] === JT.DIG ? this.memoDig : this.memoAll;
+    if (this.validTick[s] === stamp && this.validKind[s] === this.type[s]) return this.validVal[s] === 1;
+    const ok = this.valid(s);
+    this.validTick[s] = stamp;
+    this.validKind[s] = this.type[s]!;
+    this.validVal[s] = ok ? 1 : 0;
+    return ok;
+  }
+
+  /**
+   * Slots of the jobs open right now (cached until the tick, the world, the roofs, the piles or the
+   * zones change; claims are not reflected, so re-check `state`). Choosers scan this instead of every slot.
+   */
+  openJobs(): { list: Int32Array; n: number } {
+    this.refreshMemo();
+    if (this.openDig !== this.memoDig || this.openAll !== this.memoAll || this.openEpoch !== this.epoch) {
+      this.openDig = this.memoDig;
+      this.openAll = this.memoAll;
+      this.openEpoch = this.epoch;
+      let n = 0;
+      for (let s = 0; s < this.hi; s++) if (this.state[s] === JS.OPEN && this.isOpen(s)) this.openBuf[n++] = s;
+      this.openN = n;
+    }
+    return { list: this.openBuf, n: this.openN };
+  }
+  private readonly openBuf = new Int32Array(MAX_JOBS);
+  private openN = 0;
+  private openDig = -1;
+  private openAll = -1;
+  private openEpoch = -1;
+
+  /** The memo holds while the tick, the world and the roofs (and, except for digging, piles and zones) are unchanged. */
+  private refreshMemo(): void {
     const w = this.world;
     if (this.memoNow !== this.now || this.memoRing !== w.changeCount || this.memoRoofs !== this.structure.version) {
       this.memoNow = this.now;
@@ -250,13 +282,6 @@ export class JobBoard {
       this.memoZones = this.stockpiles.version;
       this.memoAll++;
     }
-    const stamp = this.type[s] === JT.DIG ? this.memoDig : this.memoAll;
-    if (this.validTick[s] === stamp && this.validKind[s] === this.type[s]) return this.validVal[s] === 1;
-    const ok = this.valid(s);
-    this.validTick[s] = stamp;
-    this.validKind[s] = this.type[s]!;
-    this.validVal[s] = ok ? 1 : 0;
-    return ok;
   }
   private memoNow = -1;
   private memoRing = -1;

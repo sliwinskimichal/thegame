@@ -604,6 +604,33 @@ export const LEADING_LINES = {
   previewWindows: { perBoundary: [1, 2] as Range, wall: 2 },
 } as const;
 
+/**
+ * Level-design decisions for navigation (answers to the ai-programmer, WORLDGEN.md §6). The movement rules
+ * live in `src/sim/nav/profiles.ts`; these are the design targets the generator and the profiles keep.
+ */
+export const NAV_DESIGN = {
+  /** (a) Walkers step over a gap this wide (both rims standable on one row, 2 free rows above the gap). */
+  strideGap: 1,
+  /** Profiles that may stride; trolls may not (a 1-tile trench is a cheap anti-troll moat). */
+  strideProfiles: ['dwarf', 'dwarf_diver', 'goblin', 'wolf'] as readonly string[],
+  /** Stride cost: this many walk moves plus a fixed part (ms). */
+  strideCost: { walks: 2, extra: 100 },
+  /** (b) The rope bridge is an off-mesh link: no standing or building on it, capacity, longest span. */
+  ropeBridge: { link: true, capacity: 3, maxSpan: 20 },
+  /** Chasms the generator makes bridgeable: anchor ledges on both rims at the same row +-1. */
+  chasmAnchors: { rowTolerance: 1, minLedge: 2 },
+  /** (c) Goblins drop 4 rows where dwarves drop CONFIG.maxSafeDrop = 3: an intended asymmetry. */
+  goblinDrop: 4,
+  /** ...but no natural 4-row ledge inside this radius of a hub (raid entries stay readable, R4). */
+  noGoblinLedgeNearHub: 24,
+  /** (d) Graph size of a fresh 224 x 736 world, dwarf profile (= ACCEPTANCE.navNodes). */
+  freshNodes: [5000, 12000] as Range,
+  /** Generator infrastructure (kingdom road stairs and ladders), tiles at most. */
+  maxGeneratorInfra: 600,
+  /** Junctions (cells with 3+ exits) on each biome's kingdom road. */
+  roadJunctions: [6, 12] as Range,
+} as const;
+
 // =====================================================================================================
 // 5. Deposits per biome (05 §2.2; supply vs demand: WORLDGEN.md §4)
 // =====================================================================================================

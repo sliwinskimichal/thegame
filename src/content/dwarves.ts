@@ -58,7 +58,7 @@ export const JOB_RULES = {
   /** Candidate jobs the chooser checks for a free work spot before waiting for the next round. */
   chooseAttempts: 8,
   /** Job searches per tick for the whole colony (the rest wait a tick: smooth cost, deterministic). */
-  searchesPerTick: 24,
+  searchesPerTick: 16,
 };
 
 export const STOCKPILE_RULES = {

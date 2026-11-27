@@ -14,8 +14,9 @@ import { CREATURES, DEPOSITS, OBJECTS, ROCK_PICK_TIER } from '../../src/content/
 import { TECH_BY_ID } from '../../src/content/tech';
 import {
   ACCEPTANCE, BANDS, DEPOSIT_RULES, GORGE, HARD_GATES, HUB_SAFE_RADIUS, LAIRS, LANDMARKS, LEADING_LINES, MOTHER_LODE,
-  NO_DEPOSIT_BIOMES, OBJECT_RULES, PASSES, SOFT_GATES, SPAWN_RULES, START, SURFACE, WORLD_FRAME, type GateRef,
+  NAV_DESIGN, NO_DEPOSIT_BIOMES, OBJECT_RULES, PASSES, SOFT_GATES, SPAWN_RULES, START, SURFACE, WORLD_FRAME, type GateRef,
 } from '../../src/content/worldgen';
+import { PROFILES } from '../../src/sim/nav/profiles';
 import { Rng } from '../../src/core/rng';
 import { MAT_BY_KEY } from '../../src/world/materials';
 import {
@@ -309,6 +310,23 @@ describe('start and tutorial (02-campaign §2)', () => {
     expect(shaft.depth[0]).toBe(0);
     expect(shaft.depth[1]).toBe(lm.depth[0]);
     expect(h.floorDepth).toBeGreaterThan(START.campZone.noCavesDepth);
+  });
+});
+
+describe('navigation decisions (WORLDGEN.md §6)', () => {
+  it('match the movement profiles: safe drops, goblin drop, the road and the graph budget', () => {
+    expect(PROFILES.DWARF.maxDrop).toBe(CONFIG.maxSafeDrop);
+    expect(LEADING_LINES.kingdomRoad.maxDrop).toBe(CONFIG.maxSafeDrop);
+    expect(PROFILES.GOBLIN.maxDrop).toBe(NAV_DESIGN.goblinDrop);
+    expect(NAV_DESIGN.goblinDrop).toBeGreaterThan(CONFIG.maxSafeDrop);
+    expect(NAV_DESIGN.noGoblinLedgeNearHub).toBeGreaterThanOrEqual(HUB_SAFE_RADIUS);
+    expect(NAV_DESIGN.strideProfiles).not.toContain('troll');
+    for (const id of NAV_DESIGN.strideProfiles) expect(Object.values(PROFILES).some((p) => p.id === id), id).toBe(true);
+    expect(NAV_DESIGN.freshNodes).toEqual(ACCEPTANCE.navNodes);
+    expect(LEADING_LINES.kingdomRoad.noGapWidth).toBe(NAV_DESIGN.strideGap + 1);
+    // the widest grotto chasm is bridgeable by one rope bridge
+    const chasms = BANDS.flatMap((b) => b.caves.forms.filter((f) => f.kind === 'chasm' && b.biome === 'fungal'));
+    for (const f of chasms) expect(f.w[1]).toBeLessThanOrEqual(NAV_DESIGN.ropeBridge.maxSpan);
   });
 });
 

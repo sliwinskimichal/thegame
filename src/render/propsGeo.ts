@@ -226,3 +226,139 @@ export function collectProps(world: World): PropInstances[] {
   }
   return out;
 }
+
+// ---------------------------------------------------------------- set dressing (lab tone scenes)
+// Greybox furniture and mining gear in the "heavy highland timber" language of the art bible:
+// chunky boxes and round logs, warm wood, dark iron, copper accents. Local origin = floor contact
+// point (y up, z towards the viewer), sizes in tiles (1 tile ~ 1 m, a dwarf ~0.85).
+export const DRESS_KINDS = [
+  'table', 'bench', 'barrel', 'shelf', 'anvil', 'forge', 'ladder', 'pipe', 'planks', 'support',
+  'brokenSupport', 'debris', 'dust', 'crack', 'crate', 'sack',
+] as const;
+export type DressKind = (typeof DRESS_KINDS)[number];
+
+const WOOD = 0x6b4a2c;
+const WOOD_D = 0x4a321e;
+const WOOD_L = 0x8a6440;
+const IRON = 0x45474e;
+const COPPER = 0xa8653a;
+const STONE = 0x8c8070;
+const STONE_D = 0x6e6458;
+const CLOTH = 0x8a6a4a;
+const INK = 0x201812;
+
+/** Geometry of one kind of set dressing (vertex colours + emission, like the props). */
+export function buildDressingGeometry(kind: DressKind): THREE.BufferGeometry {
+  const b = new GeoBuilder();
+  const box = (w: number, h: number, d: number) => new THREE.BoxGeometry(w, h, d);
+  const cyl = (r0: number, r1: number, h: number, s = 8) => new THREE.CylinderGeometry(r0, r1, h, s);
+  switch (kind) {
+    case 'table':
+      b.add(box(1.6, 0.1, 0.7), WOOD_L, 0, T(0, 0.58));
+      for (const [x, z] of [[-0.68, -0.26], [0.68, -0.26], [-0.68, 0.26], [0.68, 0.26]] as const) b.add(box(0.1, 0.55, 0.1), WOOD_D, 0, T(x, 0.275, z));
+      b.add(cyl(0.06, 0.06, 0.12), COPPER, 0, T(0.3, 0.69, 0.1));
+      b.add(cyl(0.12, 0.08, 0.06, 10), 0x9a8a70, 0, T(-0.35, 0.66, -0.05));
+      b.add(new THREE.SphereGeometry(0.09, 7, 5), 0xb08040, 0, T(-0.05, 0.67, 0.12, 0, 0, 0, 1.4, 0.7, 1));
+      break;
+    case 'bench':
+      b.add(box(1.4, 0.08, 0.32), WOOD, 0, T(0, 0.34));
+      for (const x of [-0.55, 0.55]) b.add(box(0.08, 0.32, 0.3), WOOD_D, 0, T(x, 0.16));
+      break;
+    case 'barrel':
+      b.add(cyl(0.24, 0.26, 0.72, 12), WOOD, 0, T(0, 0.36));
+      for (const y of [0.15, 0.57]) b.add(cyl(0.27, 0.27, 0.05, 12), IRON, 0, T(0, y));
+      b.add(cyl(0.23, 0.23, 0.02, 12), WOOD_D, 0, T(0, 0.725));
+      break;
+    case 'shelf': {
+      for (const x of [-0.6, 0.6]) b.add(box(0.08, 1.7, 0.35), WOOD_D, 0, T(x, 0.85));
+      const goods = [0x7a5a3a, 0x9a8a70, COPPER, 0x5a6a4a, 0xb8a888, 0x6a3a2a];
+      [0.1, 0.55, 1.0, 1.45].forEach((y, row) => {
+        b.add(box(1.28, 0.05, 0.35), WOOD, 0, T(0, y));
+        for (let k = 0; k < 4; k++) {
+          const c = goods[(row * 3 + k) % goods.length]!;
+          const x = -0.42 + k * 0.28 + ((row + k) % 2) * 0.04;
+          if ((row + k) % 3 === 0) b.add(cyl(0.07, 0.07, 0.2), c, 0, T(x, y + 0.125));
+          else b.add(box(0.18, 0.16 + 0.06 * (k % 2), 0.22), c, 0, T(x, y + 0.11 + 0.03 * (k % 2)));
+        }
+      });
+      break;
+    }
+    case 'anvil':
+      b.add(cyl(0.2, 0.24, 0.45, 8), WOOD_D, 0, T(0, 0.225));
+      b.add(box(0.22, 0.1, 0.16), IRON, 0, T(0, 0.5));
+      b.add(box(0.5, 0.14, 0.2), IRON, 0, T(0, 0.62));
+      b.add(new THREE.ConeGeometry(0.07, 0.28, 8), IRON, 0, T(0.38, 0.63, 0, 0, 0, -Math.PI / 2));
+      break;
+    case 'forge':
+      b.add(box(1.6, 0.75, 0.9), STONE, 0, T(0, 0.375));
+      b.add(box(1.2, 0.08, 0.6), 0xff7a28, 2.6, T(0, 0.79));
+      b.add(cyl(0.25, 0.85, 0.9, 4), STONE_D, 0, T(0, 1.65, 0, 0, Math.PI / 4, 0, 1.3, 1, 0.8));
+      b.add(box(0.35, 1.2, 0.35), STONE_D, 0, T(0, 2.6));
+      b.add(box(0.4, 0.15, 0.3), CLOTH, 0, T(1.0, 0.5, 0.2));
+      break;
+    case 'ladder':
+      for (const x of [-0.22, 0.22]) b.add(box(0.06, 1, 0.06), WOOD, 0, T(x, 0.5));
+      for (let y = 0.12; y < 1; y += 0.25) b.add(box(0.44, 0.04, 0.05), WOOD_L, 0, T(0, y));
+      break;
+    case 'pipe':
+      b.add(cyl(0.07, 0.07, 1, 10), COPPER, 0, T(0, 0, 0, 0, 0, Math.PI / 2));
+      for (const x of [-0.48, 0.48]) b.add(cyl(0.1, 0.1, 0.04, 10), 0x7a4a2a, 0, T(x, 0, 0, 0, 0, Math.PI / 2));
+      break;
+    case 'planks':
+      for (let k = 0; k < 5; k++) b.add(box(1.0, 0.06, 0.17), k % 2 ? WOOD : WOOD_L, 0, T(0, 0.03, -0.1 - k * 0.19));
+      break;
+    case 'support':
+      for (const x of [-0.42, 0.42]) b.add(cyl(0.08, 0.09, 1, 7), WOOD, 0, T(x, 0.5));
+      b.add(box(1.1, 0.14, 0.18), WOOD_D, 0, T(0, 1.0));
+      break;
+    case 'brokenSupport':
+      b.add(cyl(0.08, 0.09, 0.85, 7), WOOD, 0, T(-0.5, 0.4, 0, 0, 0, 0.45));
+      b.add(cyl(0.08, 0.09, 0.5, 7), WOOD, 0, T(0.42, 0.25));
+      b.add(cyl(0.08, 0.08, 0.5, 7), WOOD, 0, T(0.62, 0.12, 0.15, 0, 0, -1.25));
+      b.add(box(0.6, 0.14, 0.18), WOOD_D, 0, T(-0.3, 0.72, 0, 0, 0, -0.35));
+      b.add(box(0.55, 0.14, 0.18), WOOD_D, 0, T(0.3, 0.55, 0.05, 0, 0, 0.5));
+      break;
+    case 'debris': {
+      const rng = new Rng(31);
+      for (let k = 0; k < 7; k++) {
+        const r = rng.range(0.1, 0.28);
+        b.add(roughen(new THREE.DodecahedronGeometry(r, 0), r * 0.25, 40 + k), STONE, 0, T(rng.range(-0.6, 0.6), r * 0.7, rng.range(-0.35, 0.35), rng.range(0, 3), rng.range(0, 3), rng.range(0, 3)));
+      }
+      break;
+    }
+    case 'dust': {
+      const rng = new Rng(57);
+      for (let k = 0; k < 9; k++) {
+        const r = rng.range(0.05, 0.16);
+        b.add(new THREE.IcosahedronGeometry(r, 0), 0xcfc4b0, 0, T(rng.range(-0.5, 0.5), rng.range(0.2, 1.6), rng.range(-0.2, 0.2), 0, rng.range(0, 3), 0, 1, 0.6, 1));
+      }
+      break;
+    }
+    case 'crack': {
+      // a jagged ink crack on the cut plane (z just in front of it), with two short branches
+      const rng = new Rng(77);
+      let x = 0;
+      let y = 0;
+      for (let k = 0; k < 7; k++) {
+        const a = -Math.PI / 2 + rng.range(-0.7, 0.7);
+        const len = rng.range(0.12, 0.22);
+        const nx = x + Math.cos(a) * len;
+        const ny = y + Math.sin(a) * len;
+        b.add(box(len + 0.02, 0.035 - k * 0.003, 0.01), INK, 0, T((x + nx) / 2, (y + ny) / 2, 0.012, 0, 0, a));
+        if (k === 2 || k === 4) b.add(box(0.14, 0.022, 0.01), INK, 0, T(nx + 0.06, ny - 0.02, 0.012, 0, 0, a + 0.9));
+        x = nx;
+        y = ny;
+      }
+      break;
+    }
+    case 'crate':
+      b.add(box(0.55, 0.45, 0.45), WOOD, 0, T(0, 0.225));
+      for (const y of [0.08, 0.37]) b.add(box(0.57, 0.06, 0.47), WOOD_D, 0, T(0, y));
+      break;
+    case 'sack':
+      b.add(new THREE.SphereGeometry(0.22, 8, 6), CLOTH, 0, T(0, 0.19, 0, 0, 0, 0, 1, 0.85, 0.8));
+      b.add(cyl(0.05, 0.08, 0.1, 6), 0x6a4a2a, 0, T(0, 0.4));
+      break;
+  }
+  return b.build();
+}

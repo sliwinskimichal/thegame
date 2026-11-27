@@ -22,8 +22,25 @@ import { CAV, FLUID, PROP, TF, World, type Prop } from '../world/world';
 export const ARENA_W = 64;
 export const ARENA_H = 46;
 
+/** Lab-only set dressing (tone scenes): one greybox object; geometry in render/propsGeo.ts. */
+export interface DressItem {
+  kind: import('../render/propsGeo').DressKind;
+  x: number;
+  y: number;
+  z: number;
+  /** Scale per axis (ladder height in sy, pipe length in sx...). */
+  sx?: number;
+  sy?: number;
+  sz?: number;
+  /** Rotation about Z (in the cut plane) and Y. */
+  rz?: number;
+  ry?: number;
+}
+
 export interface ArenaInfo {
   world: World;
+  /** Static set dressing (only the tone scenes have it). */
+  dressing?: DressItem[];
   /** Named points of interest (tile coordinates) used by scenarios. */
   poi: Record<string, { x: number; y: number }>;
   unexplored: { x0: number; y0: number; x1: number; y1: number };

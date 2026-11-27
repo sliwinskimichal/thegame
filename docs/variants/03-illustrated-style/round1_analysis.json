@@ -1,0 +1,2060 @@
+{
+ "R2B": {
+  "shots": {
+   "overview": {
+    "L_mean": 49.27,
+    "L_p05": 11.44,
+    "L_p50": 53.72,
+    "L_p95": 80.47,
+    "chroma_mean": 15.68,
+    "dark_pct": 8.68,
+    "edge_pct": 2.49,
+    "ink_pct": 0.26,
+    "c30_pct": 10.94
+   },
+   "meadow": {
+    "L_mean": 48.97,
+    "L_p05": 0.64,
+    "L_p50": 60.18,
+    "L_p95": 76.25,
+    "chroma_mean": 13.5,
+    "dark_pct": 21.61,
+    "edge_pct": 3.5,
+    "ink_pct": 0.19,
+    "c30_pct": 12.23
+   },
+   "tunnel_night": {
+    "L_mean": 48.74,
+    "L_p05": 6.69,
+    "L_p50": 45.93,
+    "L_p95": 92.09,
+    "chroma_mean": 26.77,
+    "dark_pct": 14.16,
+    "edge_pct": 0.16,
+    "ink_pct": 0.01,
+    "c30_pct": 36.72
+   },
+   "cave": {
+    "L_mean": 11.39,
+    "L_p05": 0.0,
+    "L_p50": 2.87,
+    "L_p95": 40.28,
+    "chroma_mean": 7.74,
+    "dark_pct": 65.26,
+    "edge_pct": 6.13,
+    "ink_pct": 2.4,
+    "c30_pct": 2.67
+   },
+   "fungal": {
+    "L_mean": 28.92,
+    "L_p05": 1.91,
+    "L_p50": 27.14,
+    "L_p95": 69.87,
+    "chroma_mean": 19.5,
+    "dark_pct": 33.07,
+    "edge_pct": 1.33,
+    "ink_pct": 0.09,
+    "c30_pct": 15.71
+   },
+   "lava": {
+    "L_mean": 59.43,
+    "L_p05": 12.43,
+    "L_p50": 61.92,
+    "L_p95": 97.48,
+    "chroma_mean": 46.91,
+    "dark_pct": 6.78,
+    "edge_pct": 0.02,
+    "ink_pct": 0.0,
+    "c30_pct": 75.59
+   },
+   "dusk": {
+    "L_mean": 37.65,
+    "L_p05": 2.25,
+    "L_p50": 40.23,
+    "L_p95": 80.24,
+    "chroma_mean": 22.08,
+    "dark_pct": 26.15,
+    "edge_pct": 2.1,
+    "ink_pct": 0.27,
+    "c30_pct": 31.94
+   },
+   "fog": {
+    "L_mean": 15.71,
+    "L_p05": 0.02,
+    "L_p50": 7.38,
+    "L_p95": 62.72,
+    "chroma_mean": 8.11,
+    "dark_pct": 66.8,
+    "edge_pct": 0.77,
+    "ink_pct": 0.27,
+    "c30_pct": 2.26
+   }
+  },
+  "colony": {
+   "L_mean": 45.12,
+   "dark_pct": 20.64,
+   "chroma_mean": 20.78,
+   "edge_pct": 1.92,
+   "ink_pct": 0.16,
+   "c30_pct": 26.96
+  },
+  "depth": {
+   "L_mean": 28.86,
+   "dark_pct": 42.98,
+   "chroma_mean": 20.57,
+   "edge_pct": 2.06,
+   "ink_pct": 0.69,
+   "c30_pct": 24.06
+  },
+  "all": {
+   "L_mean": 37.51,
+   "dark_pct": 30.31,
+   "chroma_mean": 20.04,
+   "edge_pct": 2.06,
+   "ink_pct": 0.44,
+   "c30_pct": 23.51
+  },
+  "colony_targets": [
+   false,
+   true,
+   false,
+   false,
+   false,
+   false
+  ],
+  "depth_targets": [
+   true,
+   false,
+   false
+  ],
+  "shot_hit_rate": 0.2,
+  "metrics": {
+   "C_open": 0.49308022861827183,
+   "C_fog": 0.40145761903689126,
+   "dE_ore": 25.642231679791927,
+   "dE_deut": 23.937968147179653,
+   "dark": 0.19822868441358024,
+   "blown": 0.019227430555555553,
+   "ms": 58.677718050921484
+  },
+  "bench": {
+   "ms": 230.43499999999767,
+   "per": {
+    "overview": 230.06999999999533,
+    "tunnel_night": 230.8
+   }
+  },
+  "errors": []
+ },
+ "i01": {
+  "shots": {
+   "overview": {
+    "L_mean": 43.73,
+    "L_p05": 6.81,
+    "L_p50": 42.84,
+    "L_p95": 78.42,
+    "chroma_mean": 10.03,
+    "dark_pct": 19.23,
+    "edge_pct": 4.91,
+    "ink_pct": 1.38,
+    "c30_pct": 3.44
+   },
+   "meadow": {
+    "L_mean": 49.18,
+    "L_p05": 4.53,
+    "L_p50": 58.79,
+    "L_p95": 75.85,
+    "chroma_mean": 13.06,
+    "dark_pct": 22.07,
+    "edge_pct": 2.52,
+    "ink_pct": 0.58,
+    "c30_pct": 10.26
+   },
+   "tunnel_night": {
+    "L_mean": 36.55,
+    "L_p05": 10.77,
+    "L_p50": 25.98,
+    "L_p95": 76.59,
+    "chroma_mean": 13.46,
+    "dark_pct": 14.41,
+    "edge_pct": 1.87,
+    "ink_pct": 0.84,
+    "c30_pct": 9.61
+   },
+   "cave": {
+    "L_mean": 19.65,
+    "L_p05": 2.68,
+    "L_p50": 14.36,
+    "L_p95": 46.15,
+    "chroma_mean": 9.08,
+    "dark_pct": 51.45,
+    "edge_pct": 4.84,
+    "ink_pct": 1.15,
+    "c30_pct": 1.09
+   },
+   "fungal": {
+    "L_mean": 27.73,
+    "L_p05": 2.16,
+    "L_p50": 25.95,
+    "L_p95": 62.45,
+    "chroma_mean": 17.16,
+    "dark_pct": 27.6,
+    "edge_pct": 4.13,
+    "ink_pct": 0.43,
+    "c30_pct": 13.86
+   },
+   "lava": {
+    "L_mean": 44.88,
+    "L_p05": 7.15,
+    "L_p50": 37.43,
+    "L_p95": 93.9,
+    "chroma_mean": 26.3,
+    "dark_pct": 15.49,
+    "edge_pct": 0.87,
+    "ink_pct": 0.01,
+    "c30_pct": 37.29
+   },
+   "dusk": {
+    "L_mean": 33.36,
+    "L_p05": 5.45,
+    "L_p50": 24.86,
+    "L_p95": 66.27,
+    "chroma_mean": 15.45,
+    "dark_pct": 24.45,
+    "edge_pct": 3.17,
+    "ink_pct": 1.24,
+    "c30_pct": 4.03
+   },
+   "fog": {
+    "L_mean": 20.43,
+    "L_p05": 3.9,
+    "L_p50": 15.18,
+    "L_p95": 60.44,
+    "chroma_mean": 9.8,
+    "dark_pct": 49.63,
+    "edge_pct": 1.77,
+    "ink_pct": 0.5,
+    "c30_pct": 4.28
+   }
+  },
+  "colony": {
+   "L_mean": 39.7,
+   "dark_pct": 20.31,
+   "chroma_mean": 13.99,
+   "edge_pct": 2.52,
+   "ink_pct": 0.89,
+   "c30_pct": 7.97
+  },
+  "depth": {
+   "L_mean": 28.17,
+   "dark_pct": 36.04,
+   "chroma_mean": 15.59,
+   "edge_pct": 2.9,
+   "ink_pct": 0.52,
+   "c30_pct": 14.13
+  },
+  "all": {
+   "L_mean": 34.44,
+   "dark_pct": 28.04,
+   "chroma_mean": 14.29,
+   "edge_pct": 3.01,
+   "ink_pct": 0.77,
+   "c30_pct": 10.48
+  },
+  "colony_targets": [
+   true,
+   true,
+   true,
+   false,
+   false,
+   true
+  ],
+  "depth_targets": [
+   true,
+   false,
+   false
+  ],
+  "shot_hit_rate": 0.3,
+  "metrics": {
+   "C_open": 0.4503617862773603,
+   "C_fog": 0.3100704625042453,
+   "dE_ore": 26.303388162709744,
+   "dE_deut": 25.175490220503633,
+   "dark": 0.09792775848765432,
+   "blown": 0.006291956018518519,
+   "ms": 148.8998516511083
+  },
+  "bench": {
+   "ms": 204.96499999999068,
+   "per": {
+    "overview": 203.2,
+    "tunnel_night": 206.72999999998137
+   }
+  },
+  "errors": []
+ },
+ "i02": {
+  "shots": {
+   "overview": {
+    "L_mean": 44.26,
+    "L_p05": 4.84,
+    "L_p50": 47.51,
+    "L_p95": 77.51,
+    "chroma_mean": 11.9,
+    "dark_pct": 18.76,
+    "edge_pct": 10.11,
+    "ink_pct": 3.51,
+    "c30_pct": 3.23
+   },
+   "meadow": {
+    "L_mean": 50.34,
+    "L_p05": 6.78,
+    "L_p50": 60.51,
+    "L_p95": 75.48,
+    "chroma_mean": 15.12,
+    "dark_pct": 17.82,
+    "edge_pct": 3.22,
+    "ink_pct": 0.78,
+    "c30_pct": 10.24
+   },
+   "tunnel_night": {
+    "L_mean": 40.54,
+    "L_p05": 12.34,
+    "L_p50": 34.67,
+    "L_p95": 75.88,
+    "chroma_mean": 13.27,
+    "dark_pct": 7.14,
+    "edge_pct": 4.92,
+    "ink_pct": 1.93,
+    "c30_pct": 14.05
+   },
+   "cave": {
+    "L_mean": 26.81,
+    "L_p05": 3.93,
+    "L_p50": 21.1,
+    "L_p95": 60.68,
+    "chroma_mean": 12.23,
+    "dark_pct": 38.86,
+    "edge_pct": 9.9,
+    "ink_pct": 2.77,
+    "c30_pct": 1.34
+   },
+   "fungal": {
+    "L_mean": 29.73,
+    "L_p05": 2.25,
+    "L_p50": 27.33,
+    "L_p95": 59.84,
+    "chroma_mean": 16.25,
+    "dark_pct": 29.61,
+    "edge_pct": 10.1,
+    "ink_pct": 2.77,
+    "c30_pct": 6.21
+   },
+   "lava": {
+    "L_mean": 35.03,
+    "L_p05": 5.38,
+    "L_p50": 25.38,
+    "L_p95": 87.67,
+    "chroma_mean": 24.43,
+    "dark_pct": 26.37,
+    "edge_pct": 3.81,
+    "ink_pct": 0.47,
+    "c30_pct": 27.65
+   },
+   "dusk": {
+    "L_mean": 36.69,
+    "L_p05": 6.64,
+    "L_p50": 33.85,
+    "L_p95": 65.66,
+    "chroma_mean": 18.29,
+    "dark_pct": 16.8,
+    "edge_pct": 7.37,
+    "ink_pct": 3.06,
+    "c30_pct": 32.09
+   },
+   "fog": {
+    "L_mean": 21.91,
+    "L_p05": 3.85,
+    "L_p50": 15.55,
+    "L_p95": 59.03,
+    "chroma_mean": 10.63,
+    "dark_pct": 48.5,
+    "edge_pct": 8.13,
+    "ink_pct": 3.22,
+    "c30_pct": 2.61
+   }
+  },
+  "colony": {
+   "L_mean": 42.52,
+   "dark_pct": 13.92,
+   "chroma_mean": 15.56,
+   "edge_pct": 5.17,
+   "ink_pct": 1.92,
+   "c30_pct": 18.79
+  },
+  "depth": {
+   "L_mean": 28.37,
+   "dark_pct": 35.84,
+   "chroma_mean": 15.88,
+   "edge_pct": 7.98,
+   "ink_pct": 2.31,
+   "c30_pct": 9.45
+  },
+  "all": {
+   "L_mean": 35.66,
+   "dark_pct": 25.48,
+   "chroma_mean": 15.26,
+   "edge_pct": 7.2,
+   "ink_pct": 2.31,
+   "c30_pct": 12.18
+  },
+  "colony_targets": [
+   false,
+   false,
+   true,
+   false,
+   false,
+   false
+  ],
+  "depth_targets": [
+   true,
+   false,
+   false
+  ],
+  "shot_hit_rate": 0.4,
+  "metrics": {
+   "C_open": 0.4285606328946226,
+   "C_fog": 0.3567574686138042,
+   "dE_ore": 28.282121867949037,
+   "dE_deut": 26.84716427677244,
+   "dark": 0.07661771797839506,
+   "blown": 0.0025458140432098766,
+   "ms": 44.16994880115707
+  },
+  "bench": {
+   "ms": 243.44499999998368,
+   "per": {
+    "overview": 232.80999999998602,
+    "tunnel_night": 254.07999999998137
+   }
+  },
+  "errors": []
+ },
+ "i03": {
+  "shots": {
+   "overview": {
+    "L_mean": 44.09,
+    "L_p05": 4.69,
+    "L_p50": 47.26,
+    "L_p95": 77.45,
+    "chroma_mean": 11.89,
+    "dark_pct": 19.19,
+    "edge_pct": 10.09,
+    "ink_pct": 3.53,
+    "c30_pct": 3.21
+   },
+   "meadow": {
+    "L_mean": 50.23,
+    "L_p05": 6.2,
+    "L_p50": 60.55,
+    "L_p95": 75.48,
+    "chroma_mean": 15.01,
+    "dark_pct": 18.04,
+    "edge_pct": 3.2,
+    "ink_pct": 0.78,
+    "c30_pct": 10.29
+   },
+   "tunnel_night": {
+    "L_mean": 40.41,
+    "L_p05": 11.9,
+    "L_p50": 34.98,
+    "L_p95": 76.27,
+    "chroma_mean": 13.34,
+    "dark_pct": 7.56,
+    "edge_pct": 4.87,
+    "ink_pct": 1.9,
+    "c30_pct": 14.89
+   },
+   "cave": {
+    "L_mean": 26.62,
+    "L_p05": 3.88,
+    "L_p50": 20.99,
+    "L_p95": 60.32,
+    "chroma_mean": 12.2,
+    "dark_pct": 39.14,
+    "edge_pct": 9.77,
+    "ink_pct": 2.76,
+    "c30_pct": 1.36
+   },
+   "fungal": {
+    "L_mean": 29.33,
+    "L_p05": 2.08,
+    "L_p50": 26.8,
+    "L_p95": 59.22,
+    "chroma_mean": 16.11,
+    "dark_pct": 30.4,
+    "edge_pct": 9.79,
+    "ink_pct": 2.67,
+    "c30_pct": 6.45
+   },
+   "lava": {
+    "L_mean": 34.53,
+    "L_p05": 5.19,
+    "L_p50": 24.59,
+    "L_p95": 87.63,
+    "chroma_mean": 24.02,
+    "dark_pct": 28.1,
+    "edge_pct": 3.82,
+    "ink_pct": 0.49,
+    "c30_pct": 27.06
+   },
+   "dusk": {
+    "L_mean": 36.57,
+    "L_p05": 6.45,
+    "L_p50": 33.58,
+    "L_p95": 65.36,
+    "chroma_mean": 18.31,
+    "dark_pct": 16.65,
+    "edge_pct": 7.37,
+    "ink_pct": 3.11,
+    "c30_pct": 32.26
+   },
+   "fog": {
+    "L_mean": 21.58,
+    "L_p05": 3.76,
+    "L_p50": 15.17,
+    "L_p95": 58.99,
+    "chroma_mean": 10.62,
+    "dark_pct": 49.41,
+    "edge_pct": 8.08,
+    "ink_pct": 3.26,
+    "c30_pct": 2.81
+   }
+  },
+  "colony": {
+   "L_mean": 42.4,
+   "dark_pct": 14.08,
+   "chroma_mean": 15.55,
+   "edge_pct": 5.15,
+   "ink_pct": 1.93,
+   "c30_pct": 19.15
+  },
+  "depth": {
+   "L_mean": 28.02,
+   "dark_pct": 36.76,
+   "chroma_mean": 15.74,
+   "edge_pct": 7.87,
+   "ink_pct": 2.29,
+   "c30_pct": 9.42
+  },
+  "all": {
+   "L_mean": 35.42,
+   "dark_pct": 26.06,
+   "chroma_mean": 15.19,
+   "edge_pct": 7.12,
+   "ink_pct": 2.31,
+   "c30_pct": 12.29
+  },
+  "colony_targets": [
+   false,
+   false,
+   true,
+   false,
+   false,
+   false
+  ],
+  "depth_targets": [
+   true,
+   false,
+   false
+  ],
+  "shot_hit_rate": 0.367,
+  "metrics": {
+   "C_open": 0.4306522636798795,
+   "C_fog": 0.3559796747463788,
+   "dE_ore": 28.4072421293464,
+   "dE_deut": 26.964215343909842,
+   "dark": 0.08077811535493827,
+   "blown": 0.0026073013117283946,
+   "ms": 134.62677436659465
+  },
+  "bench": {
+   "ms": 224.62499999998835,
+   "per": {
+    "overview": 226.81999999999533,
+    "tunnel_night": 222.42999999998136
+   }
+  },
+  "errors": []
+ },
+ "i04": {
+  "shots": {
+   "overview": {
+    "L_mean": 43.17,
+    "L_p05": 4.88,
+    "L_p50": 46.63,
+    "L_p95": 77.62,
+    "chroma_mean": 11.47,
+    "dark_pct": 21.91,
+    "edge_pct": 10.65,
+    "ink_pct": 3.72,
+    "c30_pct": 2.87
+   },
+   "meadow": {
+    "L_mean": 50.02,
+    "L_p05": 5.35,
+    "L_p50": 60.55,
+    "L_p95": 75.48,
+    "chroma_mean": 14.86,
+    "dark_pct": 18.79,
+    "edge_pct": 3.24,
+    "ink_pct": 0.78,
+    "c30_pct": 10.18
+   },
+   "tunnel_night": {
+    "L_mean": 39.15,
+    "L_p05": 9.12,
+    "L_p50": 34.44,
+    "L_p95": 76.0,
+    "chroma_mean": 13.3,
+    "dark_pct": 13.6,
+    "edge_pct": 6.31,
+    "ink_pct": 2.28,
+    "c30_pct": 12.61
+   },
+   "cave": {
+    "L_mean": 24.15,
+    "L_p05": 3.5,
+    "L_p50": 18.0,
+    "L_p95": 58.09,
+    "chroma_mean": 11.14,
+    "dark_pct": 44.54,
+    "edge_pct": 12.2,
+    "ink_pct": 2.83,
+    "c30_pct": 1.34
+   },
+   "fungal": {
+    "L_mean": 28.22,
+    "L_p05": 2.59,
+    "L_p50": 23.09,
+    "L_p95": 60.16,
+    "chroma_mean": 15.13,
+    "dark_pct": 34.62,
+    "edge_pct": 9.37,
+    "ink_pct": 2.28,
+    "c30_pct": 4.58
+   },
+   "lava": {
+    "L_mean": 34.39,
+    "L_p05": 5.39,
+    "L_p50": 23.96,
+    "L_p95": 87.62,
+    "chroma_mean": 23.47,
+    "dark_pct": 28.81,
+    "edge_pct": 3.56,
+    "ink_pct": 0.33,
+    "c30_pct": 27.0
+   },
+   "dusk": {
+    "L_mean": 35.16,
+    "L_p05": 5.64,
+    "L_p50": 31.67,
+    "L_p95": 65.64,
+    "chroma_mean": 18.2,
+    "dark_pct": 21.73,
+    "edge_pct": 8.88,
+    "ink_pct": 3.41,
+    "c30_pct": 31.63
+   },
+   "fog": {
+    "L_mean": 20.63,
+    "L_p05": 3.79,
+    "L_p50": 14.27,
+    "L_p95": 58.99,
+    "chroma_mean": 10.38,
+    "dark_pct": 52.19,
+    "edge_pct": 8.74,
+    "ink_pct": 3.47,
+    "c30_pct": 2.12
+   }
+  },
+  "colony": {
+   "L_mean": 41.44,
+   "dark_pct": 18.04,
+   "chroma_mean": 15.45,
+   "edge_pct": 6.14,
+   "ink_pct": 2.16,
+   "c30_pct": 18.14
+  },
+  "depth": {
+   "L_mean": 26.85,
+   "dark_pct": 40.04,
+   "chroma_mean": 15.03,
+   "edge_pct": 8.47,
+   "ink_pct": 2.23,
+   "c30_pct": 8.76
+  },
+  "all": {
+   "L_mean": 34.36,
+   "dark_pct": 29.52,
+   "chroma_mean": 14.74,
+   "edge_pct": 7.87,
+   "ink_pct": 2.39,
+   "c30_pct": 11.54
+  },
+  "colony_targets": [
+   false,
+   true,
+   true,
+   false,
+   false,
+   false
+  ],
+  "depth_targets": [
+   true,
+   false,
+   false
+  ],
+  "shot_hit_rate": 0.333,
+  "metrics": {
+   "C_open": 0.4682636604164085,
+   "C_fog": 0.31213157217891674,
+   "dE_ore": 28.366787539458137,
+   "dE_deut": 26.93710367622225,
+   "dark": 0.08807966820987653,
+   "blown": 0.0025185667438271607,
+   "ms": 42.29680290838179
+  },
+  "bench": {
+   "ms": 230.32000000000698,
+   "per": {
+    "overview": 229.83000000000465,
+    "tunnel_night": 230.81000000000932
+   }
+  },
+  "errors": []
+ },
+ "i05": {
+  "shots": {
+   "overview": {
+    "L_mean": 42.3,
+    "L_p05": 4.81,
+    "L_p50": 44.67,
+    "L_p95": 77.52,
+    "chroma_mean": 9.56,
+    "dark_pct": 24.7,
+    "edge_pct": 8.87,
+    "ink_pct": 3.25,
+    "c30_pct": 1.9
+   },
+   "meadow": {
+    "L_mean": 49.9,
+    "L_p05": 5.39,
+    "L_p50": 60.56,
+    "L_p95": 75.49,
+    "chroma_mean": 12.46,
+    "dark_pct": 19.95,
+    "edge_pct": 3.18,
+    "ink_pct": 0.76,
+    "c30_pct": 7.77
+   },
+   "tunnel_night": {
+    "L_mean": 38.08,
+    "L_p05": 8.51,
+    "L_p50": 32.37,
+    "L_p95": 76.35,
+    "chroma_mean": 10.24,
+    "dark_pct": 16.52,
+    "edge_pct": 4.53,
+    "ink_pct": 1.79,
+    "c30_pct": 5.69
+   },
+   "cave": {
+    "L_mean": 22.27,
+    "L_p05": 3.26,
+    "L_p50": 15.67,
+    "L_p95": 54.41,
+    "chroma_mean": 8.75,
+    "dark_pct": 48.72,
+    "edge_pct": 8.76,
+    "ink_pct": 2.22,
+    "c30_pct": 1.03
+   },
+   "fungal": {
+    "L_mean": 26.93,
+    "L_p05": 2.98,
+    "L_p50": 21.22,
+    "L_p95": 58.39,
+    "chroma_mean": 12.74,
+    "dark_pct": 37.48,
+    "edge_pct": 7.76,
+    "ink_pct": 1.64,
+    "c30_pct": 1.77
+   },
+   "lava": {
+    "L_mean": 34.6,
+    "L_p05": 5.55,
+    "L_p50": 24.04,
+    "L_p95": 88.41,
+    "chroma_mean": 19.12,
+    "dark_pct": 29.22,
+    "edge_pct": 3.4,
+    "ink_pct": 0.19,
+    "c30_pct": 22.27
+   },
+   "dusk": {
+    "L_mean": 34.26,
+    "L_p05": 5.46,
+    "L_p50": 29.76,
+    "L_p95": 65.43,
+    "chroma_mean": 14.94,
+    "dark_pct": 25.3,
+    "edge_pct": 8.02,
+    "ink_pct": 3.41,
+    "c30_pct": 2.72
+   },
+   "fog": {
+    "L_mean": 19.43,
+    "L_p05": 3.77,
+    "L_p50": 13.62,
+    "L_p95": 58.75,
+    "chroma_mean": 8.79,
+    "dark_pct": 54.54,
+    "edge_pct": 5.64,
+    "ink_pct": 2.63,
+    "c30_pct": 0.65
+   }
+  },
+  "colony": {
+   "L_mean": 40.75,
+   "dark_pct": 20.59,
+   "chroma_mean": 12.55,
+   "edge_pct": 5.24,
+   "ink_pct": 1.99,
+   "c30_pct": 5.39
+  },
+  "depth": {
+   "L_mean": 25.81,
+   "dark_pct": 42.49,
+   "chroma_mean": 12.35,
+   "edge_pct": 6.39,
+   "ink_pct": 1.67,
+   "c30_pct": 6.43
+  },
+  "all": {
+   "L_mean": 33.47,
+   "dark_pct": 32.05,
+   "chroma_mean": 12.07,
+   "edge_pct": 6.27,
+   "ink_pct": 1.99,
+   "c30_pct": 5.47
+  },
+  "colony_targets": [
+   false,
+   true,
+   false,
+   false,
+   false,
+   true
+  ],
+  "depth_targets": [
+   false,
+   false,
+   false
+  ],
+  "shot_hit_rate": 0.367,
+  "metrics": {
+   "C_open": 0.4837891370556858,
+   "C_fog": 0.2786350904222271,
+   "dE_ore": 25.95983476475672,
+   "dE_deut": 24.73399675058537,
+   "dark": 0.09296223958333333,
+   "blown": 0.003167920524691358,
+   "ms": 154.85903449454503
+  },
+  "bench": {
+   "ms": 229.14999999998835,
+   "per": {
+    "overview": 230.67999999998136,
+    "tunnel_night": 227.61999999999534
+   }
+  },
+  "errors": []
+ },
+ "i06": {
+  "shots": {
+   "overview": {
+    "L_mean": 45.54,
+    "L_p05": 6.12,
+    "L_p50": 50.0,
+    "L_p95": 77.68,
+    "chroma_mean": 12.06,
+    "dark_pct": 14.87,
+    "edge_pct": 7.39,
+    "ink_pct": 2.08,
+    "c30_pct": 3.24
+   },
+   "meadow": {
+    "L_mean": 50.66,
+    "L_p05": 7.6,
+    "L_p50": 60.98,
+    "L_p95": 75.51,
+    "chroma_mean": 15.17,
+    "dark_pct": 16.93,
+    "edge_pct": 3.06,
+    "ink_pct": 0.67,
+    "c30_pct": 10.27
+   },
+   "tunnel_night": {
+    "L_mean": 41.37,
+    "L_p05": 15.77,
+    "L_p50": 34.53,
+    "L_p95": 76.63,
+    "chroma_mean": 12.76,
+    "dark_pct": 4.28,
+    "edge_pct": 2.03,
+    "ink_pct": 0.76,
+    "c30_pct": 11.71
+   },
+   "cave": {
+    "L_mean": 28.27,
+    "L_p05": 5.89,
+    "L_p50": 22.75,
+    "L_p95": 62.8,
+    "chroma_mean": 12.6,
+    "dark_pct": 36.29,
+    "edge_pct": 7.08,
+    "ink_pct": 1.27,
+    "c30_pct": 1.15
+   },
+   "fungal": {
+    "L_mean": 31.88,
+    "L_p05": 2.24,
+    "L_p50": 29.29,
+    "L_p95": 61.41,
+    "chroma_mean": 16.56,
+    "dark_pct": 24.64,
+    "edge_pct": 7.82,
+    "ink_pct": 1.7,
+    "c30_pct": 6.73
+   },
+   "lava": {
+    "L_mean": 36.13,
+    "L_p05": 6.54,
+    "L_p50": 26.3,
+    "L_p95": 87.93,
+    "chroma_mean": 25.23,
+    "dark_pct": 23.87,
+    "edge_pct": 3.47,
+    "ink_pct": 0.35,
+    "c30_pct": 28.67
+   },
+   "dusk": {
+    "L_mean": 37.69,
+    "L_p05": 9.79,
+    "L_p50": 34.55,
+    "L_p95": 66.22,
+    "chroma_mean": 18.17,
+    "dark_pct": 12.9,
+    "edge_pct": 3.72,
+    "ink_pct": 1.27,
+    "c30_pct": 31.6
+   },
+   "fog": {
+    "L_mean": 23.62,
+    "L_p05": 4.13,
+    "L_p50": 18.01,
+    "L_p95": 59.45,
+    "chroma_mean": 10.8,
+    "dark_pct": 43.56,
+    "edge_pct": 4.76,
+    "ink_pct": 1.09,
+    "c30_pct": 2.46
+   }
+  },
+  "colony": {
+   "L_mean": 43.24,
+   "dark_pct": 11.37,
+   "chroma_mean": 15.37,
+   "edge_pct": 2.94,
+   "ink_pct": 0.9,
+   "c30_pct": 17.86
+  },
+  "depth": {
+   "L_mean": 29.98,
+   "dark_pct": 32.09,
+   "chroma_mean": 16.3,
+   "edge_pct": 5.78,
+   "ink_pct": 1.1,
+   "c30_pct": 9.75
+  },
+  "all": {
+   "L_mean": 36.89,
+   "dark_pct": 22.17,
+   "chroma_mean": 15.42,
+   "edge_pct": 4.92,
+   "ink_pct": 1.15,
+   "c30_pct": 11.98
+  },
+  "colony_targets": [
+   false,
+   false,
+   true,
+   false,
+   false,
+   false
+  ],
+  "depth_targets": [
+   true,
+   false,
+   false
+  ],
+  "shot_hit_rate": 0.267,
+  "metrics": {
+   "C_open": 0.4110371897818362,
+   "C_fog": 0.40626145319572027,
+   "dE_ore": 28.790081111259877,
+   "dE_deut": 27.26613895217422,
+   "dark": 0.055768470293209874,
+   "blown": 0.0023116801697530866,
+   "ms": 52.24678331673795
+  },
+  "bench": {
+   "ms": 198.475,
+   "per": {
+    "overview": 197.4600000000093,
+    "tunnel_night": 199.4899999999907
+   }
+  },
+  "errors": []
+ },
+ "i07": {
+  "shots": {
+   "overview": {
+    "L_mean": 44.93,
+    "L_p05": 5.76,
+    "L_p50": 49.19,
+    "L_p95": 77.68,
+    "chroma_mean": 12.02,
+    "dark_pct": 16.94,
+    "edge_pct": 9.22,
+    "ink_pct": 2.75,
+    "c30_pct": 3.37
+   },
+   "meadow": {
+    "L_mean": 50.29,
+    "L_p05": 6.22,
+    "L_p50": 60.62,
+    "L_p95": 75.48,
+    "chroma_mean": 15.01,
+    "dark_pct": 17.35,
+    "edge_pct": 3.21,
+    "ink_pct": 0.82,
+    "c30_pct": 10.04
+   },
+   "tunnel_night": {
+    "L_mean": 39.67,
+    "L_p05": 6.21,
+    "L_p50": 34.61,
+    "L_p95": 76.98,
+    "chroma_mean": 13.01,
+    "dark_pct": 10.59,
+    "edge_pct": 6.12,
+    "ink_pct": 2.85,
+    "c30_pct": 13.88
+   },
+   "cave": {
+    "L_mean": 26.87,
+    "L_p05": 3.21,
+    "L_p50": 20.75,
+    "L_p95": 61.44,
+    "chroma_mean": 11.92,
+    "dark_pct": 39.04,
+    "edge_pct": 7.94,
+    "ink_pct": 1.98,
+    "c30_pct": 1.33
+   },
+   "fungal": {
+    "L_mean": 29.6,
+    "L_p05": 2.15,
+    "L_p50": 26.79,
+    "L_p95": 59.55,
+    "chroma_mean": 16.09,
+    "dark_pct": 29.11,
+    "edge_pct": 8.65,
+    "ink_pct": 2.09,
+    "c30_pct": 6.15
+   },
+   "lava": {
+    "L_mean": 34.87,
+    "L_p05": 5.34,
+    "L_p50": 24.78,
+    "L_p95": 87.79,
+    "chroma_mean": 24.41,
+    "dark_pct": 27.2,
+    "edge_pct": 3.49,
+    "ink_pct": 0.4,
+    "c30_pct": 28.02
+   },
+   "dusk": {
+    "L_mean": 37.04,
+    "L_p05": 7.65,
+    "L_p50": 34.3,
+    "L_p95": 66.18,
+    "chroma_mean": 18.33,
+    "dark_pct": 15.51,
+    "edge_pct": 6.2,
+    "ink_pct": 2.45,
+    "c30_pct": 32.3
+   },
+   "fog": {
+    "L_mean": 22.28,
+    "L_p05": 3.86,
+    "L_p50": 16.38,
+    "L_p95": 59.06,
+    "chroma_mean": 10.62,
+    "dark_pct": 46.57,
+    "edge_pct": 5.77,
+    "ink_pct": 1.94,
+    "c30_pct": 2.5
+   }
+  },
+  "colony": {
+   "L_mean": 42.33,
+   "dark_pct": 14.48,
+   "chroma_mean": 15.45,
+   "edge_pct": 5.18,
+   "ink_pct": 2.04,
+   "c30_pct": 18.74
+  },
+  "depth": {
+   "L_mean": 28.41,
+   "dark_pct": 35.48,
+   "chroma_mean": 15.76,
+   "edge_pct": 6.46,
+   "ink_pct": 1.6,
+   "c30_pct": 9.5
+  },
+  "all": {
+   "L_mean": 35.69,
+   "dark_pct": 25.29,
+   "chroma_mean": 15.18,
+   "edge_pct": 6.33,
+   "ink_pct": 1.91,
+   "c30_pct": 12.2
+  },
+  "colony_targets": [
+   false,
+   false,
+   true,
+   false,
+   false,
+   false
+  ],
+  "depth_targets": [
+   true,
+   false,
+   false
+  ],
+  "shot_hit_rate": 0.367,
+  "metrics": {
+   "C_open": 0.4226699099855473,
+   "C_fog": 0.37280997732093896,
+   "dE_ore": 28.573197645647515,
+   "dE_deut": 26.95060470471635,
+   "dark": 0.07882040895061729,
+   "blown": 0.002438994984567901,
+   "ms": 130.09180060178088
+  },
+  "bench": {
+   "ms": 215.44000000000233,
+   "per": {
+    "overview": 215.29000000001398,
+    "tunnel_night": 215.58999999999068
+   }
+  },
+  "errors": []
+ },
+ "i09": {
+  "shots": {
+   "overview": {
+    "L_mean": 44.89,
+    "L_p05": 6.09,
+    "L_p50": 46.61,
+    "L_p95": 77.67,
+    "chroma_mean": 12.14,
+    "dark_pct": 15.64,
+    "edge_pct": 7.72,
+    "ink_pct": 2.26,
+    "c30_pct": 3.48
+   },
+   "meadow": {
+    "L_mean": 44.48,
+    "L_p05": 5.77,
+    "L_p50": 52.51,
+    "L_p95": 75.31,
+    "chroma_mean": 13.45,
+    "dark_pct": 25.15,
+    "edge_pct": 10.44,
+    "ink_pct": 3.5,
+    "c30_pct": 6.15
+   },
+   "tunnel_night": {
+    "L_mean": 41.38,
+    "L_p05": 15.82,
+    "L_p50": 33.73,
+    "L_p95": 76.12,
+    "chroma_mean": 13.19,
+    "dark_pct": 4.12,
+    "edge_pct": 1.74,
+    "ink_pct": 0.76,
+    "c30_pct": 15.07
+   },
+   "cave": {
+    "L_mean": 27.86,
+    "L_p05": 5.95,
+    "L_p50": 22.04,
+    "L_p95": 60.59,
+    "chroma_mean": 12.43,
+    "dark_pct": 37.61,
+    "edge_pct": 6.72,
+    "ink_pct": 1.4,
+    "c30_pct": 1.06
+   },
+   "fungal": {
+    "L_mean": 29.87,
+    "L_p05": 1.97,
+    "L_p50": 27.43,
+    "L_p95": 57.67,
+    "chroma_mean": 16.43,
+    "dark_pct": 26.95,
+    "edge_pct": 7.63,
+    "ink_pct": 1.8,
+    "c30_pct": 7.18
+   },
+   "lava": {
+    "L_mean": 33.6,
+    "L_p05": 5.25,
+    "L_p50": 23.77,
+    "L_p95": 86.83,
+    "chroma_mean": 24.16,
+    "dark_pct": 29.08,
+    "edge_pct": 4.23,
+    "ink_pct": 0.51,
+    "c30_pct": 26.11
+   },
+   "dusk": {
+    "L_mean": 36.15,
+    "L_p05": 6.88,
+    "L_p50": 32.51,
+    "L_p95": 66.27,
+    "chroma_mean": 17.38,
+    "dark_pct": 16.07,
+    "edge_pct": 5.24,
+    "ink_pct": 2.12,
+    "c30_pct": 30.09
+   },
+   "fog": {
+    "L_mean": 23.03,
+    "L_p05": 4.08,
+    "L_p50": 17.6,
+    "L_p95": 58.99,
+    "chroma_mean": 10.85,
+    "dark_pct": 44.26,
+    "edge_pct": 4.92,
+    "ink_pct": 1.16,
+    "c30_pct": 2.74
+   }
+  },
+  "colony": {
+   "L_mean": 40.67,
+   "dark_pct": 15.11,
+   "chroma_mean": 14.67,
+   "edge_pct": 5.81,
+   "ink_pct": 2.13,
+   "c30_pct": 17.1
+  },
+  "depth": {
+   "L_mean": 28.59,
+   "dark_pct": 34.48,
+   "chroma_mean": 15.97,
+   "edge_pct": 5.88,
+   "ink_pct": 1.22,
+   "c30_pct": 9.27
+  },
+  "all": {
+   "L_mean": 35.16,
+   "dark_pct": 24.86,
+   "chroma_mean": 15.0,
+   "edge_pct": 6.08,
+   "ink_pct": 1.69,
+   "c30_pct": 11.48
+  },
+  "colony_targets": [
+   false,
+   true,
+   true,
+   false,
+   false,
+   false
+  ],
+  "depth_targets": [
+   true,
+   false,
+   false
+  ],
+  "shot_hit_rate": 0.4,
+  "metrics": {
+   "C_open": 0.40169092447682064,
+   "C_fog": 0.4013117534712436,
+   "dE_ore": 28.75890471531024,
+   "dE_deut": 27.259094608483743,
+   "dark": 0.06556327160493827,
+   "blown": 0.0018877797067901236,
+   "ms": 47.185107333060685
+  },
+  "bench": {
+   "ms": 229.39000000000232,
+   "per": {
+    "overview": 227.2100000000093,
+    "tunnel_night": 231.56999999999533
+   }
+  },
+  "errors": []
+ },
+ "i08": {
+  "shots": {
+   "overview": {
+    "L_mean": 44.39,
+    "L_p05": 4.64,
+    "L_p50": 50.1,
+    "L_p95": 77.81,
+    "chroma_mean": 11.71,
+    "dark_pct": 19.35,
+    "edge_pct": 10.18,
+    "ink_pct": 3.56,
+    "c30_pct": 2.92
+   },
+   "meadow": {
+    "L_mean": 50.31,
+    "L_p05": 6.18,
+    "L_p50": 61.18,
+    "L_p95": 75.35,
+    "chroma_mean": 14.79,
+    "dark_pct": 18.03,
+    "edge_pct": 3.33,
+    "ink_pct": 0.79,
+    "c30_pct": 10.28
+   },
+   "tunnel_night": {
+    "L_mean": 41.69,
+    "L_p05": 11.86,
+    "L_p50": 34.68,
+    "L_p95": 79.99,
+    "chroma_mean": 12.2,
+    "dark_pct": 7.63,
+    "edge_pct": 5.37,
+    "ink_pct": 1.97,
+    "c30_pct": 10.58
+   },
+   "cave": {
+    "L_mean": 28.65,
+    "L_p05": 3.87,
+    "L_p50": 20.88,
+    "L_p95": 68.52,
+    "chroma_mean": 12.06,
+    "dark_pct": 39.31,
+    "edge_pct": 9.81,
+    "ink_pct": 2.85,
+    "c30_pct": 1.34
+   },
+   "fungal": {
+    "L_mean": 31.72,
+    "L_p05": 2.15,
+    "L_p50": 26.89,
+    "L_p95": 66.8,
+    "chroma_mean": 14.85,
+    "dark_pct": 30.06,
+    "edge_pct": 10.23,
+    "ink_pct": 2.69,
+    "c30_pct": 5.54
+   },
+   "lava": {
+    "L_mean": 34.88,
+    "L_p05": 5.29,
+    "L_p50": 24.93,
+    "L_p95": 87.74,
+    "chroma_mean": 24.37,
+    "dark_pct": 27.57,
+    "edge_pct": 3.81,
+    "ink_pct": 0.47,
+    "c30_pct": 27.74
+   },
+   "dusk": {
+    "L_mean": 36.87,
+    "L_p05": 6.53,
+    "L_p50": 33.45,
+    "L_p95": 68.58,
+    "chroma_mean": 18.01,
+    "dark_pct": 16.7,
+    "edge_pct": 7.71,
+    "ink_pct": 3.16,
+    "c30_pct": 31.22
+   },
+   "fog": {
+    "L_mean": 22.47,
+    "L_p05": 3.82,
+    "L_p50": 15.45,
+    "L_p95": 61.32,
+    "chroma_mean": 10.33,
+    "dark_pct": 48.84,
+    "edge_pct": 8.07,
+    "ink_pct": 3.17,
+    "c30_pct": 2.4
+   }
+  },
+  "colony": {
+   "L_mean": 42.96,
+   "dark_pct": 14.12,
+   "chroma_mean": 15.0,
+   "edge_pct": 5.47,
+   "ink_pct": 1.97,
+   "c30_pct": 17.36
+  },
+  "depth": {
+   "L_mean": 29.43,
+   "dark_pct": 36.45,
+   "chroma_mean": 15.4,
+   "edge_pct": 7.98,
+   "ink_pct": 2.29,
+   "c30_pct": 9.25
+  },
+  "all": {
+   "L_mean": 36.37,
+   "dark_pct": 25.94,
+   "chroma_mean": 14.79,
+   "edge_pct": 7.31,
+   "ink_pct": 2.33,
+   "c30_pct": 11.5
+  },
+  "colony_targets": [
+   false,
+   false,
+   true,
+   false,
+   false,
+   false
+  ],
+  "depth_targets": [
+   true,
+   false,
+   false
+  ],
+  "shot_hit_rate": 0.333,
+  "metrics": {
+   "C_open": 0.4753948969395118,
+   "C_fog": 0.3554232501277508,
+   "dE_ore": 28.452036244313927,
+   "dE_deut": 26.988282337394725,
+   "dark": 0.0796216724537037,
+   "blown": 0.0027165316358024696,
+   "ms": 136.14992965080484
+  },
+  "bench": {
+   "ms": 212.4899999999907,
+   "per": {
+    "overview": 207.7899999999907,
+    "tunnel_night": 217.18999999999068
+   }
+  },
+  "errors": []
+ },
+ "i11": {
+  "shots": {
+   "overview": {
+    "L_mean": 46.38,
+    "L_p05": 3.81,
+    "L_p50": 47.14,
+    "L_p95": 80.97,
+    "chroma_mean": 11.35,
+    "dark_pct": 19.77,
+    "edge_pct": 12.02,
+    "ink_pct": 4.57,
+    "c30_pct": 2.85
+   },
+   "meadow": {
+    "L_mean": 50.53,
+    "L_p05": 9.14,
+    "L_p50": 59.18,
+    "L_p95": 77.76,
+    "chroma_mean": 15.16,
+    "dark_pct": 14.78,
+    "edge_pct": 10.56,
+    "ink_pct": 3.39,
+    "c30_pct": 9.6
+   },
+   "tunnel_night": {
+    "L_mean": 44.56,
+    "L_p05": 14.83,
+    "L_p50": 39.73,
+    "L_p95": 78.19,
+    "chroma_mean": 14.97,
+    "dark_pct": 5.07,
+    "edge_pct": 5.89,
+    "ink_pct": 2.09,
+    "c30_pct": 17.44
+   },
+   "cave": {
+    "L_mean": 29.4,
+    "L_p05": 5.24,
+    "L_p50": 24.92,
+    "L_p95": 62.17,
+    "chroma_mean": 11.43,
+    "dark_pct": 28.69,
+    "edge_pct": 11.83,
+    "ink_pct": 3.58,
+    "c30_pct": 2.01
+   },
+   "fungal": {
+    "L_mean": 27.58,
+    "L_p05": 1.81,
+    "L_p50": 26.58,
+    "L_p95": 56.34,
+    "chroma_mean": 14.27,
+    "dark_pct": 34.92,
+    "edge_pct": 14.51,
+    "ink_pct": 5.04,
+    "c30_pct": 5.75
+   },
+   "lava": {
+    "L_mean": 21.44,
+    "L_p05": 1.85,
+    "L_p50": 12.69,
+    "L_p95": 74.49,
+    "chroma_mean": 21.26,
+    "dark_pct": 58.99,
+    "edge_pct": 8.51,
+    "ink_pct": 3.89,
+    "c30_pct": 15.46
+   },
+   "dusk": {
+    "L_mean": 39.6,
+    "L_p05": 6.59,
+    "L_p50": 36.79,
+    "L_p95": 70.73,
+    "chroma_mean": 18.74,
+    "dark_pct": 15.66,
+    "edge_pct": 10.61,
+    "ink_pct": 4.34,
+    "c30_pct": 33.95
+   },
+   "fog": {
+    "L_mean": 22.81,
+    "L_p05": 5.33,
+    "L_p50": 16.16,
+    "L_p95": 61.22,
+    "chroma_mean": 9.41,
+    "dark_pct": 45.83,
+    "edge_pct": 10.83,
+    "ink_pct": 4.44,
+    "c30_pct": 2.07
+   }
+  },
+  "colony": {
+   "L_mean": 44.9,
+   "dark_pct": 11.84,
+   "chroma_mean": 16.29,
+   "edge_pct": 9.02,
+   "ink_pct": 3.27,
+   "c30_pct": 20.33
+  },
+  "depth": {
+   "L_mean": 25.31,
+   "dark_pct": 42.11,
+   "chroma_mean": 14.09,
+   "edge_pct": 11.42,
+   "ink_pct": 4.24,
+   "c30_pct": 6.32
+  },
+  "all": {
+   "L_mean": 35.29,
+   "dark_pct": 27.96,
+   "chroma_mean": 14.57,
+   "edge_pct": 10.59,
+   "ink_pct": 3.92,
+   "c30_pct": 11.14
+  },
+  "colony_targets": [
+   false,
+   false,
+   true,
+   false,
+   true,
+   false
+  ],
+  "depth_targets": [
+   false,
+   false,
+   true
+  ],
+  "shot_hit_rate": 0.433,
+  "metrics": {
+   "C_open": 0.40259412685048945,
+   "C_fog": 0.32806330063849476,
+   "dE_ore": 31.130205017971953,
+   "dE_deut": 29.16259793572551,
+   "dark": 0.09104456018518518,
+   "blown": 0.0,
+   "ms": 40.16064760643798
+  },
+  "bench": {
+   "ms": 211.45000000001164,
+   "per": {
+    "overview": 215.87000000001862,
+    "tunnel_night": 207.03000000000466
+   }
+  },
+  "errors": []
+ },
+ "i10": {
+  "shots": {
+   "overview": {
+    "L_mean": 43.59,
+    "L_p05": 4.61,
+    "L_p50": 44.78,
+    "L_p95": 77.45,
+    "chroma_mean": 11.85,
+    "dark_pct": 19.91,
+    "edge_pct": 10.87,
+    "ink_pct": 3.87,
+    "c30_pct": 3.23
+   },
+   "meadow": {
+    "L_mean": 46.73,
+    "L_p05": 5.92,
+    "L_p50": 55.42,
+    "L_p95": 75.35,
+    "chroma_mean": 14.25,
+    "dark_pct": 21.84,
+    "edge_pct": 10.29,
+    "ink_pct": 3.34,
+    "c30_pct": 8.41
+   },
+   "tunnel_night": {
+    "L_mean": 40.23,
+    "L_p05": 11.53,
+    "L_p50": 34.66,
+    "L_p95": 76.37,
+    "chroma_mean": 13.29,
+    "dark_pct": 7.86,
+    "edge_pct": 4.98,
+    "ink_pct": 2.02,
+    "c30_pct": 14.91
+   },
+   "cave": {
+    "L_mean": 26.3,
+    "L_p05": 3.82,
+    "L_p50": 20.23,
+    "L_p95": 60.32,
+    "chroma_mean": 12.11,
+    "dark_pct": 40.14,
+    "edge_pct": 10.1,
+    "ink_pct": 3.1,
+    "c30_pct": 1.3
+   },
+   "fungal": {
+    "L_mean": 28.33,
+    "L_p05": 1.89,
+    "L_p50": 25.7,
+    "L_p95": 57.94,
+    "chroma_mean": 15.83,
+    "dark_pct": 31.54,
+    "edge_pct": 10.22,
+    "ink_pct": 2.97,
+    "c30_pct": 6.47
+   },
+   "lava": {
+    "L_mean": 33.83,
+    "L_p05": 5.0,
+    "L_p50": 24.07,
+    "L_p95": 87.37,
+    "chroma_mean": 24.19,
+    "dark_pct": 29.04,
+    "edge_pct": 4.02,
+    "ink_pct": 0.49,
+    "c30_pct": 27.44
+   },
+   "dusk": {
+    "L_mean": 35.38,
+    "L_p05": 5.36,
+    "L_p50": 32.35,
+    "L_p95": 65.46,
+    "chroma_mean": 17.61,
+    "dark_pct": 19.59,
+    "edge_pct": 9.15,
+    "ink_pct": 4.03,
+    "c30_pct": 30.2
+   },
+   "fog": {
+    "L_mean": 21.37,
+    "L_p05": 3.74,
+    "L_p50": 15.11,
+    "L_p95": 58.61,
+    "chroma_mean": 10.61,
+    "dark_pct": 49.65,
+    "edge_pct": 8.44,
+    "ink_pct": 3.37,
+    "c30_pct": 2.86
+   }
+  },
+  "colony": {
+   "L_mean": 40.78,
+   "dark_pct": 16.43,
+   "chroma_mean": 15.05,
+   "edge_pct": 8.14,
+   "ink_pct": 3.13,
+   "c30_pct": 17.84
+  },
+  "depth": {
+   "L_mean": 27.46,
+   "dark_pct": 37.59,
+   "chroma_mean": 15.68,
+   "edge_pct": 8.2,
+   "ink_pct": 2.48,
+   "c30_pct": 9.52
+  },
+  "all": {
+   "L_mean": 34.47,
+   "dark_pct": 27.45,
+   "chroma_mean": 14.97,
+   "edge_pct": 8.51,
+   "ink_pct": 2.9,
+   "c30_pct": 11.85
+  },
+  "colony_targets": [
+   false,
+   true,
+   true,
+   false,
+   true,
+   false
+  ],
+  "depth_targets": [
+   true,
+   false,
+   false
+  ],
+  "shot_hit_rate": 0.433,
+  "metrics": {
+   "C_open": 0.4284270112647311,
+   "C_fog": 0.35614260008359205,
+   "dE_ore": 28.58186312622933,
+   "dE_deut": 27.124840268661394,
+   "dark": 0.08586540316358024,
+   "blown": 0.0022277681327160493,
+   "ms": 119.58781416864443
+  },
+  "bench": {
+   "ms": 242.425,
+   "per": {
+    "overview": 240.55,
+    "tunnel_night": 244.3
+   }
+  },
+  "errors": []
+ },
+ "i13": {
+  "shots": {
+   "overview": {
+    "L_mean": 48.56,
+    "L_p05": 7.2,
+    "L_p50": 54.62,
+    "L_p95": 77.05,
+    "chroma_mean": 13.45,
+    "dark_pct": 11.78,
+    "edge_pct": 13.94,
+    "ink_pct": 3.79,
+    "c30_pct": 6.62
+   },
+   "meadow": {
+    "L_mean": 51.84,
+    "L_p05": 16.03,
+    "L_p50": 58.03,
+    "L_p95": 75.34,
+    "chroma_mean": 17.07,
+    "dark_pct": 4.16,
+    "edge_pct": 3.63,
+    "ink_pct": 0.96,
+    "c30_pct": 12.7
+   },
+   "tunnel_night": {
+    "L_mean": 46.1,
+    "L_p05": 20.09,
+    "L_p50": 46.68,
+    "L_p95": 68.77,
+    "chroma_mean": 18.0,
+    "dark_pct": 3.14,
+    "edge_pct": 6.68,
+    "ink_pct": 1.87,
+    "c30_pct": 18.41
+   },
+   "cave": {
+    "L_mean": 28.04,
+    "L_p05": 7.28,
+    "L_p50": 27.38,
+    "L_p95": 49.81,
+    "chroma_mean": 15.2,
+    "dark_pct": 12.53,
+    "edge_pct": 13.02,
+    "ink_pct": 4.11,
+    "c30_pct": 13.08
+   },
+   "fungal": {
+    "L_mean": 30.88,
+    "L_p05": 5.16,
+    "L_p50": 30.66,
+    "L_p95": 58.88,
+    "chroma_mean": 19.76,
+    "dark_pct": 17.4,
+    "edge_pct": 14.73,
+    "ink_pct": 3.97,
+    "c30_pct": 22.87
+   },
+   "lava": {
+    "L_mean": 40.85,
+    "L_p05": 10.52,
+    "L_p50": 34.98,
+    "L_p95": 87.72,
+    "chroma_mean": 27.18,
+    "dark_pct": 9.93,
+    "edge_pct": 7.74,
+    "ink_pct": 1.5,
+    "c30_pct": 28.54
+   },
+   "dusk": {
+    "L_mean": 42.87,
+    "L_p05": 11.17,
+    "L_p50": 46.69,
+    "L_p95": 63.35,
+    "chroma_mean": 20.46,
+    "dark_pct": 7.15,
+    "edge_pct": 10.16,
+    "ink_pct": 3.23,
+    "c30_pct": 34.7
+   },
+   "fog": {
+    "L_mean": 26.84,
+    "L_p05": 4.31,
+    "L_p50": 20.84,
+    "L_p95": 64.87,
+    "chroma_mean": 11.73,
+    "dark_pct": 40.94,
+    "edge_pct": 12.31,
+    "ink_pct": 3.31,
+    "c30_pct": 7.4
+   }
+  },
+  "colony": {
+   "L_mean": 46.94,
+   "dark_pct": 4.82,
+   "chroma_mean": 18.51,
+   "edge_pct": 6.82,
+   "ink_pct": 2.02,
+   "c30_pct": 21.94
+  },
+  "depth": {
+   "L_mean": 31.65,
+   "dark_pct": 20.2,
+   "chroma_mean": 18.47,
+   "edge_pct": 11.95,
+   "ink_pct": 3.22,
+   "c30_pct": 17.97
+  },
+  "all": {
+   "L_mean": 39.5,
+   "dark_pct": 13.38,
+   "chroma_mean": 17.86,
+   "edge_pct": 10.28,
+   "ink_pct": 2.84,
+   "c30_pct": 18.04
+  },
+  "colony_targets": [
+   false,
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
+  "depth_targets": [
+   true,
+   true,
+   true
+  ],
+  "shot_hit_rate": 0.433,
+  "metrics": {
+   "C_open": 0.12563031194435978,
+   "C_fog": 0.5159588706316812,
+   "dE_ore": 28.519983736968648,
+   "dE_deut": 26.69123095336331,
+   "dark": 0.04091748649691358,
+   "blown": 0.0025930748456790124,
+   "ms": 50.72145818198679
+  },
+  "bench": {
+   "ms": 221.36999999999534,
+   "per": {
+    "overview": 211.2,
+    "tunnel_night": 231.5399999999907
+   }
+  },
+  "errors": []
+ },
+ "i12": {
+  "shots": {
+   "overview": {
+    "L_mean": 42.19,
+    "L_p05": 4.11,
+    "L_p50": 41.61,
+    "L_p95": 77.25,
+    "chroma_mean": 9.91,
+    "dark_pct": 23.71,
+    "edge_pct": 8.61,
+    "ink_pct": 3.38,
+    "c30_pct": 2.25
+   },
+   "meadow": {
+    "L_mean": 49.75,
+    "L_p05": 5.21,
+    "L_p50": 59.77,
+    "L_p95": 75.34,
+    "chroma_mean": 13.01,
+    "dark_pct": 18.91,
+    "edge_pct": 3.27,
+    "ink_pct": 0.78,
+    "c30_pct": 9.74
+   },
+   "tunnel_night": {
+    "L_mean": 36.84,
+    "L_p05": 9.16,
+    "L_p50": 31.92,
+    "L_p95": 71.8,
+    "chroma_mean": 10.81,
+    "dark_pct": 12.19,
+    "edge_pct": 4.83,
+    "ink_pct": 2.03,
+    "c30_pct": 7.64
+   },
+   "cave": {
+    "L_mean": 20.58,
+    "L_p05": 2.58,
+    "L_p50": 16.13,
+    "L_p95": 48.35,
+    "chroma_mean": 7.45,
+    "dark_pct": 48.09,
+    "edge_pct": 7.76,
+    "ink_pct": 2.27,
+    "c30_pct": 1.19
+   },
+   "fungal": {
+    "L_mean": 25.44,
+    "L_p05": 1.74,
+    "L_p50": 22.89,
+    "L_p95": 55.71,
+    "chroma_mean": 12.99,
+    "dark_pct": 34.96,
+    "edge_pct": 7.5,
+    "ink_pct": 1.96,
+    "c30_pct": 2.19
+   },
+   "lava": {
+    "L_mean": 35.62,
+    "L_p05": 4.58,
+    "L_p50": 25.95,
+    "L_p95": 88.98,
+    "chroma_mean": 23.68,
+    "dark_pct": 28.47,
+    "edge_pct": 2.82,
+    "ink_pct": 0.22,
+    "c30_pct": 30.83
+   },
+   "dusk": {
+    "L_mean": 34.05,
+    "L_p05": 4.77,
+    "L_p50": 29.02,
+    "L_p95": 63.48,
+    "chroma_mean": 16.22,
+    "dark_pct": 21.8,
+    "edge_pct": 6.38,
+    "ink_pct": 2.94,
+    "c30_pct": 29.62
+   },
+   "fog": {
+    "L_mean": 19.47,
+    "L_p05": 3.63,
+    "L_p50": 14.08,
+    "L_p95": 58.61,
+    "chroma_mean": 9.52,
+    "dark_pct": 52.67,
+    "edge_pct": 6.1,
+    "ink_pct": 2.99,
+    "c30_pct": 0.87
+   }
+  },
+  "colony": {
+   "L_mean": 40.21,
+   "dark_pct": 17.63,
+   "chroma_mean": 13.35,
+   "edge_pct": 4.83,
+   "ink_pct": 1.92,
+   "c30_pct": 15.67
+  },
+  "depth": {
+   "L_mean": 25.28,
+   "dark_pct": 41.05,
+   "chroma_mean": 13.41,
+   "edge_pct": 6.04,
+   "ink_pct": 1.86,
+   "c30_pct": 8.77
+  },
+  "all": {
+   "L_mean": 32.99,
+   "dark_pct": 30.1,
+   "chroma_mean": 12.95,
+   "edge_pct": 5.91,
+   "ink_pct": 2.07,
+   "c30_pct": 10.54
+  },
+  "colony_targets": [
+   false,
+   true,
+   true,
+   false,
+   false,
+   false
+  ],
+  "depth_targets": [
+   false,
+   false,
+   false
+  ],
+  "shot_hit_rate": 0.267,
+  "metrics": {
+   "C_open": 0.4322836517316893,
+   "C_fog": 0.26301288267312906,
+   "dE_ore": 26.938755600065623,
+   "dE_deut": 25.20480857372625,
+   "dark": 0.10833912037037037,
+   "blown": 0.003755545910493827,
+   "ms": 45.73456634603704
+  },
+  "bench": {
+   "ms": 222.925,
+   "per": {
+    "overview": 224.81999999999533,
+    "tunnel_night": 221.03000000000466
+   }
+  },
+  "errors": []
+ }
+}

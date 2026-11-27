@@ -341,3 +341,50 @@ Wnioski z tej partii: plan wartości (L02–L11) spełnia spadek plam i trzyma k
 traci „pro” blask R2B. Kadr robi się chłodny i szary. Bloom mipmapowy z maską jasności (L01, pierwsze L12/L13)
 jest ciemniejszy od UnrealBlooma i gasi mgiełkę nad ciemną skałą, bo maska jasności bierze ciemną skałę za kreskę.
 **Właściciel wybrał L00** („wygląda najciekawiej”): pozostałe warianty L02–L11 są zamknięte, wyniki zostają tutaj.
+
+### Rodzina L00 (hybrydy po wyborze właściciela)
+Hybrydy działają w tym samym łańcuchu co L00 (UnrealBloom, gradacja, ACES), więc na pierwszy rzut oka wyglądają
+jak L00. Dochodzą tylko dwa tanie przebiegi (`InkCapturePass` i `InkOverPass` w `src/render/ink.ts`):
+1. Shader terenu, obrysy skorup i granica nieznanego zapisują w kanale alfa sceny pokrycie tuszem (1 − 0,5·tusz).
+   Powietrze i płyny mieszają kolor, ale zachowują alfę.
+2. Przed bloomem obraz jest kopiowany. Po bloomie piksele tuszu, łącznie z wygładzonymi brzegami, wracają
+   do koloru sprzed blasku.
+
+Wszystko poza kreską zostaje pikselowo jak w L00. Rendery R2B i L00 pochodzą z tego samego snapshotu co hybrydy
+(z zagęszczoną izbą), więc liczby różnią się trochę od pierwszej partii.
+
+| wariant | L* | czerń<15 % | czerń<6 % | kraw. % | kreska % | spadek plamy | **przeżywalność** | **ΔE do L00** | **ΔL\* do L00** | C_open | dE_ore |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| R2B | 47,9 | 20,9 | 22,2 | 0,3 | 0,0 | 13,5 | 0,55 | 18,1 | +13,2 | 0,452 | 24,3 |
+| **L00 R2B 1:1** | 34,7 | **39,7** | 28,1 | 1,8 | 0,4 | 17,5 | **0,30** | 0 | 0 | 0,614 | 27,8 |
+| L12 L00 + kreska nad bloomem | 33,1 | 42,5 | 30,2 | 7,3 | 2,4 | 16,8 | 0,52 | 4,8 | −1,6 | 0,629 | 26,5 |
+| L13 L12 + żar lawy | 35,2 | 40,4 | 28,5 | 7,8 | 2,4 | 17,0 | 0,54 | 6,8 | +0,6 | 0,613 | 25,9 |
+| L14 L00 + kreska 60% | 32,7 | 42,5 | 28,3 | 4,3 | 0,7 | 17,1 | 0,47 | 5,2 | −1,9 | 0,627 | 26,9 |
+| L15 L12 + jaśniejszy ambient* | 40,7 | 19,0 | 11,9 | 7,5 | 2,2 | 17,7 | 0,44 | 11,5 | +6,0 | 0,451 | 24,7 |
+
+\*L15 jest z poprzedniej wersji maski (bez brzegów linii) i nie trafił na planszę: odchodzi od wyglądu L00 (ΔE 11,5).
+
+Przeżywalność L12 per scena: tunel nocą 0,64, izba 0,55, przodek 0,57, zawał 0,67, **lawa 0,16**. Bez lawy
+średnia wynosi 0,61. Lawa zaniża wynik, bo kreskę skorupy i lustra lawy rysuje shader płynu, a on nie zapisuje
+pokrycia tuszem. To następna poprawka: płyn zapisuje alfę tuszu, a kreska pęknięć magmy też trafia do alfy.
+Dystans od L00 jest mały w scenach skały i izby (ΔE 2,8–5,8). W lawie wynosi 10–19, bo nad pomarańczową
+mgiełką pojawia się gęsta struktura skały. Tego właśnie dotyczy wybór „czyste L00 czy hybryda”.
+
+**Cena czystego L00** (do decyzji właściciela): przeżywalność kreski 0,30, w lawie i izbie prawie zero (0,00 i 0,04).
+Blask zamazuje kontur i strukturę skały. 40% kadru leży poniżej L* 15, 28% poniżej L* 6 (strażnik ≤ 25%
+niespełniony). Spadek plam 17,5 L* (cel 20). Kreska w kadrze 0,4% (cel ≥ 3%). W zamian C_open 0,61
+i dE_ore 27,8 są lepsze od R2B.
+
+![Warstwa światła dla właściciela: R2B, L00, L12, L13, L14](03-illustrated-style/r2_light_owner.jpg)
+
+## Stan rundy 2 po tym cyklu
+- **C1**: zrobione. Właściciel wybrał L00; hybrydy L12–L14 są na planszy. Decyzja „czyste L00 czy L12/L13”
+  czeka na właściciela.
+- **C2** (język skały naturalnej): kod jest gotowy (`rockInkNatural` w `src/render/ink.ts`, warianty `n0-atlas`
+  i `n1-natural`, przełącznik `rockNatural`). Metryka regularności siatki jest gotowa jako skrypt, ale nie ma
+  jeszcze przebiegu ani kalibracji. Podgląd: falujące ławice i ukośne, urwane spękania usuwają „siatkę kafelków”
+  w tunelu. `LIGHT_LEADER` trzeba przestawić na lidera z rodziny L00.
+- **Izba zagęszczona** (belki, druga rura z zaworami, regały z narzędziami, koło zębate, szlifierka, latarnie,
+  skrzynie, kocioł, 12 krasnoludów): z rysunkiem i08 krawędzie wynoszą 11%, kreska 3,6% (z L12 7%/2,4%);
+  cel 15% jeszcze nie jest osiągnięty.
+- **C3** (finaliści łączeni, plansza właściciela, ślepe kadry): nierozpoczęte; skrypt `blind.py` gotowy.

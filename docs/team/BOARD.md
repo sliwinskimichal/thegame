@@ -17,7 +17,9 @@ Statusy: `kolejka` · `w toku` · `do przeglądu` · `zrobione` · `zablokowane 
 |---|---|---|---|
 | F2-1 | Ekonomia: źródła i odpływy wszystkich zasobów i mierników (Weksel, Przebudzenie, Autorytet) | systems-designer | **zrobione** (ECONOMY.md) |
 | F2-2 | Specyfikacja generatora 2.0 jako dane + metryki (+ BUG-006: `worldH` 736 = 23 chunki × 32 = 46 klastrów × 16) + odpowiedzi na 4 pytania nawigacji | level-systems-designer | w toku (wznowione po F2-4) |
-| F2-3 | Kopanie, zawały i podpory, zadania (rdzeń symulacji) — etap 1: mutacje świata (BUG-003), kopanie, zawały | gameplay-programmer | w toku |
+| F2-3 | Rdzeń symulacji — etap 1: mutacje świata (BUG-003), kopanie, zawały i podpory | gameplay-programmer | **zrobione** (200 kopaczy 0,17 ms średnio / 0,60 ms p95 na tick; `docs/design/sim/WORLD-MUTATION.md`) |
+| F2-3b | Rdzeń symulacji — etap 2: zadania i priorytety (rezerwacje, czarna lista), krasnoludy jako agenci (nawigacja F2-4), magazyn i noszenie, determinizm + zapis/odczyt, 200 krasnoludów < 4 ms/tick, scenariusz „mała kopalnia” | gameplay-programmer | w toku |
+| F2-19 | Zatwierdzenie liczb rdzenia: rozpiętości stropów per skała, czasy ostrzeżeń (samouczek: ≥ 60 s), rumosz bez łupu, 1 blok z muru; udźwig i prędkości krasnoludów | systems-designer | kolejka (z F2-15) |
 | F2-4 | Nawigacja z grawitacją — benchmark 3 algorytmów | ai-programmer | **zrobione** (HPA\* 16×16 + kolejka planowania; 200 krasnoludów 0,29 ms mediany / 1,7 ms p95 na tick; `docs/design/ai/NAVIGATION.md`) |
 | F2-5 | HUD i sterowanie — specyfikacja + makiety do turnieju | ui-ux-designer | kolejka |
 | F2-6 | Zadania jako dane + testy kompletności | quest-designer | kolejka |
@@ -49,10 +51,10 @@ Statusy: `kolejka` · `w toku` · `do przeglądu` · `zrobione` · `zablokowane 
 |---|---|---|---|
 | BUG-001 nieznany id stylu → cichy render innego stylu; turniej nie weryfikuje | P2 | engine-graphics (lab i `tournament.mjs` — jeden właściciel, mniej przekazań) | **w toku** (etap A rundy 2) |
 | BUG-002 `frameMs` nie mierzy renderu | P2 | engine-graphics | **w toku** (etap A rundy 2; zapytania czasowe GPU lub `gl.finish()`) |
-| BUG-003 `World.fill()` psuje stan kafla | P2 (M3) | gameplay-programmer | przed startem symulacji |
+| BUG-003 `World.fill()` psuje stan kafla | P2 (M3) | gameplay-programmer | **naprawiony** (F2-3 etap 1) |
 | BUG-004 model balansu: NaN, ukryty limit 500 h, ujemna populacja | P3 | systems-designer | z F2-1 / F2-14 |
 | BUG-005 tekstura kafli pokazuje rudę przez mgłę przy `bg = 0` | P3 | engine-graphics | **w toku** (etap A rundy 2) |
-| BUG-006 `worldH` 480 vs świat 720 | P3 | level-systems-designer | start M2 |
+| BUG-006 `worldH` 480 vs świat 720 | P3 | level-systems-designer | **naprawiony** (`worldH` 736, test przełączony; F2-2) |
 | BUG-007 test palety nie łapie par mylonych w renderze | P3 | engine-graphics + concept-artist | F2-13 |
 | BUG-008 81 materiałów vs „60–80” | — | — | nie błąd (brzmienie wymagania poprawione) |
 | BUG-009 EventBus | P4 | producent | **naprawiony** |

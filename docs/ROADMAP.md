@@ -100,3 +100,10 @@ automatycznie co 5 h. Każda sesja zaczyna od pierwszego niezaznaczonego punktu.
   poprawki QA (BUG-001/002/005, `seed`) i trzy sceny tonu, potem finaliści × języki struktury skały naturalnej
   i nowa metryka regularności siatki. Równolegle: nawigacja z grawitacją (benchmark 3 algorytmów) i rdzeń
   symulacji etap 1 (mutacje świata, kopanie, zawały).
+- **2026-11-27 (dzień 3, przedpołudnie)** — Limit użycia zatrzymał cały zespół na 4 h (4 agentów naraz zużyło
+  resztę okna w ok. 40 min) — od teraz 3 agentów + rezerwa. Decyzje właściciela po rundzie 1 turnieju stylu: baza
+  **i08 „Głębia warstw”** i **powrót efektów światła z R2B** (bloom, poświata lamp i lawy) → nowy turniej warstwy
+  światła w rundzie 2. **Nawigacja z grawitacją (F2-4)**: HPA\* 16×16 + kolejka planowania; 200 krasnoludów
+  0,29 ms mediany / 1,7 ms p95 na tick. **Rdzeń symulacji, etap 1 (F2-3)**: jedna ścieżka mutacji świata z pierścieniem
+  zmian, kopanie z tierami narzędzi, naprężenia stropów, podpory i zawały, zapis/odczyt świata; BUG-003 i BUG-006
+  zamknięte; świat 224 × 736 kafli. Zewnętrzna biblioteka post-processingu usunięta (przegrała turniej nr 3).

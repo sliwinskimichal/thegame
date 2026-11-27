@@ -16,9 +16,9 @@ Statusy: `kolejka` · `w toku` · `do przeglądu` · `zrobione` · `zablokowane 
 | Id | Zadanie | Agent | Status |
 |---|---|---|---|
 | F2-1 | Ekonomia: źródła i odpływy wszystkich zasobów i mierników (Weksel, Przebudzenie, Autorytet) | systems-designer | **zrobione** (ECONOMY.md) |
-| F2-2 | Specyfikacja generatora 2.0 jako dane + metryki (+ BUG-006: propozycja `worldH` 736 = 23 chunki) | level-systems-designer | wstrzymane limitem (agent przerwany na starcie; wznowienie, gdy zwolni się miejsce — maks. 3 agentów + rezerwa) |
+| F2-2 | Specyfikacja generatora 2.0 jako dane + metryki (+ BUG-006: `worldH` 736 = 23 chunki × 32 = 46 klastrów × 16) + odpowiedzi na 4 pytania nawigacji | level-systems-designer | w toku (wznowione po F2-4) |
 | F2-3 | Kopanie, zawały i podpory, zadania (rdzeń symulacji) — etap 1: mutacje świata (BUG-003), kopanie, zawały | gameplay-programmer | w toku |
-| F2-4 | Nawigacja z grawitacją — benchmark 3 algorytmów | ai-programmer | w toku (start wcześniej — niezależne od sztuki) |
+| F2-4 | Nawigacja z grawitacją — benchmark 3 algorytmów | ai-programmer | **zrobione** (HPA\* 16×16 + kolejka planowania; 200 krasnoludów 0,29 ms mediany / 1,7 ms p95 na tick; `docs/design/ai/NAVIGATION.md`) |
 | F2-5 | HUD i sterowanie — specyfikacja + makiety do turnieju | ui-ux-designer | kolejka |
 | F2-6 | Zadania jako dane + testy kompletności | quest-designer | kolejka |
 | F2-7 | Teksty samouczka (król Gostomir) i Krążków Pamięci | narrative-writer | kolejka |
@@ -30,6 +30,7 @@ Statusy: `kolejka` · `w toku` · `do przeglądu` · `zrobione` · `zablokowane 
 | F2-14 | 7 ostrzeżeń walidatora (moc pieca vs receptury kobaltu, tiery `feast_platter`/`heart_key`, `copper_rod` light 0, trofeum `guardian_sigil` bez badania, `gas_masks` odsłaniane w T3) — decyzja i poprawka danych | systems-designer | kolejka (z F2-1) |
 | F2-15 | Wdrożenie ekonomii w danych: wytrzymałość i naprawa/przetop 62 przedmiotów, `src/content/economy.ts` (Weksel: 5 rat/rok), paliwo i utrzymanie, ceny wyrobów, krzywa ksiąg 6,2/1,31; poprawka 7 ostrzeżeń walidatora; Monte Carlo w `tests/balance.test.ts`; potem `--strict` w CI | systems-designer | kolejka |
 | F2-16 | Czarne złoto jako surowiec (dane + lore + walidator) | systems-designer + lead-narrative-designer | kolejka |
+| F2-18 | Percepcja i decyzje AI (`src/sim/ai/`): wzrok i słuch po kaflach, użyteczność z histerezą, taktyka najazdu — na stosie nawigacji F2-4 | ai-programmer | kolejka (po rdzeniu zadań F2-3) |
 | F2-17 | Granitowe Korzenie przeciążone (7,5 h vs 6 h) — korekta treści/kosztów | systems-designer + level-systems-designer | kolejka |
 | F2-13 | Kalibracja materiałów pod kreskę: galeria biomów ponownie, `tests/palette.test.ts` pod styl ilustrowany | engine-graphics + concept-artist | kolejka (po M1) |
 

@@ -166,3 +166,31 @@ describe('crowd renderer', () => {
     r.dispose();
   });
 });
+
+describe('materials: tone data and metric encodings', () => {
+  it('parses tone overrides and refuses unknown names', async () => {
+    const { toneFromParams, DEFAULT_TONE, decodeSlot, SLOT_LAMP } = await import('../../../src/render/characters/render/materials');
+    const t = toneFromParams(new URLSearchParams('tone.knee=0.7&tone.core=1,2&x=1'), DEFAULT_TONE);
+    expect(t.knee).toBe(0.7);
+    expect(t.core).toEqual([1, 2]);
+    expect(DEFAULT_TONE.knee).toBe(0);
+    expect(() => toneFromParams(new URLSearchParams('tone.nope=1'))).toThrow();
+    expect(() => toneFromParams(new URLSearchParams('tone.knee=abc'))).toThrow();
+    // slot ids survive 8-bit storage: (id + 1) * 32 / 255
+    for (let id = 0; id <= SLOT_LAMP; id++) expect(decodeSlot(Math.round(((id + 1) * 32) / 255 * 255))).toBe(id);
+    expect(decodeSlot(0)).toBe(-1);
+  });
+  it('crowd meshes draw after the style air sheet and write opaque output', () => {
+    const r = new CrowdRenderer({ style: neutralStyleUniforms(960, 540), forceLod: 1, cull: false });
+    r.sync(members(templates('welded'), 4), camera(), 540);
+    const meshes = r.group.children.filter((c) => (c as THREE.Mesh).isMesh && c.visible) as THREE.Mesh[];
+    expect(meshes.length).toBe(8);
+    for (const m of meshes) {
+      expect(m.renderOrder).toBeGreaterThan(5); // air sheet: renderOrder 5
+      const mat = m.material as THREE.ShaderMaterial;
+      expect(mat.transparent).toBe(true);
+      expect(mat.blending).toBe(THREE.NoBlending);
+    }
+    r.dispose();
+  });
+});

@@ -118,6 +118,32 @@ describe('cycles: seams and determinism', () => {
     expect(run()).toEqual(run());
   });
 
+  it('pose() is a pure function: pose(A) -> pose(B) -> pose(A) and fresh == used animator, bitwise', () => {
+    const rig = makeRig('hajer', 9);
+    const A = baseInput(40.7, -12);
+    A.workX = 41.7 + 0.5;
+    A.workY = -11.5;
+    const B = baseInput(3.2, -4);
+    B.facing = -1;
+    B.carry = CARRY.HANDS;
+    for (const clip of ['dig', 'walk', 'climb', 'idle', 'carry', 'build']) {
+      const used = createAnimator(rig, { viewYawDeg: 40 });
+      // dirty it with the state machine first
+      const run = baseInput(10.5, -2);
+      run.sim = SIM.WORK;
+      run.work = 1;
+      for (let i = 0; i < 40; i++) used.update(run, 1 / 60, i === 0 ? [{ type: 'caveInWarning', x: 0, y: 0, seconds: 3 }] : undefined);
+      used.pose(clip, 0.3, A);
+      const first = [Array.from(used.bones), Array.from(used.placement)];
+      used.pose(clip, 0.7, B);
+      used.pose(clip, 0.3, A);
+      expect([Array.from(used.bones), Array.from(used.placement)], clip).toEqual(first);
+      const fresh = createAnimator(rig, { viewYawDeg: 40 });
+      fresh.pose(clip, 0.3, A);
+      expect([Array.from(fresh.bones), Array.from(fresh.placement)], clip).toEqual(first);
+    }
+  });
+
   it('pose() is deterministic and rejects unknown clips', () => {
     const a = createAnimator(rig, { viewYawDeg: 40 });
     const b = createAnimator(rig, { viewYawDeg: 40 });
@@ -231,8 +257,8 @@ describe.runIf(!!process.env.ANIM_BENCH)('benchmark', () => {
     const out = join(dir, 'bench.mjs');
     const entry = fileURLToPath(new URL('./bench.entry.ts', import.meta.url));
     execFileSync(process.execPath, [join(dirname(require.resolve('rolldown/package.json')), 'bin', 'cli.mjs'), entry, '--file', out, '--format', 'esm', '--platform', 'node'], { stdio: 'pipe' });
-    const res = JSON.parse(execFileSync(process.execPath, [out], { encoding: 'utf8' }).trim().split('\n').pop()!) as { median: number; runs: number[] };
-    console.log(`[bench] 200 dwarves (bundled, Node ${process.version}): median ${res.median.toFixed(3)} ms; runs ${res.runs.map((r) => r.toFixed(3)).join(' / ')}`);
+    const res = JSON.parse(execFileSync(process.execPath, [out], { encoding: 'utf8' }).trim().split('\n').pop()!) as { median: number; runs: number[]; lod2: number };
+    console.log(`[bench] 200 dwarves (bundled, Node ${process.version}): median ${res.median.toFixed(3)} ms; runs ${res.runs.map((r) => r.toFixed(3)).join(' / ')}; animation LOD 2: ${res.lod2.toFixed(3)} ms`);
     expect(res.median).toBeLessThan(1.5);
   }, 60000);
 });

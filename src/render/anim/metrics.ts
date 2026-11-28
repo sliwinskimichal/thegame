@@ -120,28 +120,28 @@ export function pinnedIsToe(a: Animator, s: number): boolean {
 
 const SEAM_CLIPS = ['idle', 'walk', 'jog', 'carry', 'flee', 'dig', 'build', 'climb', 'stunned'];
 
-/** Largest seam discontinuity over the looping clips (world tiles). */
-export function seamJump(rig: RigInput, worldPerModel = CHARACTER_SCALE.worldPerModel): { max: number; byClip: Record<string, number> } {
+/**
+ * Seam quality of the looping clips (world tiles). For every bone the "excess" of a 60 Hz step is
+ * the step minus the mean of its two neighbours (second difference: 0 for uniform motion, large for
+ * a jump — but also large for any genuinely fast move). seamJump = how much the step across the seam
+ * exceeds the sharpest step anywhere else in the same cycle, so a seamless cycle scores 0 however
+ * fast its limbs move; `seamRaw` keeps the plain seam excess for reference.
+ */
+export function seamJump(rig: RigInput, worldPerModel = CHARACTER_SCALE.worldPerModel): { max: number; byClip: Record<string, number>; seamRaw: Record<string, number> } {
   const r = new Rig(rig);
   const d = rigData(rig);
   const pose = new AnimPose();
   const ctx: AnimCtx = { rig, speed: 0, carry: CARRY.NONE, aimX: 1 / worldPerModel, aimY: 0.5 / worldPerModel, probe: null, viewYaw: 0.7, danger: 0, time: 0, worldPerModel };
   const byClip: Record<string, number> = {};
+  const seamRaw: Record<string, number> = {};
   let max = 0;
   const P = [new Float64Array(BONE_COUNT * 3), new Float64Array(BONE_COUNT * 3), new Float64Array(BONE_COUNT * 3), new Float64Array(BONE_COUNT * 3)];
-  for (const id of SEAM_CLIPS) {
-    const clip = CLIPS[id];
-    if (!clip || !clip.loop) continue;
-    if (id === 'carry') ctx.carry = d.input.back === 'frame' ? CARRY.BACK : CARRY.HANDS;
-    else ctx.carry = CARRY.NONE;
-    const len = clip.length(ctx);
-    const v = clip.drive === 'distance' ? (id === 'jog' || id === 'flee' ? MOTION.fleeTilesPerSecond : id === 'climb' ? 1 / 0.9 : MOTION.walkTilesPerSecond) / worldPerModel : 0;
-    const dph = clip.drive === 'distance' ? v / 60 / len : 1 / 60 / len;
-    // samples at 1 - 1.5 dph, 1 - 0.5 dph | 0.5 dph, 1.5 dph (the seam between the 2nd and 3rd)
-    const phases = [1 - 1.5 * dph, 1 - 0.5 * dph, 0.5 * dph, 1.5 * dph];
+  const excessAt = (clip: (typeof CLIPS)[string], centre: number, dph: number): number => {
+    // samples at centre - 1.5, -0.5, +0.5, +1.5 steps (raw phases: 1 stays 1, the seam is not wrapped)
+    const phases = [centre - 1.5 * dph, centre - 0.5 * dph, centre + 0.5 * dph, centre + 1.5 * dph];
     phases.forEach((ph, i) => {
       pose.reset();
-      clip.sample(ctx, ph, pose);
+      clip!.sample(ctx, ph < 0 ? ph + 1 : ph > 1 ? ph - 1 : ph, pose);
       r.solve(pose);
       for (let b = 0; b < BONE_COUNT; b++) for (let c = 0; c < 3; c++) P[i]![b * 3 + c] = r.W[b * 16 + 12 + c]!;
     });
@@ -152,16 +152,30 @@ export function seamJump(rig: RigInput, worldPerModel = CHARACTER_SCALE.worldPer
         const before = P[1]![b * 3 + c]! - P[0]![b * 3 + c]!;
         const across = P[2]![b * 3 + c]! - P[1]![b * 3 + c]!;
         const after = P[3]![b * 3 + c]! - P[2]![b * 3 + c]!;
-        // excess of the seam step over the mean of its neighbours
         const ex = across - 0.5 * (before + after);
         e2 += ex * ex;
       }
       m = Math.max(m, Math.sqrt(e2));
     }
-    byClip[id] = m * worldPerModel;
-    max = Math.max(max, m * worldPerModel);
+    return m;
+  };
+  for (const id of SEAM_CLIPS) {
+    const clip = CLIPS[id];
+    if (!clip || !clip.loop) continue;
+    ctx.carry = id === 'carry' ? (d.input.back === 'frame' ? CARRY.BACK : CARRY.HANDS) : CARRY.NONE;
+    const len = clip.length(ctx);
+    const v = clip.drive === 'distance' ? (id === 'jog' || id === 'flee' ? MOTION.fleeTilesPerSecond : id === 'climb' ? 1 / 0.9 : MOTION.walkTilesPerSecond) / worldPerModel : 0;
+    const dph = clip.drive === 'distance' ? v / 60 / len : 1 / 60 / len;
+    // the seam: samples straddle phase 1 -> 0 (centre 0 with the negative phases mapped to 1 - x)
+    const seam = excessAt(clip, 0, dph);
+    let other = 0;
+    const N = Math.max(24, Math.ceil(1 / dph));
+    for (let i = 1; i < N; i++) other = Math.max(other, excessAt(clip, i / N, dph));
+    seamRaw[id] = seam * worldPerModel;
+    byClip[id] = Math.max(0, seam - other) * worldPerModel;
+    max = Math.max(max, byClip[id]!);
   }
-  return { max, byClip };
+  return { max, byClip, seamRaw };
 }
 
 /** AnimMetrics for the lab (W3) and the tournament. */

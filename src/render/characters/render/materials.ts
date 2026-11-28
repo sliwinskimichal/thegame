@@ -473,8 +473,8 @@ export function dwarfHullMaterial(style: Uniforms, d: DwarfUniforms, px: number,
 export function neutralStyleUniforms(width: number, height: number): Uniforms {
   const white = new THREE.DataTexture(new Uint8Array([255, 255, 255, 255]), 1, 1, THREE.RGBAFormat);
   white.needsUpdate = true;
-  const dyn = Array.from({ length: 12 }, () => new THREE.Vector4(0, 0, 0, 1));
-  const dynC = Array.from({ length: 12 }, () => new THREE.Vector4());
+  const dyn = Array.from({ length: MAX_DYN_LIGHTS }, () => new THREE.Vector4(0, 0, 0, 1));
+  const dynC = Array.from({ length: MAX_DYN_LIGHTS }, () => new THREE.Vector4());
   return {
     uLightTex: { value: white },
     uFogTex: { value: white },

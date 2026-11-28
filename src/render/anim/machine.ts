@@ -170,6 +170,12 @@ export class Animator implements DwarfAnimator {
   private readonly nq = new Float64Array(NOTIFY_CAP * 6);
   private nCount = 0;
   private readonly tmp = new Float64Array(8);
+  /** Animation LOD (proposal to the contract): 0 full, 1 springs every 2nd frame, 2 Okolica (24 px):
+   *  no secondary motion and the skeleton solved every 2nd frame (alternating by seed, the placement
+   *  still moves every frame), 3 culled: state machine and phases only, bones left as they were. */
+  private detail = 0;
+  private frame = 0;
+  private secDt = 0;
 
   constructor(input: RigInput, opts: AnimatorOptions) {
     this.rig = new Rig(input);
@@ -216,12 +222,20 @@ export class Animator implements DwarfAnimator {
     } else this.out.copy(this.cur);
     this.finalize(this.out);
     this.place(this.out);
-    this.floorProbe(this.out);
-    this.rig.solve(this.out);
-    const jumped = Math.abs(this.wx - this.prevWx) > 0.5 || Math.abs(this.wy - this.prevWy) > 0.5;
-    if (jumped || this.state === AS.HIDDEN) this.sec.reset();
-    else this.sec.step(this.placement, this.out, dt);
-    this.rig.write(this.bones);
+    this.frame++;
+    const halfRate = this.detail === 2 && ((this.frame + (this.d.input.seed & 1)) & 1) === 1;
+    if (this.detail < 3 && !halfRate) {
+      this.floorProbe(this.out);
+      this.rig.solve(this.out);
+      const jumped = Math.abs(this.wx - this.prevWx) > 0.5 || Math.abs(this.wy - this.prevWy) > 0.5;
+      if (jumped || this.state === AS.HIDDEN || this.detail >= 2) this.sec.reset();
+      else if (this.detail === 1 && (this.frame & 1) === 1) this.secDt += dt; // springs at half rate
+      else {
+        this.sec.step(this.placement, this.out, dt + this.secDt);
+        this.secDt = 0;
+      }
+      this.rig.write(this.bones);
+    }
     this.fireNotifies(dt);
     this.prevPhase = this.phase;
   }
@@ -232,10 +246,19 @@ export class Animator implements DwarfAnimator {
     this.clip = clip;
     this.state = input.sim === SIM.BURIED || input.sim === SIM.DEAD ? AS.HIDDEN : (CLIP_STATE[clipId] ?? AS.IDLE);
     this.drive = clip.drive === 'distance' ? (clipId === 'climb' ? DRIVE.LATTICE : DRIVE.DIST) : DRIVE.TIME;
+    // pose() is a pure function of (rig, options, clipId, phase, input): reset everything the state
+    // machine may have left behind (root position, speed, timers, latches, springs)
     this.facing = input.facing;
     this.sx = input.facing;
     this.turnT = 1;
     this.blendT = this.blendDur = 0;
+    this.wx = this.prevWx = input.x;
+    this.wy = this.prevWy = input.y;
+    this.speed = 0;
+    this.landRows = input.edge ? input.edge.rows : 0;
+    this.landT = this.lookT = this.pickT = -1;
+    this.stunT = 0;
+    this.nCount = 0;
     this.fillCtx(input);
     const ctx = this.ctx;
     ctx.speed = 0; // every clip uses its default speed in lab poses
@@ -339,6 +362,12 @@ export class Animator implements DwarfAnimator {
     out[o] = m[0]! * x + m[4]! * y + m[8]! * z + m[12]!;
     out[o + 1] = m[1]! * x + m[5]! * y + m[9]! * z + m[13]!;
     out[o + 2] = m[2]! * x + m[6]! * y + m[10]! * z + m[14]!;
+  }
+
+  /** Animation LOD: see `detail`. Cheap to switch every frame (the renderer knows the zoom). */
+  setDetail(level: 0 | 1 | 2 | 3): void {
+    if (level >= 2 && this.detail < 2) this.sec.reset();
+    this.detail = level;
   }
 
   get clipId(): string {

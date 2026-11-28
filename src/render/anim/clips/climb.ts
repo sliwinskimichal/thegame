@@ -4,10 +4,11 @@
  * or foot sits EXACTLY on a world rung in every phase (going up or down; down just plays backward).
  *
  * Four-beat gait repeated twice per cycle (one rung per limb move: with legs of ~0.22 a two-rung
- * step would be higher than the leg). Each limb moves for 30% of a half-cycle, holds 70%:
- *   right hand 0.000–0.150 · right foot 0.125–0.275 · left hand 0.250–0.400 · left foot 0.375–0.525
- *   (+0.5 for the second beat). RUNG_GRAB when a hand lands (0.15 / 0.65 right, 0.40 / 0.90 left),
- *   FOOT_DOWN when a foot lands (0.275 / 0.775 right, 0.025 / 0.525 left).
+ * step would be higher than the leg). Each limb moves for 60% of a half-cycle and holds 40%, so a
+ * hand and the opposite foot travel partly together (readable at 900 ms/row: ~8 frames per move):
+ *   right hand 0.000–0.300 · right foot 0.125–0.425 · left hand 0.250–0.550 · left foot 0.375–0.675
+ *   (+0.5 for the second beat). RUNG_GRAB when a hand lands (0.30 / 0.80 right, 0.55 / 0.05 left),
+ *   FOOT_DOWN when a foot lands (0.425 / 0.925 right, 0.675 / 0.175 left).
  * The dwarf turns its back to the camera with ~30° toward its right side (absolute yaw: the clip
  * cancels the variant's view yaw), so the headgear and the back gear read; the tools are slung on
  * the back (rig re-parenting), the beard swings aside off the ladder, the head looks up.
@@ -24,10 +25,10 @@ import { gear, rdOf, rungSpacing } from './common';
 /** Absolute yaw of the climbing body (placement Ry): forward into the wall, 30° to the right side. */
 export const CLIMB_YAW = (60 * Math.PI) / 180;
 /** One beat = half a cycle (one rung of root travel); a limb move takes 30% of it. */
-const BEAT = 0.5;
-const MOVE = 0.15;
+export const BEAT = 0.5;
+export const MOVE = 0.3;
 /** Limb schedule: start of the move (phase, first beat), side, hand? */
-const LIMBS = [
+export const LIMBS = [
   { start: 0.0, side: 1, hand: true },
   { start: 0.125, side: 1, hand: false },
   { start: 0.25, side: -1, hand: true },
@@ -84,14 +85,14 @@ export const climbClip: AnimClip = {
   loop: true,
   length: (ctx) => 2 * rungSpacing(ctx),
   notifies: [
-    { phase: 0.15, kind: NOTIFY.RUNG_GRAB, side: 0 },
-    { phase: 0.275, kind: NOTIFY.FOOT_DOWN, side: 0 },
-    { phase: 0.4, kind: NOTIFY.RUNG_GRAB, side: 1 },
-    { phase: 0.525, kind: NOTIFY.FOOT_DOWN, side: 1 },
-    { phase: 0.65, kind: NOTIFY.RUNG_GRAB, side: 0 },
-    { phase: 0.775, kind: NOTIFY.FOOT_DOWN, side: 0 },
-    { phase: 0.9, kind: NOTIFY.RUNG_GRAB, side: 1 },
-    { phase: 0.025, kind: NOTIFY.FOOT_DOWN, side: 1 },
+    { phase: 0.3, kind: NOTIFY.RUNG_GRAB, side: 0 },
+    { phase: 0.425, kind: NOTIFY.FOOT_DOWN, side: 0 },
+    { phase: 0.55, kind: NOTIFY.RUNG_GRAB, side: 1 },
+    { phase: 0.675, kind: NOTIFY.FOOT_DOWN, side: 1 },
+    { phase: 0.8, kind: NOTIFY.RUNG_GRAB, side: 0 },
+    { phase: 0.925, kind: NOTIFY.FOOT_DOWN, side: 0 },
+    { phase: 0.05, kind: NOTIFY.RUNG_GRAB, side: 1 },
+    { phase: 0.175, kind: NOTIFY.FOOT_DOWN, side: 1 },
   ],
   cancel: [[0, 1]],
   sample(ctx: ClipContext, phase: number, out: PoseFrame): void {
@@ -123,20 +124,24 @@ export const climbClip: AnimClip = {
       const L = LIMBS[i]!;
       const h = limbHeight(L.hand ? handT : footT, sp, L.start, ph, st);
       const moving = st[0] === 1;
-      const away = moving ? Math.sin(Math.PI * st[1]!) : 0;
+      // pull away from the ladder while moving (zero velocity at both ends: no kink at landing)
+      const away = moving ? 0.5 - 0.5 * Math.cos(2 * Math.PI * st[1]!) : 0;
       if (L.hand) {
         const z = L.side * 0.68 * d.shoulderZ;
-        const x = planeX(d, z) - 0.015 * u - 0.07 * u * away;
+        const x0 = planeX(d, z) - 0.015 * u;
+        const x = x0 - 0.07 * u * away;
         setIK(out, L.side > 0 ? IK.HAND_R : IK.HAND_L, x, h + 0.012 * u, z, 1.25 + 0.4 * away, 1);
-        wxSum += x * cy + z * sy;
+        // centring uses the rest positions on the ladder (a constant: the body must not drift)
+        wxSum += x0 * cy + z * sy;
       } else {
         // in the squared hip frame the ladder plane is x = D; the arch of the boot on the rung,
         // the ankle ~0.05 behind and above it; rotated back into root space (Ry(HIP_TURN))
-        const xp = D - 0.05 * lu - 0.06 * lu * away;
+        const xp0 = D - 0.05 * lu;
+        const xp = xp0 - 0.06 * lu * away;
         const zp = L.side * 0.12 * lu;
         const x = xp * ch + zp * shh;
         const z = -xp * shh + zp * ch;
-        wxSum += x * cy + z * sy;
+        wxSum += (xp0 * ch + zp * shh) * cy + (-xp0 * shh + zp * ch) * sy;
         const y = h + d.ankleY + 0.012 * lu + 0.03 * lu * away;
         setIK(out, L.side > 0 ? IK.FOOT_R : IK.FOOT_L, x, y, z, -0.12 - 0.25 * away, 1);
         r[(L.side > 0 ? BONE.FOOT_R : BONE.FOOT_L) * 3 + 1] = HIP_TURN;

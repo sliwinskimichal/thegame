@@ -40,4 +40,14 @@ for (let r = 0; r < 3; r++) {
   runs.push(ts[ts.length >> 1]!);
 }
 runs.sort((a, b) => a - b);
-console.log(JSON.stringify({ median: runs[1], runs }));
+// the same crowd at animation LOD 2 (Okolica: no secondary motion)
+for (const a of anims) a.setDetail(2);
+for (let f = 0; f < 120; f++) frame(f);
+const ts2: number[] = [];
+for (let f = 0; f < 300; f++) {
+  const t0 = performance.now();
+  frame(f);
+  ts2.push(performance.now() - t0);
+}
+ts2.sort((a, b) => a - b);
+console.log(JSON.stringify({ median: runs[1], runs, lod2: ts2[ts2.length >> 1] }));

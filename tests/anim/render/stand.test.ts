@@ -152,3 +152,39 @@ describe('shot list', () => {
     expect(JSON.stringify(buildShots(buildStandWorld(7).layout))).toBe(JSON.stringify(shots));
   });
 });
+
+describe('stand lighting and dressing (E1 review)', () => {
+  const stand = buildStandWorld(7);
+  const light = new LightField(stand.world.w, stand.world.h);
+  light.compute(stand.world);
+  const at = (x: number, y: number) => {
+    const i = Math.floor(-y) * stand.world.w + Math.floor(x);
+    return [light.r[i]!, light.g[i]!, light.b[i]!];
+  };
+  it('every dwarf of a strip and every ladder gets identical light (torch per dwarf, same offset)', () => {
+    const L = stand.layout;
+    for (const floor of L.strips.floors) {
+      const ref = at(L.strips.xs[0]!, floor + 0.8);
+      for (const x of L.strips.xs) expect(at(x, floor + 0.8)).toEqual(ref);
+    }
+    const midY = (L.climb.floorY + L.climb.topY) / 2;
+    const ref = at(L.climb.ladders[0]!, midY);
+    for (const x of L.climb.ladders) expect(at(x, midY)).toEqual(ref);
+  });
+  it('torches are sparse: drifts and the network ~7 tiles apart, the hall has 3', () => {
+    const torches = stand.world.props.filter((p) => p.type === 13);
+    const hall = torches.filter((p) => p.x >= stand.layout.izba.x0 && p.x <= stand.layout.izba.x1);
+    expect(hall.length).toBe(3);
+    const row0 = stand.layout.net.tunnels[0]!;
+    const net = torches.filter((p) => p.x > row0.x0 && p.x < row0.x1 && Math.abs(p.y - (row0.floorY + 1.7)) < 0.6).map((p) => p.x).sort((a, b) => a - b);
+    for (let k = 1; k < net.length; k++) expect(net[k]! - net[k - 1]!).toBeGreaterThanOrEqual(6);
+  });
+  it('hall furniture stands fully behind the figures (no prop cuts a hull)', () => {
+    // the line-up of the izba shot (torch ± 3 tiles); the two foreground pieces stand at the hall's ends
+    const c = stand.layout.izba.torchX;
+    const behind = stand.dressing.filter((d) => Math.abs(d.x - c) < 3.2 && !['planks', 'beam'].includes(d.kind));
+    expect(behind.length).toBeGreaterThan(8);
+    for (const d of behind) expect(d.z, d.kind).toBeLessThanOrEqual(-0.84);
+    for (const d of stand.dressing.filter((x) => x.kind === 'support')) expect(d.z).toBeLessThanOrEqual(-0.84);
+  });
+});

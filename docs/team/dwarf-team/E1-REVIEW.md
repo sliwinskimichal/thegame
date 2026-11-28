@@ -43,3 +43,17 @@ przebieg na serwerze deweloperskim przerwało przeładowanie HMR) dla d01, d02, 
   kowal — większy obuch młota, dłuższe szczypce trzymane przed obrysem (W1 geometria, W2 poza).
 - Trójkąty po poprawkach (LOD0/1/2, maks. z ról): d01 3906/376/60 · d02 4738/384/60 · d03 1670/376/60 ·
   d04 3532/380/60 · d05 4700/376/60 · d06 4489/380/60 · d07 = d01 · d08 5198/376/60 · d09–d12 ~3970/376/60.
+
+## Weryfikacja poprawek W3 (zamrożony build, d01 / d04, lightgain 0,5)
+- Przyjęte: światło stanowiska jak w scenach tonu (izba 3 źródła, tunele co ~7 kafli, w paskach pochodnia
+  przy każdym krasnoludzie z tym samym przesunięciem); materiał `DWARF_TONE` (barwa lampy na postaci odbarwiona
+  w 65%, kolano jasności, własna lampka 10%); obrys ciągły 4 px (przyczyna: arkusz świecącego powietrza stylu
+  przed postaciami i meble przecinające bryły — postacie rysowane po powietrzu, izba głębsza).
+- Liczby: izba ΔL\* −22/−16/−18/−10 (d01) i −25/−20/−22/−10 (d04), tło 41–55, strój 20–34, twarz 56–64,
+  lampka 96–98, **C\* > 30: 1–4%** (było 67–88%); Gród w plamie ΔL\* −19…−25; skraj: hajer −22, tragarz +3.
+- **Decyzje lidera**: (1) turniej rundy 1 na `lightgain=0,5` (tło w plamie ≈ cel biblii); przebieg kontrolny
+  finalistów na `lightgain=1` (pochodnia gry). Pochodnia L12 bieli tylną ścianę do L\* 60–85 przy celu biblii
+  44–46 — potrzeba integracji z silnikiem (engine-graphics / concept-artist). (2) `DWARF_TONE` stały w rundzie 1
+  (materiał wspólny = porównanie konstrukcji uczciwe); strojenie tonu w rundzie 2: strój 26–36 w plamie,
+  ≥ 24 w Grodzie. Pasmo biblii 30–48 kłóci się z kontrastem ≥ 15 przy tle 44–50 — rozstrzygnąć w biblii.
+- Błąd zgłoszony W2: `pose()` nie jest czystą funkcją (stan z poprzedniego wywołania zmienia placement).

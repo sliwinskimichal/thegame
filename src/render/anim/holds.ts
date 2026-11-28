@@ -149,7 +149,7 @@ function buildHolds(d: RigData): HoldSet {
     case HOLD.TWO_TOOLS:
       // hammer along the right thigh; the tongs held forward at the belt, jaws forward and a little
       // down, sticking out past the belly (the smith's silhouette; lead's review of E1)
-      walk = hold(hangTool(1, tR), tL ? tongsForward : null, 0.55);
+      walk = hold(hangTool(1, tR), tL ? tongsForward : null, 0.22);
       idle = walk;
       break;
     case HOLD.BEAM_SHOULDER:

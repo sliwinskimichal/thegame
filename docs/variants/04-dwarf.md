@@ -58,6 +58,35 @@ Każdy wariant w 4 rolach: **hajer** (hełm-kopuła z kagankiem i kitką, kilof,
 szpicem, topór, belka na barku), **tragarz** (opaska, nosidło z koszem nad barkami), **kowal** (czapa z osłoną
 karku i okularem z miki, młot i szczypce, długi fartuch z przodu).
 
+**Techniki w praktyce** (raport W1): jedna lista części (anatomia + ekwipunek ról z grupami tożsamości), techniki tylko
+interpretują kształty; LOD1 strojone ręcznie nadpisaniami części, wspólny żeton LOD2 (trapez z butami, ≤ 60 tr.),
+tułów eliptyczny (głębokość 0,74 szerokości), broda-klin z pasm przylegających do beczki tułowia.
+- d01, d09–d12: prymitywy, segmenty z obwodu elipsy, gładkie normalne.
+- d02: splajny beczki i spódnicy, głowa-jajo, nakrycia z profilu, kończyny z wybrzuszeniem, trzonki z gałką i okuciem.
+- d03: 4–6 segmentów, płaskie cieniowanie, „struganie” wierzchołków z seeda.
+- d04: profil części jako karta 0,02–0,032 w warstwach z −0,25 / 0 / +0,25; płaskie fartuchy w skrócie ~35°.
+- d05: fazowane prostopadłościany i kliny, ośmioboki z fazowanymi końcami, kule strugane w ośmiokąty.
+- d06: profil 2D wyciągnięty przez głębokość części z mocną zaokrągloną fazą.
+- d07: siatki d01 w przestrzeni kości, osobny obrys na część (instancjonowanie części).
+- d08: SDF + gładkie minimum, surface nets w łańcuchach, wagi 2 kości; tylko LOD0 (LOD1/2 jak d01).
+
+## 3a. Ruch — wspólny dla wszystkich wariantów (W2)
+
+| Klip | Sterowanie | Fazy i czasy | Notify | Okno przerwania |
+|---|---|---|---|---|
+| `idle` | czas, oddech 3–4 s | przenoszenie ciężaru, broda z opóźnieniem, odwiedzenie ud 14° (rozstaw stóp z karty) | — | zawsze |
+| `walk` / `jog` | **droga** (faza = droga / krok podwójny) | blend po prędkości: chód → trucht z fazą lotu; miednica i nogi w profilu wzdłuż ruchu, tułów ku kamerze | 2 × `FOOT_DOWN` na cykl | zawsze (kontakt stopy) |
+| `dig` | czas | **zamach 0,35 s → przytrzymanie 0,08 s → uderzenie 0,15 s → powrót 0,32 s**; narzędzie jako bryła w obu pięściach | `DIG_WINDUP`, `TOOL_SWOOSH`, `DIG_HIT` w klatce końca uderzenia, w punkcie lica kafla (błąd < 2 mm) | [trafienie, 1) i [0, 20% zamachu) |
+| `build` | czas | rytm `dig` z młotem / toporem, belka cieśli odłożona | jak `dig` | jak `dig` |
+| `climb` | **wysokość** (cykl = 2 szczeble) | każda kończyna 1 szczebel na ruch (60% taktu), biodra do drabiny, górny tułów skręcony 30° na prawy bok, narzędzia na plecach | 4 × `RUNG_GRAB` na cykl | między ruchami |
+| `carry` | warstwa | pochylenie 8°, cięższy krok, `LOAD` widoczny tylko z ładunkiem | jak `walk` | — |
+| `stunned`, `flee`, ledge, drop, land, ride | proste wersje rundy 1 | drop balistycznie, land z siłą od wysokości | `LAND` | — |
+
+Pomiary (preset A): poślizg stopy podporowej 0,005% (chód 1,1 kafla/s) i 0,003% (2,5 kafla/s), szew cykli 0, stopy i dłonie
+na szczeblach przy skalach 1,0 / 1,2 / 1,4; koszt animacji 200 krasnoludów 1,19 ms (Node, bundle), 0,68 ms przy
+`setDetail(2)` dla Okolicy. **Kadencja przy 1,1 kafla/s: skala 1,0 → 2,95 kroku/s, 1,2 → 2,61, 1,4 → 2,42**
+(karta: 2,22) — argument w rekomendacji skali (§7).
+
 ## 4. Metryki (automatyczne, `scripts/dwarf-tournament.mjs`)
 
 | Metryka | Definicja | Cel |

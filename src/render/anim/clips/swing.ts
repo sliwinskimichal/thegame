@@ -25,6 +25,7 @@ import { AnimPose, setIK } from '../pose';
 import type { RigData } from '../rigdata';
 import { BONE, IK, NOTIFY, type AnimClip, type ClipContext, type PoseFrame, type ToolInfo } from '../types';
 import { gear, plantFoot, rdOf, tileSize } from './common';
+import { scratchRig } from './idle';
 import type { StrikeClip } from './index';
 
 const T_ALL = MOTION.digWindup + MOTION.digHold + MOTION.digStrike + MOTION.digRecover;
@@ -54,6 +55,8 @@ interface Plan {
   tile: number;
   /** view yaw the plan was made for (the body turns toward the camera while working) */
   view: number;
+  /** world distance (along the facing) from the root to the strike point, before the stance shift */
+  sw: number;
   two: boolean;
   zt: number;
   dx: number;
@@ -67,7 +70,7 @@ interface Plan {
   /** shortfall of the left fist at the hit (0 = on the handle) — reported by tests */
   leftShort: number;
 }
-const newPlan = (): Plan => ({ aimX: Number.NaN, aimY: Number.NaN, tile: 0, view: 0, two: false, zt: 0, dx: 0, sx: 0, sy: 0, ready: key(), apex: key(), hold: key(), hit: key(), recoil: key(), leftShort: 0 });
+const newPlan = (): Plan => ({ aimX: Number.NaN, aimY: Number.NaN, tile: 0, view: 0, sw: 0, two: false, zt: 0, dx: 0, sx: 0, sy: 0, ready: key(), apex: key(), hold: key(), hit: key(), recoil: key(), leftShort: 0 });
 
 const MODE = { DIG: 0, BUILD: 1 } as const;
 /** a stand-in "tool" for empty hands: the fists themselves strike */
@@ -88,7 +91,10 @@ function planFor(d: RigData, ctx: ClipContext, mode: number): Plan {
     ax = tile;
     ay = 0.5 * tile;
   }
-  if (p.aimX !== ax || p.aimY !== ay || p.tile !== tile || p.view !== ctx.viewYaw) solvePlan(d, mode, Math.abs(ax), ay, tile, ctx.viewYaw, p);
+  if (p.aimX !== ax || p.aimY !== ay || p.tile !== tile || p.view !== ctx.viewYaw) {
+    solvePlan(d, mode, Math.abs(ax), ay, tile, ctx.viewYaw, p);
+    refinePlan(d, ctx, mode, p);
+  }
   return p;
 }
 
@@ -213,7 +219,7 @@ function solvePlan(d: RigData, mode: number, ax: number, ay: number, tile: numbe
           inL = inside(hit.fx - g * s2, hit.fy + g * c, zt);
         }
         const pen = inside(hit.fx, hit.fy, zt) + inL + Math.max(0, d.hipY - hit.fy);
-        const cost = 1.2 * align + (30 * oR + 12 * oL + 30 * pen + 1.5 * Math.abs(hit.fy - chestY)) / u + 0.4 * Math.abs(dx / u);
+        const cost = 1.2 * align + (80 * oR + 12 * oL + 30 * pen + 1.5 * Math.abs(hit.fy - chestY)) / u + 0.4 * Math.abs(dx / u);
         if (cost < best) {
           best = cost;
           p.dx = dx;
@@ -223,10 +229,28 @@ function solvePlan(d: RigData, mode: number, ax: number, ay: number, tile: numbe
       }
     }
   }
-  // p.sx: model x of the strike (the stance shift and the view yaw included)
-  p.sx = (sx - p.dx + p.zt * sv) / cv;
+  p.sw = sx;
   p.sy = sy;
   hit.th = bestTh;
+  p.view = view;
+  buildKeys(d, mode, p);
+  p.aimX = ax;
+  p.aimY = ay;
+  p.tile = tile;
+}
+
+/** Hit, apex, hold, ready and recoil keys from the chosen stance (p.dx, p.zt) and handle angle. */
+function buildKeys(d: RigData, mode: number, p: Plan): void {
+  const u = d.unit;
+  const t = toolOf(d);
+  const two = p.two;
+  const hit = p.hit;
+  const bestTh = hit.th;
+  const sxl = t.strike[0];
+  const syl = t.strike[1];
+  const sy = p.sy;
+  // p.sx: model x of the strike (the stance shift and the view yaw included)
+  p.sx = (p.sw - p.dx + p.zt * Math.sin(p.view)) / Math.cos(p.view);
   hit.fx = p.sx - (sxl * Math.cos(bestTh) - syl * Math.sin(bestTh));
   hit.fy = sy - (sxl * Math.sin(bestTh) + syl * Math.cos(bestTh));
   if (two) {
@@ -277,10 +301,29 @@ function solvePlan(d: RigData, mode: number, ax: number, ay: number, tile: numbe
   recoil.fx = hit.fx - 0.012 * u;
   recoil.fy = hit.fy + 0.025 * u;
   recoil.lean = hit.lean - 0.05;
-  p.view = view;
-  p.aimX = ax;
-  p.aimY = ay;
-  p.tile = tile;
+}
+
+const refinePose = new AnimPose();
+const refineTmp = new Float64Array(3);
+/**
+ * Check the plan on the real rig: sample the hit frame, solve, and move the stance toward the
+ * target by the fist's shortfall (the search uses an approximate shoulder). Runs on aim changes only.
+ */
+function refinePlan(d: RigData, ctx: ClipContext, mode: number, p: Plan): void {
+  const rig = scratchRig(d.input);
+  const cv = Math.cos(p.view);
+  for (let i = 0; i < 12; i++) {
+    refinePose.reset();
+    sampleSwing(ctx, SWING.hit, refinePose, mode);
+    rig.solve(refinePose);
+    rig.point(BONE.TOOL_R, 0, 0, 0, refineTmp, 0);
+    const ex = p.hit.fx - refineTmp[0]!;
+    const ey = p.hit.fy - refineTmp[1]!;
+    if (Math.hypot(ex, ey) < 5e-4) break;
+    // the fist falls short: bring the dwarf closer along the facing (world x = model x · cos v)
+    p.dx += ex * cv * 1.1;
+    buildKeys(d, mode, p);
+  }
 }
 
 const cur = key();
@@ -345,9 +388,10 @@ function sampleSwing(ctx: ClipContext, phase: number, out: PoseFrame, mode: numb
   r[BONE.HEAD * 3 + 1] = -k.yaw * 0.6;
   r[BONE.HEAD * 3 + 2] = k.lean * 0.6 - 0.14 * hitness;
   // staggered stance: left foot forward, back foot turned out; weight follows the pelvis
-  const z = d.hipZ + 0.05 * lu;
-  plantFoot(d, out, 1, -0.1 * lu, 0, z + 0.02 * lu, -0.45);
-  plantFoot(d, out, -1, 0.11 * lu, 0, -z, -0.12);
+  // (within the legs' reach at the deepest knee bend of the strike: no pelvis drop)
+  const z = d.hipZ + 0.03 * lu;
+  plantFoot(d, out, 1, -0.075 * lu, 0, z + 0.01 * lu, -0.45);
+  plantFoot(d, out, -1, 0.085 * lu, 0, -z, -0.12);
   // the tool as a rigid body in the fists
   const grip = p.two || d.toolR ? -GRIP_TOOL : 0;
   setIK(out, IK.HAND_R, k.fx, k.fy, p.zt, k.th + grip, 1);

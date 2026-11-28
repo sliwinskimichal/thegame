@@ -28,6 +28,11 @@ Projekt: **Underhearth** — przeglądarkowa gra o krasnoludzkiej kolonii w prze
   kluczowego surowca, ale skala i liczba zakrytych węzłów są widoczne.
 - **Balans** całości — weryfikowany symulacjami progresji (docs/BALANCE.md).
 - Treść jest danymi w `src/content/` (jedno źródło prawdy) + testy spójności grafu i minimów ilościowych.
+- **Skala: świat skaluje się do modeli, nie modele do świata** (decyzja właściciela 2026-11-28): krasnoludy (główne postacie,
+  wyraźne, bogate w detal) → ekwipunek i budowle proporcjonalne do nich → sale, biomy, rozmiar świata (więcej kafli jest OK).
+  Wymiary w kaflach są robocze do „Weryfikacji skali” po ukończeniu wszystkich modeli — nie zaszywaj ich w kodzie.
+- **Dystrybucja** (decyzja właściciela 2026-11-28): gra do pobrania — instalator Windows i macOS oraz aplikacja Android;
+  GitHub Pages tylko z samouczkiem (demo w przeglądarce). Na końcu projektu: instalator, menu główne, lokalne zapisy.
 
 ## Zespół i rola tej sesji (decyzja właściciela, 2026-11-26)
 - **Sesja główna = Senior Executive Producer / Lead Producer**: planuje fale pracy, deleguje zadania

@@ -7,7 +7,7 @@ Statusy: `kolejka` · `w toku` · `do przeglądu` · `zrobione` · `zablokowane 
 |---|---|---|---|---|---|
 | F1-1 | Wizja v1 + ocena kierunku ilustrowanego | game-director | **zrobione** (przyjęte 2026-11-26) | `docs/team/vision/VISION.md` | struktura roli (5 sekcji), tabela decyzji kierunkowych, checklista „czy pasuje?” |
 | F1-2 | Biblia sztuki v1 (styl ilustrowany 2.5D) + karty: krasnolud, Palenisko, huta, tło wnęki | concept-artist | **zrobione** (v1.1; 4 pytania do game-director) | `docs/art/ART-BIBLE.md`, `docs/art/concepts/*.md` | parametry liczbowe (kontur, wartości, HEX per biom), różnice wobec referencji |
-| F1-3 | Turniej nr 3 — styl ilustrowany | engine-graphics-programmer | runda 1 **zrobiona**; runda 2: **A (BUG-001/002/005, `seed`) zrobione**, **B sceny tonu zrobione** (izba zagęszczona: 12 krasnoludów, regały, rury, maszyny), **C1 warstwa światła zrobiona** (L00–L15; plansza `r2_light_owner.jpg`; **czeka na wybór właściciela: L00 vs L12/L13/L14**); **C2** kod gotowy, przebieg wstrzymany; **C3** nierozpoczęte — wznowienie po sprincie krasnoludów | `src/lab/*`, `src/render/*`, `docs/variants/03-illustrated-style.md` | jak wyżej + alfa tuszu w shaderze lawy; krawędzie ≥ 15% w izbie (dziś 11%) |
+| F1-3 | Turniej nr 3 — styl ilustrowany | engine-graphics-programmer | runda 1 i runda 2 A, B, C1 **zrobione**; **zwycięzca warstwy światła: L12 z lawą z L14** (wybór właściciela) — w toku: konfiguracja zwycięzcy jako dane, alfa tuszu w lawie, eksport sceny dla zespołu krasnoludów; **C2** (język skały) i **C3** (finaliści łączeni, ślepy test) po sprincie krasnoludów | `src/lab/*`, `src/render/*`, `docs/variants/03-illustrated-style.md` | jak wyżej; krawędzie ≥ 15% w izbie (dziś 11%) |
 | F1-4 | Walidator treści `content:check` + przeglądarka danych + refstats w potoku | tools-programmer | **zrobione** (0 błędów, 7 ostrzeżeń → F2-14) | `scripts/`, `src/tools/`, `tests/tools/` | komunikaty błędów testowane na zepsutych danych |
 | F1-5 | Audyt jakości repozytorium i laboratorium + plan testów M1–M3 | qa-tester | **zrobione** (10 błędów, plan testów) | `docs/qa/` | raporty BUG-NNN z krokami; macierz ryzyka |
 | F1-6 | Harmonogram M1–M4 i rejestr ryzyk | producer | kolejka | `docs/team/production/` | zależności, bufory, decyzje do podjęcia |
@@ -38,6 +38,15 @@ Statusy: `kolejka` · `w toku` · `do przeglądu` · `zrobione` · `zablokowane 
 | F2-18 | Percepcja i decyzje AI (`src/sim/ai/`): wzrok i słuch po kaflach, użyteczność z histerezą, taktyka najazdu; plus z F2-3b: `save/load` w `NavAgent`/`NavPlanner` (zamiast mostu `navsave.ts`), warstwa kar ścieżki (pękający strop), kolejność urabiania z zasięgiem i drabinami (krasnoludy wkopują się w rów bez wyjścia), indeks przestrzenny zadań; z F2-2: `testmaps.ts` i testy nav z 720 na `CONFIG.worldH`, przekrok szczeliny 1 kafla | ai-programmer | kolejka (po sprincie krasnoludów) |
 | F2-17 | Granitowe Korzenie przeciążone (7,5 h vs 6 h) — korekta treści/kosztów | systems-designer + level-systems-designer | kolejka |
 | F2-13 | Kalibracja materiałów pod kreskę: galeria biomów ponownie, `tests/palette.test.ts` pod styl ilustrowany | engine-graphics + concept-artist | kolejka (po M1) |
+
+## Punkty kontrolne i platforma (decyzje właściciela 2026-11-28)
+| Id | Zadanie | Agent | Status |
+|---|---|---|---|
+| K-SKALA | **Weryfikacja skali** po ukończeniu wszystkich modeli (krasnoludy → ekwipunek i budowle → sale, biomy, świat): skala kafla, wymiary sal, rozmiar świata, prześwity nawigacji, zoomy, budżety | producent + level-systems + engine + ai | czeka na modele (F3-1 i zespół budowli) |
+| F7-1 | Warstwa platformy `src/platform/` (zapis/odczyt plików, ustawienia) — interfejs teraz, implementacje przy pakowaniu | gameplay-programmer | kolejka (przy F2-3c) |
+| F7-2 | Budżety wydajności per klasa sprzętu (desktop średni GPU / Android średni) w QUALITY + tryb jakości mobilnej | engine-graphics + producent | kolejka (po M1) |
+| F7-3 | Opakowanie natywne: benchmark Electron vs Tauri vs Capacitor (rozmiar, start, FPS, zgodność renderu), instalatory Windows/macOS, APK; podpisywanie kodu | tools-programmer + engine | M7 |
+| F7-4 | Menu główne, lokalne zapisy (sloty), demo samouczka na GitHub Pages | ui-ux + gameplay | M7 |
 
 ## Fala 3 — postacie, efekty, dźwięk (M3–M4)
 | Id | Zadanie | Agent | Status |

@@ -115,3 +115,9 @@ automatycznie co 5 h. Każda sesja zaczyna od pierwszego niezaznaczonego punktu.
   (19 z 23 surowców kopalnych — księgi badań zużywają surowce głębi) → F2-20 dla systems-designera.
   Rdzeń symulacji etap 2 w toku: krasnoludy jako agenci, zadania z rezerwacjami, noszenie do magazynu,
   determinizm z zapisem/odczytem (102/102 testów symulacji), scenariusz „mała kopalnia”.
+- **2026-11-28 (dzień 4, noc)** — Decyzje właściciela: (1) światło gry = **L12 z lawą z L14** (blask R2B na rysunku i08,
+  kontur przywracany nad blaskiem); (2) **świat skaluje się do modeli** — krasnoludy wyznaczają rozmiar ekwipunku
+  i budowli, a te sal, biomów i świata (punkt kontrolny „Weryfikacja skali” po ukończeniu modeli); (3) **dystrybucja
+  jako gra do pobrania** (Windows, macOS, Android), GitHub Pages tylko z samouczkiem; instalator, menu główne i lokalne
+  zapisy na końcu projektu (M7). Zespół krasnoludów (lider + 3 pracowników) pracuje po kontrakcie i briefach lidera;
+  rdzeń symulacji etap 2 zakończony (bezgłowa kolonia, determinizm, 200 krasnoludów 1,65 ms p95).

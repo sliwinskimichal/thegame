@@ -23,7 +23,7 @@ Jednostka planowania: **cykl** = jedno okno limitu (5 h; realnie ~1–1,5 h prac
 | **M4** | Pionowy wycinek | 60 min samouczka grywalne od wozu do śmierci króla; UI v1 (turniej); dźwięk i muzyka v1 dla 2 biomów; raport QA bez błędów krytycznych | 6 (+2) |
 | **M5** | Pełna progresja | 9 biomów, 24 budowle × 3, 187 receptur, badania, bossowie, najazdy; bot przechodzi grę w symulacji w 40 h ± 10% | 12 (+3) |
 | **M6** | Drużyna i finał | 9 towarzyszy, 17 misji, 5 kamieni milowych fabuły, finał z rolami; zadania jako dane z testami kompletności | 8 (+2) |
-| **M7** | Szlif i premiera | Wielkie Dzieła, Kręgi Otchłani (120 h), PL/EN, zapis, wydajność, PWA, drugie przeglądy bramek | 6 (+2) |
+| **M7** | Szlif i premiera | Wielkie Dzieła, Kręgi Otchłani (120 h), PL/EN, **instalator Windows/macOS i aplikacja Android** (opakowanie wybrane benchmarkiem: Electron / Tauri / Capacitor), **menu główne, lokalne zapisy**, demo samouczka na GitHub Pages, wydajność per klasa sprzętu, drugie przeglądy bramek | 7 (+2) |
 
 ## 2. Alokacja zasobów, harmonogram i przepływ pracy między działami
 **Fala 1 (teraz, M1 + fundamenty):**

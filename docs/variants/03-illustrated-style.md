@@ -388,3 +388,39 @@ i dE_ore 27,8 są lepsze od R2B.
   skrzynie, kocioł, 12 krasnoludów): z rysunkiem i08 krawędzie wynoszą 11%, kreska 3,6% (z L12 7%/2,4%);
   cel 15% jeszcze nie jest osiągnięty.
 - **C3** (finaliści łączeni, plansza właściciela, ślepe kadry): nierozpoczęte; skrypt `blind.py` gotowy.
+
+## Zwycięzca warstwy światła: L16 = L12 + lawa z L14 (wybór właściciela, 2026-11-28)
+Konfiguracja gry jako dane: **`src/render/illustrated-v1.json`** (`id: underhearth-illustrated-v1`, pełny
+`IllParams`: rysunek i08 + światło L16). Laboratorium wczytuje ją jako styl `w1-illustrated`, a test
+`tests/lab/illustrated-style.test.ts` pilnuje, że JSON jest równy kompozycji i08 + L16.
+- Łańcuch L00 bez zmian (UnrealBloom 0,95/0,8/0,62, świecące powietrze, barwa lampy, gradacja, ACES).
+- Kreska nad bloomem w całym kadrze (`inkOver` 1). W świetle lawy kreska wraca w 60% (`lavaInk` 0,6),
+  jak w L14, więc nie powstaje gęsty czarny „witraż”, a blask lawy zostaje blisko L00. Strefa lawy jest
+  rozpoznawana w shaderze po barwie pola światła: lawa jest czerwieńsza od pochodni i latarni.
+- Lawa jest osobną, nieprzezroczystą siatką i zapisuje w alfie pokrycie tuszem (skorupa, lustro), więc
+  `InkOverPass` działa też na niej. Woda dalej przepuszcza alfę sceny.
+
+Render kontrolny (zamrożony build, sceny lava i tunnel_night seed 777, izba, przodek i zawal seed 1):
+
+| scena | przeżywalność kreski L00 / L12 / L14 / **zwycięzca** | ΔE do L00: L12 / L14 / **zwycięzca** |
+|---|---|---|
+| lawa | 0,00 / 0,18 / 0,00 / **0,00** | 12,0 / 7,9 / **7,9** |
+| tunel nocą | 0,49 / 0,68 / 0,61 / **0,68** | 3,3 / 3,2 / **2,8** |
+| izba | 0,05 / 0,51 / 0,34 / **0,51** | 5,1 / 3,8 / **5,1** |
+| przodek | 0,42 / 0,58 / 0,60 / **0,60** | 3,0 / 2,9 / **2,9** |
+| zawał | 0,62 / 0,70 / 0,73 / **0,71** | 2,9 / 2,7 / **3,0** |
+
+W lawie zwycięzca ma wygląd L14 (ΔE do L00 7,9 zamiast 12,0 w L12). Kreska skorupy jest przywracana w 60%,
+dlatego strażnik, który liczy tylko piksele ciemniejsze niż L* 22, notuje tam 0. Zgadza się to z wyborem
+właściciela: lawa ma się świecić jak L00. Poza lawą zwycięzca jest równy L12: przeżywalność 0,51–0,71,
+średnio 0,63 (cel ≥ 0,6 spełniony). Cały kadr: czerń < 15 L* 44%, < 6 L* 31%, krawędzie 6,3%, kreska 1,8%.
+To cena nastroju L00 — do pracy w C2/C3 (plan wartości, gęstość izby).
+
+![Zwycięzca warstwy światła obok L00 i L12](03-illustrated-style/r2_light_winner.jpg)
+
+**Dla zespołu krasnoludów** (bez zmian w plikach silnika):
+`createIllustratedWith(ctx, STYLE_ILLUSTRATED_V1.params, (scene, u) => { … })` z `src/lab/styles/illustrated.ts`
+dodaje własne siatki do sceny zwycięzcy, zanim powstanie łańcuch post-procesu, więc dostają to samo światło,
+bloom i kreskę nad bloomem. Siatka, której obrys ma przeżyć blask, zapisuje w alfie `1 − 0,5·waga`. Obrys skorupy
+`inkHullMaterial` + `hullGeometry` z `src/render/ink.ts` robi to sam. Grubość obrysu postaci to 2,2 px przy 540 px
+wysokości (4 px przy 1080p), tusz `#201812`. `createIllustrated` działa jak dotąd, więc laboratorium bez zmian.

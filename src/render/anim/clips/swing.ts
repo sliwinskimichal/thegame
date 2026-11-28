@@ -104,12 +104,19 @@ function shoulder(d: RigData, side: number, yaw: number, lean: number, px: numbe
 
 const sh = new Float64Array(3);
 
-/** How far a fist at (x, y, z) with pitch th is beyond the arm's reach from shoulder `side` (0 = ok). */
+/**
+ * Swing grip: the handle crosses the fist (perpendicular to the forearm), so the tool sits in the
+ * hand turned by -90° and the fist's pitch is the handle angle + 90°: the forearm reaches the fist
+ * from above-behind like in a real swing (a handle along the forearm would need a 90° wrist bend).
+ */
+export const GRIP_TOOL = -Math.PI / 2;
+
+/** How far a fist at (x, y, z) holding the handle at angle th is beyond the arm's reach (0 = ok). */
 function overreach(d: RigData, side: number, k: Key, x: number, y: number, z: number, th: number): number {
   shoulder(d, side, k.yaw, k.lean, k.px, k.py, sh);
-  // wrist = fist - Rz(th)·(0, -fist)
-  const wx = x - d.fist * Math.sin(th);
-  const wy = y + d.fist * Math.cos(th);
+  // wrist = fist - Rz(th + 90°)·(0, -fist) = fist - fist·(cos th, sin th)
+  const wx = x - d.fist * Math.cos(th);
+  const wy = y - d.fist * Math.sin(th);
   const dist = Math.hypot(wx - sh[0]!, wy - sh[1]!, z - sh[2]!);
   return Math.max(0, dist - 0.97 * (d.upper + d.fore));
 }
@@ -158,63 +165,57 @@ function solvePlan(d: RigData, mode: number, ax: number, ay: number, tile: numbe
     sy = Math.min(Math.max(pref, ay - half + 0.05 * tile), ay + half - 0.05 * tile);
   }
   p.two = two;
-  p.zt = two ? 0.02 * u : d.shoulderZ * 0.8;
   const hit = p.hit;
-  hit.yaw = two ? -0.5 : 0.15;
+  hit.yaw = two ? -0.45 : 0.15;
   hit.lean = mode === MODE.DIG ? 0.32 : 0.22;
   hit.px = 0.02 * u;
   hit.py = -0.04 * d.legUnit;
   const sxl = t.strike[0];
   const syl = t.strike[1];
+  const torsoLo = d.rest[BONE.SPINE * 3 + 1]! - 0.08 * u;
+  const torsoHi = d.shoulderY;
+  // penetration of a fist into the barrel torso (vertical cylinder r = chestR around the spine)
+  // (a few cm of tolerance: the fist touching the belly is invisible at 75 px)
+  const inside = (x: number, y: number, z: number) => (y > torsoLo && y < torsoHi + 0.08 * u ? Math.max(0, d.chestR * 0.95 - 0.05 * u - Math.hypot(x - hit.px, z)) : 0);
+  const chestY = d.shoulderY - (mode === MODE.DIG ? 0.12 : 0.2) * u;
+  const zs = two ? [0.02, 0.08, 0.14, 0.2] : [d.shoulderZ * 0.8 / u];
   let best = Infinity;
-  for (let i = 0; i <= 52; i++) {
-    const th = -2.0 + i * 0.05;
-    const c = Math.cos(th);
-    const s = Math.sin(th);
-    const rx = sxl * c - syl * s;
-    const ry = sxl * s + syl * c;
-    const align = 1 + (c * nx + s * ny);
-    for (let j = 0; j <= 20; j++) {
-      const dx = (-0.6 + j * 0.04) * u;
-      hit.fx = sx - dx - rx;
-      hit.fy = sy - ry;
-      hit.th = th;
-      const oR = overreach(d, 1, hit, hit.fx, hit.fy, p.zt, th);
-      let oL = 0;
-      if (two) oL = leftGrip(d, t, hit, p.zt, 0.5)[1];
-      let pen = 0;
-      if (hit.fx < d.chestR * 0.8) pen += d.chestR * 0.8 - hit.fx;
-      if (hit.fy < d.hipY) pen += d.hipY - hit.fy;
-      const cost = 2 * align + 25 * (oR + oL) / u + (8 * pen) / u + 0.4 * Math.abs(dx / u);
-      if (cost < best) {
-        best = cost;
-        p.dx = dx;
-        p.sx = sx;
-        p.sy = sy;
+  let bestTh = 0;
+  for (const zu of zs) {
+    const zt = zu * u;
+    for (let i = 0; i <= 64; i++) {
+      const th = -2.6 + i * 0.05;
+      const c = Math.cos(th);
+      const s2 = Math.sin(th);
+      const rx = sxl * c - syl * s2;
+      const ry = sxl * s2 + syl * c;
+      const align = 1 + (c * nx + s2 * ny);
+      for (let j = 0; j <= 20; j++) {
+        const dx = (-0.6 + j * 0.04) * u;
+        hit.fx = sx - dx - rx;
+        hit.fy = sy - ry;
+        hit.th = th;
+        const oR = overreach(d, 1, hit, hit.fx, hit.fy, zt, th);
+        let oL = 0;
+        let inL = 0;
+        if (two) {
+          const [g, o] = leftGrip(d, t, hit, zt, 0.5);
+          oL = o;
+          inL = inside(hit.fx - g * s2, hit.fy + g * c, zt);
+        }
+        const pen = inside(hit.fx, hit.fy, zt) + inL + Math.max(0, d.hipY - hit.fy);
+        const cost = 1.2 * align + (30 * oR + 12 * oL + 30 * pen + 1.5 * Math.abs(hit.fy - chestY)) / u + 0.4 * Math.abs(dx / u);
+        if (cost < best) {
+          best = cost;
+          p.dx = dx;
+          p.zt = zt;
+          bestTh = th;
+        }
       }
     }
   }
-  // final hit key with the chosen stance
-  let bestTh = 0;
-  best = Infinity;
-  for (let i = 0; i <= 52; i++) {
-    const th = -2.0 + i * 0.05;
-    const c = Math.cos(th);
-    const s = Math.sin(th);
-    hit.fx = sx - p.dx - (sxl * c - syl * s);
-    hit.fy = sy - (sxl * s + syl * c);
-    hit.th = th;
-    const oR = overreach(d, 1, hit, hit.fx, hit.fy, p.zt, th);
-    const oL = two ? leftGrip(d, t, hit, p.zt, 0.5)[1] : 0;
-    let pen = 0;
-    if (hit.fx < d.chestR * 0.8) pen += d.chestR * 0.8 - hit.fx;
-    if (hit.fy < d.hipY) pen += d.hipY - hit.fy;
-    const cost = 2 * (1 + (c * nx + s * ny)) + 25 * (oR + oL) / u + (8 * pen) / u;
-    if (cost < best) {
-      best = cost;
-      bestTh = th;
-    }
-  }
+  p.sx = sx;
+  p.sy = sy;
   hit.th = bestTh;
   hit.fx = sx - p.dx - (sxl * Math.cos(bestTh) - syl * Math.sin(bestTh));
   hit.fy = sy - (sxl * Math.sin(bestTh) + syl * Math.cos(bestTh));
@@ -337,23 +338,36 @@ function sampleSwing(ctx: ClipContext, phase: number, out: PoseFrame, mode: numb
   plantFoot(d, out, 1, -0.1 * lu, 0, z + 0.02 * lu, -0.45);
   plantFoot(d, out, -1, 0.11 * lu, 0, -z, -0.12);
   // the tool as a rigid body in the fists
-  setIK(out, IK.HAND_R, k.fx, k.fy, p.zt, k.th, 1);
+  const grip = p.two || d.toolR ? -GRIP_TOOL : 0;
+  setIK(out, IK.HAND_R, k.fx, k.fy, p.zt, k.th + grip, 1);
   r[BONE.HAND_R * 3] = 0;
   r[BONE.HAND_R * 3 + 1] = 0;
   r[BONE.TOOL_R * 3] = 0;
   r[BONE.TOOL_R * 3 + 1] = 0;
-  r[BONE.TOOL_R * 3 + 2] = 0;
+  r[BONE.TOOL_R * 3 + 2] = grip ? GRIP_TOOL : 0;
   if (p.two) {
-    setIK(out, IK.HAND_L, k.fx - k.g * Math.sin(k.th), k.fy + k.g * Math.cos(k.th), p.zt, k.th, 1);
+    setIK(out, IK.HAND_L, k.fx - k.g * Math.sin(k.th), k.fy + k.g * Math.cos(k.th), p.zt, k.th + grip, 1);
     r[BONE.HAND_L * 3] = 0;
     r[BONE.HAND_L * 3 + 1] = 0;
-  } else if (d.toolL) {
-    // tongs steady the work below the strike
-    setIK(out, IK.HAND_L, p.hit.fx - 0.02 * u, p.hit.fy - 0.12 * u, -0.06 * u, -1.25, 1);
-    r[BONE.TOOL_L * 3 + 2] = 0;
   } else {
-    // the free hand braces on the front knee / steadies the work
-    setIK(out, IK.HAND_L, p.hit.fx - 0.06 * u, p.hit.fy - 0.06 * u, -0.08 * u, 1.2, 0.8);
+    // the left hand steadies the work (tongs forward toward it, or the bare hand), within reach
+    shoulder(d, -1, k.yaw, k.lean, k.px, k.py, sh);
+    const tx = p.sx - p.dx - 0.08 * u;
+    const ty = p.sy - 0.1 * u;
+    const tz = -0.05 * u;
+    let vx = tx - sh[0]!;
+    let vy = ty - sh[1]!;
+    let vz = tz - sh[2]!;
+    const len = Math.hypot(vx, vy, vz);
+    const lim = 0.85 * d.armReach;
+    if (len > lim) {
+      vx *= lim / len;
+      vy *= lim / len;
+      vz *= lim / len;
+    }
+    const pitch = d.toolL ? Math.atan2(-(tx - sh[0]! - vx), ty - sh[1]! - vy) + Math.PI / 2 : 1.2;
+    setIK(out, IK.HAND_L, sh[0]! + vx, sh[1]! + vy, sh[2]! + vz, d.toolL ? pitch : 1.2, 1);
+    r[BONE.TOOL_L * 3 + 2] = d.toolL ? GRIP_TOOL : 0;
   }
   // the carpenter's beam is put down for work; nothing carried
   gear(out, 0, ctx.rig.back === 'beam' ? 0 : 1);

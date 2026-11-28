@@ -231,7 +231,6 @@ export function depthLayer(z0: number, z1: number): -1 | 0 | 1 {
  * hood's spike or separated frame bars keep their own card.
  */
 export function mergeGroups(parts: readonly ModelPart[], profiles: readonly Profile[]): number[][] {
-  const n = parts.length;
   const key = (p: ModelPart, pr: Profile) =>
     `${p.bone}|${p.slot}|${p.slot === 0 ? p.color : ''}|${p.emissive ?? 0}|${p.layer ?? depthLayer(pr.z0, pr.z1)}|${p.shape.k === 'outline' ? p.name : ''}`;
   const keys = parts.map((p, i) => key(p, profiles[i]!));
@@ -269,6 +268,5 @@ export function mergeGroups(parts: readonly ModelPart[], profiles: readonly Prof
     }
     if (!placed) groups.push({ idx: [i], pts: pr.poly.slice(), sum: area(pr.poly), bb });
   }
-  void n;
   return groups.map((g) => g.idx);
 }

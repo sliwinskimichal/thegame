@@ -140,38 +140,55 @@ function miner(f: Frame): RoleGear {
       rings: 3,
     });
   }
-  // kaganek: oil lamp on a plate at the front (the miner's own pool of light)
-  const lampC: V3 = [hx + 0.215 * k, base + 0.085 * k, 0];
+  // kaganek: a small oil-lamp pot on a plate at the front with a ROUND flame (no spike: lead, E1 review)
+  const lampC: V3 = [hx + 0.212 * k, base + 0.075 * k, 0];
+  const flameC: V3 = [lampC[0] + 0.006, lampC[1] + 0.05, 0];
   parts.push(
-    idp('lamp', { name: 'lamp.plate', bone: BONE.HEAD, shape: { k: 'box', w: 0.07 * k, h: 0.085 * k, d: 0.018 }, t: [hx + 0.175 * k, base + 0.06 * k, 0], r: [0, 0, -0.42], slot: SLOT.FIXED, color: FIXED_COLORS.iron, minLod: 0 }),
-    idp('lamp', { name: 'lamp', bone: BONE.HEAD, shape: { k: 'box', w: 0.062, h: 0.07, d: 0.07 }, t: lampC, slot: SLOT.FIXED, color: FIXED_COLORS.lampFlame, emissive: 2.5, minLod: 1 }),
-    {
+    idp('lamp', { name: 'lamp.plate', bone: BONE.HEAD, shape: { k: 'box', w: 0.075 * k, h: 0.09 * k, d: 0.018 }, t: [hx + 0.176 * k, base + 0.06 * k, 0], r: [0, 0, -0.42], slot: SLOT.FIXED, color: FIXED_COLORS.iron, minLod: 0 }),
+    idp('lamp', {
+      name: 'lamp',
+      bone: BONE.HEAD,
+      shape: { k: 'frustum', r0: 0.03, r1: 0.038, h: 0.045 },
+      t: lampC,
+      slot: SLOT.FIXED,
+      color: MODEL_COLORS.brass,
+      minLod: 1,
+      seg: 10,
+      lod1: { seg: 4, phase: Math.PI / 4 },
+    }),
+    idp('lamp', {
       name: 'lamp.flame',
       bone: BONE.HEAD,
-      shape: { k: 'frustum', r0: 0.02, r1: 0, h: 0.05 },
-      t: [lampC[0] + 0.012, lampC[1] + 0.058, 0],
+      shape: { k: 'ellipsoid', rx: 0.03, ry: 0.036, rz: 0.03 },
+      t: flameC,
       slot: SLOT.FIXED,
       color: FIXED_COLORS.lampFlame,
-      emissive: 3.2,
-      minLod: 0,
-      seg: 6,
-    },
+      emissive: 3,
+      minLod: 1,
+      seg: 8,
+      rings: 5,
+      lod1: { seg: 4, rings: 2 },
+    }),
+    { name: 'lamp.spout', bone: BONE.HEAD, shape: { k: 'capsule', r: 0.011, len: 0.05 }, t: [lampC[0] + 0.035, lampC[1] + 0.012, 0], r: [0, 0, -1.2], slot: SLOT.FIXED, color: MODEL_COLORS.brass, minLod: 0 },
+    // kitka: a short fluffy brush at the back of the crown, leaning back, rounded (never a horn)
     {
       name: 'plume',
       bone: BONE.HEAD,
-      shape: { k: 'ellipsoid', rx: 0.1, ry: 0.032, rz: 0.04 },
-      t: [hx - 0.15 * k, f.crownY + 0.022, 0],
-      r: [0, 0, -0.62],
+      shape: { k: 'ellipsoid', rx: 0.048, ry: 0.072, rz: 0.048 },
+      t: [hx - 0.125 * k, f.crownY + 0.045, 0],
+      r: [0, 0, 0.35],
       slot: SLOT.ACCENT,
       minLod: 1,
-      lod1: { seg: 4, rings: 2 },
+      lod1: { seg: 5, rings: 2 },
     },
+    { name: 'plume.tuft0', bone: BONE.HEAD, shape: { k: 'ellipsoid', rx: 0.034, ry: 0.05, rz: 0.034 }, t: [hx - 0.15 * k, f.crownY + 0.05, 0.028], r: [-0.3, 0, 0.5], slot: SLOT.ACCENT, minLod: 0 },
+    { name: 'plume.tuft1', bone: BONE.HEAD, shape: { k: 'ellipsoid', rx: 0.034, ry: 0.05, rz: 0.034 }, t: [hx - 0.15 * k, f.crownY + 0.05, -0.028], r: [0.3, 0, 0.5], slot: SLOT.ACCENT, minLod: 0 },
     {
       name: 'plume.holder',
       bone: BONE.HEAD,
-      shape: { k: 'frustum', r0: 0.016, r1: 0.012, h: 0.04 },
-      t: [hx - 0.11 * k, f.crownY + 0.005, 0],
-      r: [0, 0, 0.7],
+      shape: { k: 'frustum', r0: 0.022, r1: 0.017, h: 0.035 },
+      t: [hx - 0.11 * k, f.crownY + 0.01, 0],
+      r: [0, 0, 0.35],
       slot: SLOT.FIXED,
       color: FIXED_COLORS.iron,
       minLod: 0,
@@ -245,8 +262,8 @@ function miner(f: Frame): RoleGear {
   // LOD2 token: helmet, lamp, pick, tylnik (+ sack): 30 triangles
   parts.push(
     tok('headgear', { name: 'tok.helmet', bone: BONE.HEAD, shape: { k: 'dome', r: hr * 1.08, ry: top - base + 0.012 }, t: [hc[0], base - 0.012, 0], slot: SLOT.CLOTH, seg: 5, rings: 1 }),
-    tok('lamp', { name: 'tok.lamp', bone: BONE.HEAD, shape: { k: 'frustum', r0: 0.075, r1: 0, h: 0.13 }, t: [lampC[0] + 0.02, lampC[1], 0], slot: SLOT.FIXED, color: FIXED_COLORS.lampFlame, emissive: 2.5, seg: 3 }),
-    tok('tool', { name: 'tok.pick.handle', bone: BONE.TOOL_R, shape: { k: 'frustum', r0: 0.032, r1: 0, h: 0.75 }, t: add3(F, [0, 0.325, 0]), slot: SLOT.FIXED, color: FIXED_COLORS.wood, seg: 3 }),
+    tok('lamp', { name: 'tok.lamp', bone: BONE.HEAD, shape: { k: 'frustum', r0: 0, r1: 0.075, h: 0.1 }, t: [flameC[0] + 0.01, flameC[1] - 0.01, 0], slot: SLOT.FIXED, color: FIXED_COLORS.lampFlame, emissive: 2.5, seg: 3 }),
+    tok('tool', { name: 'tok.pick.handle', bone: BONE.TOOL_R, shape: { k: 'frustum', r0: 0, r1: 0.065, h: 0.72 }, t: add3(F, [0, 0.325, 0]), slot: SLOT.FIXED, color: FIXED_COLORS.wood, seg: 3 }),
     tok('tool', { name: 'tok.pick.head', bone: BONE.TOOL_R, shape: { k: 'ellipsoid', rx: 0.036, ry: 0.18, rz: 0.03 }, t: add3(F, [0, hy, 0]), r: [0, 0, -HALF_PI], slot: SLOT.FIXED, color: FIXED_COLORS.iron, seg: 3, rings: 2 }),
     tok('back', { name: 'tok.tylnik', bone: BONE.APRON_B, shape: { k: 'frustum', r0: 0.18, r1: 0, h: 0.34 }, t: [bx - 0.02, by - 0.17, 0], r: [0, 0, -0.14], s: [0.14, 1, 1], slot: SLOT.FIXED, color: FIXED_COLORS.leather, seg: 3 }),
   );
@@ -258,7 +275,7 @@ function miner(f: Frame): RoleGear {
     hold: HOLD.TOOL_SHOULDER,
     back: 'apron',
     front: 'none',
-    lamp: { bone: BONE.HEAD, offset: [lampC[0] + 0.012, lampC[1] + 0.05, 0], color: lampColor(1), radius: 2 },
+    lamp: { bone: BONE.HEAD, offset: flameC, color: lampColor(1), radius: 2 },
     sockets,
   };
 }
@@ -350,7 +367,7 @@ function carpenter(f: Frame): RoleGear {
   parts.push(
     tok('headgear', { name: 'tok.hood', bone: BONE.HEAD, shape: { k: 'dome', r: 0.205 * k, ry: 0.26 * k }, t: [hx - 0.03 * k, f.hy - 0.02, 0], slot: SLOT.CLOTH, seg: 4, rings: 1, phase: Math.PI / 4 }),
     tok('headgear', { name: 'tok.spike', bone: BONE.HEAD, shape: { k: 'frustum', r0: 0.065 * k, r1: 0, h: 0.36 * k }, t: [(b1[0] + tip[0]) / 2, (b1[1] + tip[1]) / 2 + 0.02, 0], r: [0, 0, 1.95], slot: SLOT.CLOTH, seg: 3 }),
-    tok('tool', { name: 'tok.axe.handle', bone: BONE.TOOL_R, shape: { k: 'frustum', r0: 0.03, r1: 0, h: 0.59 }, t: add3(F, [0, 0.255, 0]), slot: SLOT.FIXED, color: FIXED_COLORS.wood, seg: 3 }),
+    tok('tool', { name: 'tok.axe.handle', bone: BONE.TOOL_R, shape: { k: 'frustum', r0: 0, r1: 0.06, h: 0.56 }, t: add3(F, [0, 0.255, 0]), slot: SLOT.FIXED, color: FIXED_COLORS.wood, seg: 3 }),
     tok('tool', { name: 'tok.axe.blade', bone: BONE.TOOL_R, shape: { k: 'frustum', r0: 0, r1: 0.1, h: 0.17 }, t: add3(F, [0.11, 0.5, 0]), r: [0, 0, -HALF_PI], s: [1, 1, 0.25], slot: SLOT.FIXED, color: FIXED_COLORS.iron, seg: 3 }),
     tok('back', { name: 'tok.beam', bone: BONE.BACK, shape: { k: 'frustum', r0: 0.075, r1: 0.075, h: 1.0 }, t: C, r: [0, 0, ba], slot: SLOT.FIXED, color: FIXED_COLORS.wood, seg: 3 }),
   );
@@ -488,24 +505,25 @@ function smith(f: Frame): RoleGear {
   }
   parts.push(
     { name: 'goggle.bridge', bone: BONE.HEAD, shape: { k: 'box', w: 0.04 * k, h: 0.014, d: 0.016 }, t: [hx + 0.168 * k, base + 0.03 * k, 0], slot: SLOT.FIXED, color: FIXED_COLORS.iron, minLod: 0 },
-    { name: 'feather', bone: BONE.HEAD, shape: { k: 'ellipsoid', rx: 0.026, ry: 0.12, rz: 0.012 }, t: [hx - 0.15 * k, base + 0.08 * k, 0.15 * k], r: [-0.35, 0, 1.15], slot: SLOT.ACCENT, minLod: 1, lod1: { seg: 3, rings: 2 } },
+    { name: 'feather', bone: BONE.HEAD, shape: { k: 'ellipsoid', rx: 0.052, ry: 0.014, rz: 0.009 }, t: [hx - 0.17 * k, base + 0.1 * k, 0.14 * k], r: [-0.15, 0, -0.38], slot: SLOT.ACCENT, minLod: 1, lod1: { seg: 3, rings: 2 } },
   );
   // hammer (right) and tongs (left)
   const F = J(f, BONE.TOOL_R);
   const FL = J(f, BONE.TOOL_L);
   parts.push(
     idp('tool', { name: 'hammer.handle', bone: BONE.TOOL_R, shape: { k: 'frustum', r0: 0.021, r1: 0.018, h: 0.44 }, t: add3(F, [0, 0.18, 0]), slot: SLOT.FIXED, color: FIXED_COLORS.wood, minLod: 1, lod1: { seg: 3 } }),
-    idp('tool', { name: 'hammer.head', bone: BONE.TOOL_R, shape: { k: 'box', w: 0.075, h: 0.08, d: 0.175 }, t: add3(F, [0, 0.37, 0]), slot: SLOT.FIXED, color: FIXED_COLORS.iron, minLod: 1, round: 0.4 }),
-    { name: 'hammer.face', bone: BONE.TOOL_R, shape: { k: 'box', w: 0.08, h: 0.085, d: 0.02 }, t: add3(F, [0.095, 0.37, 0]), slot: SLOT.FIXED, color: FIXED_COLORS.ironEdge, minLod: 0, round: 0.3 },
-    { name: 'hammer.wedge', bone: BONE.TOOL_R, shape: { k: 'box', w: 0.02, h: 0.018, d: 0.03 }, t: add3(F, [0, 0.415, 0]), slot: SLOT.FIXED, color: FIXED_COLORS.woodWorn, minLod: 0 },
+    idp('tool', { name: 'hammer.head', bone: BONE.TOOL_R, shape: { k: 'box', w: 0.12, h: 0.12, d: 0.2 }, t: add3(F, [0, 0.37, 0]), slot: SLOT.FIXED, color: FIXED_COLORS.iron, minLod: 1, round: 0.4 }),
+    { name: 'hammer.face', bone: BONE.TOOL_R, shape: { k: 'box', w: 0.124, h: 0.124, d: 0.022 }, t: add3(F, [0.104, 0.37, 0]), slot: SLOT.FIXED, color: FIXED_COLORS.ironEdge, minLod: 0, round: 0.3 },
+    { name: 'hammer.wedge', bone: BONE.TOOL_R, shape: { k: 'box', w: 0.02, h: 0.018, d: 0.03 }, t: add3(F, [0, 0.435, 0]), slot: SLOT.FIXED, color: FIXED_COLORS.woodWorn, minLod: 0 },
   );
   for (const [i, s] of [1, -1].entries()) {
     parts.push(
-      idp('tool', { name: `tongs.arm${i}`, bone: BONE.TOOL_L, shape: { k: 'box', w: 0.012, h: 0.44, d: 0.018 }, t: add3(FL, [s * 0.012, 0.17, 0]), r: [0, 0, -s * 0.03], slot: SLOT.FIXED, color: FIXED_COLORS.iron, minLod: i === 0 ? 1 : 0 }),
-      idp('tool', { name: `tongs.jaw${i}`, bone: BONE.TOOL_L, shape: { k: 'box', w: 0.014, h: 0.07, d: 0.02 }, t: add3(FL, [s * 0.022, 0.415, 0]), r: [0, 0, s * 0.3], slot: SLOT.FIXED, color: FIXED_COLORS.iron, minLod: 0 }),
+      idp('tool', { name: `tongs.arm${i}`, bone: BONE.TOOL_L, shape: { k: 'box', w: 0.02, h: 0.46, d: 0.026 }, t: add3(FL, [s * 0.014, 0.18, 0]), r: [0, 0, -s * 0.03], slot: SLOT.FIXED, color: FIXED_COLORS.iron, minLod: i === 0 ? 1 : 0 }),
+      idp('tool', { name: `tongs.jaw${i}`, bone: BONE.TOOL_L, shape: { k: 'box', w: 0.024, h: 0.085, d: 0.03 }, t: add3(FL, [s * 0.026, 0.445, 0]), r: [0, 0, s * 0.3], slot: SLOT.FIXED, color: FIXED_COLORS.iron, minLod: i === 0 ? 1 : 0 }),
     );
   }
-  parts.push({ name: 'tongs.pivot', bone: BONE.TOOL_L, shape: { k: 'ellipsoid', rx: 0.016, ry: 0.016, rz: 0.016 }, t: add3(FL, [0, 0.37, 0]), slot: SLOT.FIXED, color: FIXED_COLORS.ironEdge, minLod: 0, seg: 6, rings: 3 });
+  parts.push({ name: 'tongs.bar', bone: BONE.TOOL_L, shape: { k: 'box', w: 0.04, h: 0.04, d: 0.16 }, t: add3(FL, [0.03, 0.49, 0]), r: [0, 0, 0.1], slot: SLOT.FIXED, color: FIXED_COLORS.iron, minLod: 0 });
+  parts.push({ name: 'tongs.pivot', bone: BONE.TOOL_L, shape: { k: 'ellipsoid', rx: 0.02, ry: 0.02, rz: 0.02 }, t: add3(FL, [0, 0.39, 0]), slot: SLOT.FIXED, color: FIXED_COLORS.ironEdge, minLod: 0, seg: 6, rings: 3 });
   // long leather apron at the front down to the knees: bib on the torso, skirt on APRON_F
   const beltR = f.p.bellyR + 0.02;
   const ax = beltR * (TORSO_DEPTH + 0.03) + 0.012;
@@ -522,13 +540,13 @@ function smith(f: Frame): RoleGear {
   sack(f, parts);
   parts.push(
     tok('headgear', { name: 'tok.cap', bone: BONE.HEAD, shape: { k: 'dome', r: 0.19 * k, ry: top - base + 0.03 }, t: [hx - 0.03, base - 0.03, 0], s: [1.1, 1, 1], slot: SLOT.CLOTH, seg: 5, rings: 1 }),
-    tok('tool', { name: 'tok.hammer.handle', bone: BONE.TOOL_R, shape: { k: 'frustum', r0: 0.03, r1: 0, h: 0.44 }, t: add3(F, [0, 0.18, 0]), slot: SLOT.FIXED, color: FIXED_COLORS.wood, seg: 3 }),
-    tok('tool', { name: 'tok.hammer.head', bone: BONE.TOOL_R, shape: { k: 'ellipsoid', rx: 0.05, ry: 0.095, rz: 0.045 }, t: add3(F, [0, 0.37, 0]), r: [0, 0, -HALF_PI], slot: SLOT.FIXED, color: FIXED_COLORS.iron, seg: 3, rings: 2 }),
-    tok('tool', { name: 'tok.tongs', bone: BONE.TOOL_L, shape: { k: 'frustum', r0: 0.03, r1: 0, h: 0.45 }, t: add3(FL, [0, 0.2, 0]), slot: SLOT.FIXED, color: FIXED_COLORS.iron, seg: 3 }),
+    tok('tool', { name: 'tok.hammer.handle', bone: BONE.TOOL_R, shape: { k: 'frustum', r0: 0, r1: 0.06, h: 0.42 }, t: add3(F, [0, 0.18, 0]), slot: SLOT.FIXED, color: FIXED_COLORS.wood, seg: 3 }),
+    tok('tool', { name: 'tok.hammer.head', bone: BONE.TOOL_R, shape: { k: 'ellipsoid', rx: 0.075, ry: 0.12, rz: 0.07 }, t: add3(F, [0, 0.37, 0]), r: [0, 0, -HALF_PI], slot: SLOT.FIXED, color: FIXED_COLORS.iron, seg: 3, rings: 2 }),
+    tok('tool', { name: 'tok.tongs', bone: BONE.TOOL_L, shape: { k: 'frustum', r0: 0.04, r1: 0, h: 0.48 }, t: add3(FL, [0, 0.22, 0]), slot: SLOT.FIXED, color: FIXED_COLORS.iron, seg: 3 }),
     tok('apron', { name: 'tok.apron', bone: BONE.APRON_F, shape: { k: 'frustum', r0: 0.22, r1: 0, h: 0.5 }, t: [ax + 0.005, ay - 0.13, 0], s: [0.12, 1, 1], slot: SLOT.FIXED, color: FIXED_COLORS.leather, seg: 3 }),
   );
-  const toolR: ToolInfo = { kind: 'hammer', length: 0.44, gripL: 0, head: 0.37, strike: [0.105, 0.37, 0] };
-  const toolL: ToolInfo = { kind: 'tongs', length: 0.45, gripL: 0, head: 0.41, strike: [0, 0.45, 0] };
+  const toolR: ToolInfo = { kind: 'hammer', length: 0.44, gripL: 0, head: 0.37, strike: [0.115, 0.37, 0] };
+  const toolL: ToolInfo = { kind: 'tongs', length: 0.48, gripL: 0, head: 0.445, strike: [0.03, 0.49, 0] };
   return { parts, toolR, toolL, hold: HOLD.TWO_TOOLS, back: 'none', front: 'apron', lamp, sockets };
 }
 

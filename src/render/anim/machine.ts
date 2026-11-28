@@ -13,6 +13,7 @@ import { CHARACTER_SCALE, MOTION } from '../characters/direction';
 import { CLIPS, type StrikeClip } from './clips/index';
 import { breathPeriod } from './clips/idle';
 import { carryStanding, carryType } from './clips/locomotion';
+import { climbStandoff } from './clips/climb';
 import type { AnimCtx } from './clips/common';
 import { bump, easeInOut, frac } from './curves';
 import { edgeRoot, isClimbMove, isDropMove, isLedgeMove, isStairMove, isWalkMove } from './edge';
@@ -563,7 +564,8 @@ export class Animator implements DwarfAnimator {
   private latticeY(y: number, phase: number): number {
     const sp = this.rungSp();
     const off = this.rungOff();
-    const n = Math.round((y - off) / (2 * sp) - phase);
+    // the cycle starts on the lattice point nearest to y, the phase climbs from it (strips rise steadily)
+    const n = Math.round((y - off) / (2 * sp));
     return off + (n + phase) * 2 * sp;
   }
   private ladderZ(): number {
@@ -587,7 +589,7 @@ export class Animator implements DwarfAnimator {
     c.slope = 0;
     const e = input.edge;
     if (e && isStairMove(e.move) && e.toX !== e.fromX) c.slope = (e.toY - e.fromY) / Math.abs(e.toX - e.fromX);
-    c.rows = this.landRows;
+    c.rows = e && isDropMove(e.move) ? Math.max(1, e.rows) : this.landRows;
     const rx = Number.isNaN(this.wx) ? input.x : this.wx;
     const ry = Number.isNaN(this.wx) ? input.y : this.wy;
     if (Number.isNaN(input.workX) || Number.isNaN(input.workY)) {
@@ -768,7 +770,3 @@ export class Animator implements DwarfAnimator {
   }
 }
 
-/** Distance of the climbing root from the ladder plane (model units, toward the camera). */
-export function climbStandoff(d: RigData): number {
-  return d.chestR * 1.05;
-}

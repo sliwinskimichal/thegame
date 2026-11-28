@@ -34,3 +34,12 @@ przebieg na serwerze deweloperskim przerwało przeładowanie HMR) dla d01, d02, 
   tułów, broda i głowa skręcają o yaw wariantu; w spoczynku i przy pracy całe ciało pod yaw wariantu.
 - Lustro kierunku: jedno wywołanie na kubełek, culling przez `gl_FrontFacing` XOR znak lustra (W3).
 - Zmienność w tłumie: paleta + skala kości brody 0,9–1,1 z seeda (W2), geometria wspólna na (wariant, rola, LOD).
+
+## Weryfikacja poprawek W1 i W2 (podglądy `DWARF_PREVIEW`, d01/d04/d08)
+- Przyjęte: broda jako klin z 4 pasm (LOD0), rozwidlone stożki w przekroju rombu (LOD1), żeton szpicem (LOD2);
+  kitka jako pędzel z tyłu ciemienia (nie róg); kaganek z okrągłym płomykiem; żeton LOD2 z szerszą podstawą;
+  kilof na barku w spoczynku (mocne „T” w sylwetce 75 px); topór cieśli przy udzie.
+- Do poprawy (zlecone): trzonek kilofa w LOD2 (głowica wisi w powietrzu), krótsze i ciemniejsze piórko kowala,
+  kowal — większy obuch młota, dłuższe szczypce trzymane przed obrysem (W1 geometria, W2 poza).
+- Trójkąty po poprawkach (LOD0/1/2, maks. z ról): d01 3906/376/60 · d02 4738/384/60 · d03 1670/376/60 ·
+  d04 3532/380/60 · d05 4700/376/60 · d06 4489/380/60 · d07 = d01 · d08 5198/376/60 · d09–d12 ~3970/376/60.

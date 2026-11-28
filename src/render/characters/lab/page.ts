@@ -42,16 +42,68 @@ import { FLOATS_PER_ROW, writeSkinRow } from '../render/boneTexture';
 import { CrowdRenderer, mulAffine, type CrowdMemberEx } from '../render/crowd';
 import { FIXTURE_VARIANTS, fixtureSpec } from '../render/fixture';
 import { modelHeight, variantHeight } from '../render/lod';
-import { DEFAULT_TONE, toneFromParams, type ToneParams } from '../render/materials';
+import { decodeSlot, DEFAULT_TONE, SLOT_LAMP, toneFromParams, type ToneParams } from '../render/materials';
 import * as MX from './metrics';
 import { buildShots } from './shots';
 import { buildStandWorld, TUNNEL_Z } from './world';
 
 type Box = { role: RoleId; x0: number; y0: number; x1: number; y1: number };
-type ContrastEx = NonNullable<ShotMetrics['contrast']>[number] & { light: number; fillPx: number; ringPx: number };
+type ContrastEx = NonNullable<ShotMetrics['contrast']>[number] & { light: number; fillPx: number; ringPx: number } & SlotL;
+/** Mean L* on screen per colour group of one dwarf (garments = TUNIC + TUNIC2, skin, beard, accent, lamp = emissive). */
+interface SlotL {
+  garmentL: number;
+  skinL: number;
+  beardL: number;
+  accentL: number;
+  lampL: number;
+  /** Where the C* > 30 pixels of the fill come from (share of the fill, light sources L* >= 85 excluded). */
+  c30: { garment: number; skin: number; beard: number; accent: number; fixed: number };
+}
 
+function slotStats(color: MX.Rgba, slots: MX.Rgba, fill: MX.BinMask): SlotL {
+  const sum = new Float64Array(9);
+  const cnt = new Float64Array(9);
+  const sat = new Float64Array(9);
+  let nonLight = 0;
+  const lamp: number[] = [];
+  const d = color.data;
+  for (let i = 0; i < fill.data.length; i++) {
+    if (!fill.data[i]) continue;
+    const id = decodeSlot(slots.data[i * 4]!);
+    if (id < 0) continue;
+    const [L, a, b] = MX.srgbToLab(d[i * 4]!, d[i * 4 + 1]!, d[i * 4 + 2]!);
+    sum[id] += L;
+    cnt[id]++;
+    if (id === SLOT_LAMP) lamp.push(L);
+    if (L < 85) {
+      nonLight++;
+      if (Math.hypot(a, b) > 30) sat[id]++;
+    }
+  }
+  const share = (...ids: number[]) => (nonLight ? ids.reduce((a, k) => a + sat[k]!, 0) / nonLight : 0);
+  const mean = (...ids: number[]) => {
+    let a = 0, n = 0;
+    for (const k of ids) { a += sum[k]!; n += cnt[k]!; }
+    return n ? a / n : Number.NaN;
+  };
+  lamp.sort((a, b) => b - a);
+  return {
+    garmentL: mean(1, 2),
+    skinL: mean(4),
+    beardL: mean(3),
+    accentL: mean(6),
+    lampL: lamp.length ? lamp[Math.floor(lamp.length * 0.1)]! : Number.NaN,
+    c30: { garment: share(1, 2), skin: share(4), beard: share(3), accent: share(6), fixed: share(0, 5, 7) },
+  };
+}
+
+/**
+ * Gain of the stand's block light. At 1 the torches of the game (PROP_GLOW 2.6, decay 0.8/tile) whiten the back
+ * walls of a pool under the L12 light (L* 60–85); the lead asks for the art bible's L* 44–50 (see the report).
+ */
+export const STAND_LIGHT_GAIN = 0.5;
 /** Tone of the station (tuned on the fixture against the figure/ground and accent metrics; see the report). */
-export const DWARF_TONE: ToneParams = { ...DEFAULT_TONE, ambK: 0.25, lightK: 0.35, lightCap: 1.0, figDesat: 0.7, selfLight: 0.1 };
+export const DWARF_TONE: ToneParams = { ...DEFAULT_TONE, ambK: 0.65, lightK: 1.1, lightCap: 1.8, figDesat: 0.65, selfLight: 0.1, knee: 0.85, faceKnee: 1.1, faceLift: 0.6 };
 const SHOT_TIME = 1.5; // fixed uTime of every shot (deterministic flicker, grain, dust)
 const LAYER_WORLD = 0;
 const LAYER_CROWD = 1;
@@ -103,11 +155,30 @@ export function startDwarfLab(): void {
     fail((e as Error).message);
   }
 
+  // ---- zoom experiment (lead, E3): on-screen height of the reference dwarf per zoom, set once at start-up
+  for (const [key, z] of [['pxIzba', 'izba'], ['pxGrod', 'grod'], ['pxOkolica', 'okolica']] as const) {
+    if (!params.has(key)) continue;
+    const px = Number(params.get(key));
+    if (!(px >= 8 && px <= 2000)) fail(`nieprawidłowe ${key}="${params.get(key)}" (8–2000 px)`);
+    ZOOMS[z].dwarfPx = px;
+  }
+  const lightGain = params.has('lightgain') ? Number(params.get('lightgain')) : STAND_LIGHT_GAIN;
+  if (!(lightGain > 0 && lightGain <= 4)) fail(`nieprawidłowe lightgain="${params.get('lightgain')}" (0–4)`);
+
   // ---- world, light field, GPU mirrors
   const stand = buildStandWorld(7);
   const world = stand.world;
   const light = new LightField(world.w, world.h);
   light.compute(world);
+  if (lightGain !== 1) {
+    // block light of the stand's torches scaled (sky untouched): background in a lamp pool ~L* 44–50 (art bible §0)
+    for (let i = 0; i < light.r.length; i++) {
+      light.r[i]! *= lightGain;
+      light.g[i]! *= lightGain;
+      light.b[i]! *= lightGain;
+    }
+    light.pack();
+  }
   const tex = new WorldTex(world, light);
   const shots = buildShots(stand.layout);
 
@@ -280,9 +351,10 @@ export function startDwarfLab(): void {
   const maskRT = new THREE.WebGLRenderTarget(W, H, { depthBuffer: true });
   const depthOnly = new THREE.MeshBasicMaterial({ colorWrite: false });
   const prevClear = new THREE.Color();
-  function renderMask(s: Staged, only: number): MX.Rgba {
+  function renderMask(s: Staged, only: number, slots = false): MX.Rgba {
     s.members.forEach((m, i) => (m.visible = only < 0 || i === only));
-    crowd.setMode('mask');
+    if (slots) crowd.setSlotMode();
+    else crowd.setMode('mask');
     crowd.sync(s.members, camera, H);
     renderer.getClearColor(prevClear);
     const prevAlpha = renderer.getClearAlpha();
@@ -387,7 +459,7 @@ export function startDwarfLab(): void {
     return { boxes, renderMs };
   }
 
-  /** Light-field level (max channel) at a dwarf's chest: >= 1.0 = in the pool, below = edge / dark. */
+  /** Light-field level (max channel, after the stand gain) at a dwarf's chest: >= gain = in the pool, below = edge / dark. */
   const lightAtChest = (d: ShotDwarf): number => {
     const tx = Math.floor(d.x);
     const ty = Math.floor(-(d.y + refHeightTiles() * 0.6));
@@ -413,7 +485,9 @@ export function startDwarfLab(): void {
         const others: MX.BinMask = { w: W, h: H, data: unionFig.data.map((x, k) => (x && !fig.data[k] ? 1 : 0)) };
         const c = MX.figureGround(color, fill, fig, others);
         const lightLvl = lightAtChest(s.shot.dwarves[i]!);
-        contrast.push({ role: m.model.spec.role, fillL: c.fillL, ringL: c.ringL, dL: c.dL, lit: lightLvl >= 1.0, light: lightLvl, fillPx: c.fillPx, ringPx: c.ringPx });
+        const slotImg = renderMask(s, i, true);
+        const parts = slotStats(color, slotImg, fill);
+        contrast.push({ role: m.model.spec.role, fillL: c.fillL, ringL: c.ringL, dL: c.dL, lit: lightLvl >= lightGain, light: lightLvl, fillPx: c.fillPx, ringPx: c.ringPx, ...parts });
         accent.push({ role: m.model.spec.role, share: MX.accentShare(color, fill), shareRel: MX.accentShare(color, fill, 30, 85, [c.ringA, c.ringB]) });
       });
       renderColor(s); // the canvas shows the colour frame again
@@ -441,18 +515,23 @@ export function startDwarfLab(): void {
         const frames: MX.BinMask[] = [];
         let box: Box | null = null;
         for (const { d, i } of rowIdx) {
-          poseMember(s.members[i]!, { ...d, x: x0 });
+          // a fresh animator per frame: pose() must not depend on an earlier pose of the same animator
+          const orig = s.members[i]!;
+          const here = { ...d, x: x0 };
+          const fresh = makeMember(here);
+          poseMember(fresh, here);
+          s.members[i] = fresh;
           renderSil(s, i);
           if (!box) {
-            const b = boxOf(s.members[i]!);
+            const b = boxOf(fresh);
             const pad = refHeightTiles() * ZOOMS[s.shot.zoom].pxPerTile * 0.45;
             box = { ...b, x0: b.x0 - pad, x1: b.x1 + pad, y0: b.y0 - pad * 0.5, y1: b.y1 + pad * 0.2 };
           }
           frames.push(MX.cropMask(MX.maskWhere(readCanvas(), (rr, g, b) => rr + g + b < 384), box.x0, box.y0, box.x1, box.y1));
-          poseMember(s.members[i]!, d);
+          s.members[i] = orig;
         }
         const st = MX.stability(frames);
-        out.push({ clip: `${s.shot.dwarves[rowIdx[0]!.i]!.clip}:${['hajer', 'ciesla', 'tragarz', 'kowal'][rowIdx[0]!.d.role]}`, ...st });
+        out.push({ clip: `${s.shot.dwarves[rowIdx[0]!.i]!.clip}:${['hajer', 'ciesla', 'tragarz', 'kowal'][rowIdx[0]!.d.role]}`, ...st, areas: frames.map(MX.maskCount) } as { clip: string; meanIoU: number; minIoU: number });
       }
       res.stability = out;
       renderSil(s);
@@ -569,6 +648,8 @@ export function startDwarfLab(): void {
       return CHARACTER_SCALE.worldPerModel;
     },
     light: lightId,
+    lightGain,
+    zoomPx: { izba: ZOOMS.izba.dwarfPx, grod: ZOOMS.grod.dwarfPx, okolica: ZOOMS.okolica.dwarfPx },
     mirror,
     names: Object.fromEntries(VARIANTS.map((x) => [x.id, x.namePl])),
     shotNames: Object.fromEntries(SHOT_IDS.map((x) => [x, shots[x].namePl])),

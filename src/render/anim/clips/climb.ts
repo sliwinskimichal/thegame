@@ -40,8 +40,10 @@ const LIMBS = [
  * the camera) the rungs are hidden by the body, the hands and feet on them are not.
  */
 export function climbStandoff(d: RigData): number {
-  return d.chestR * 0.35;
+  return d.chestR * 0.42;
 }
+/** The hips face the ladder squarely; the spine turns the upper body back to the 30° view. */
+const HIP_TURN = Math.PI / 2 - CLIMB_YAW;
 
 /** x of the ladder plane at model z (see header). */
 function planeX(d: RigData, z: number): number {
@@ -99,9 +101,18 @@ export const climbClip: AnimClip = {
     const r = out.rot;
     // body turned to the wall, absolute yaw (cancels the variant's view yaw)
     out.root[3] = ctx.viewYaw + CLIMB_YAW;
-    // targets: hands beside the head, feet around the root
-    const handT = d.shoulderY + 0.16 * u;
-    const footT = 0.02 * lu;
+    // landing heights (the middle of a limb's hold range sits at its target): feet around the root,
+    // hands a little above the shoulders' mean height (pelvis over the mean ankle at 70% of the leg)
+    const hold = sp * (BEAT - MOVE); // half the relative drop over a hold
+    const footT = hold;
+    // with one-rung moves the two feet land half a rung apart on the lattice, so the hips sit a bit
+    // lower than half-way when the rungs are sparse relative to the leg (rung spacing / leg reach)
+    const sparse = Math.max(0, Math.min(1, (sp / d.legReach - 0.8) / 0.35));
+    const pelvisMean = d.ankleY + 0.012 * lu + (0.58 - 0.1 * sparse) * d.legReach - d.hipY;
+    const handT = d.shoulderY + pelvisMean + (0.06 - 0.02 * sparse) * u + hold;
+    const D = climbStandoff(d);
+    const ch = Math.cos(HIP_TURN);
+    const shh = Math.sin(HIP_TURN);
     let footSum = 0;
     let wxSum = 0;
     const cy = Math.cos(CLIMB_YAW);
@@ -112,37 +123,41 @@ export const climbClip: AnimClip = {
       const moving = st[0] === 1;
       const away = moving ? Math.sin(Math.PI * st[1]!) : 0;
       if (L.hand) {
-        const z = L.side * 0.82 * d.shoulderZ;
+        const z = L.side * 0.68 * d.shoulderZ;
         const x = planeX(d, z) - 0.015 * u - 0.07 * u * away;
         setIK(out, L.side > 0 ? IK.HAND_R : IK.HAND_L, x, h + 0.012 * u, z, 1.25 + 0.4 * away, 1);
         wxSum += x * cy + z * sy;
       } else {
-        const z = L.side * 0.12 * lu;
-        // the arch of the boot on the rung: the ankle ~0.05 behind and above it
-        const x = planeX(d, z) - 0.05 * lu - 0.06 * lu * away;
+        // in the squared hip frame the ladder plane is x = D; the arch of the boot on the rung,
+        // the ankle ~0.05 behind and above it; rotated back into root space (Ry(HIP_TURN))
+        const xp = D - 0.05 * lu - 0.06 * lu * away;
+        const zp = L.side * 0.12 * lu;
+        const x = xp * ch + zp * shh;
+        const z = -xp * shh + zp * ch;
         wxSum += x * cy + z * sy;
         const y = h + d.ankleY + 0.012 * lu + 0.03 * lu * away;
         setIK(out, L.side > 0 ? IK.FOOT_R : IK.FOOT_L, x, y, z, -0.12 - 0.25 * away, 1);
-        r[(L.side > 0 ? BONE.FOOT_R : BONE.FOOT_L) * 3 + 1] = 0;
+        r[(L.side > 0 ? BONE.FOOT_R : BONE.FOOT_L) * 3 + 1] = HIP_TURN;
         footSum += h;
         if (out instanceof AnimPose) {
           const si = L.side > 0 ? 0 : 1;
           out.contact[si] = moving ? 0 : 1;
-          out.pivot[si * 3] = x + 0.05 * lu;
+          out.pivot[si * 3] = x + 0.05 * lu * ch;
           out.pivot[si * 3 + 1] = h;
-          out.pivot[si * 3 + 2] = z;
+          out.pivot[si * 3 + 2] = z - 0.05 * lu * shh;
         }
       }
     }
     // centre the limbs on the ladder (world x along the rungs), mirrored with the facing
     out.root[0] = -wxSum / 4;
     // pelvis rides over the feet (mean hip-ankle height ~half the leg), close to the ladder
+    // (half of the feet's rise and fall: the legs take the rest, the shoulders stay near the hands)
     const feet = footSum * 0.5;
-    out.pos[BONE.PELVIS * 3] = 0.05 * u;
-    out.pos[BONE.PELVIS * 3 + 1] = feet + d.ankleY + 0.012 * lu + 0.5 * d.legReach - d.hipY;
-    r[BONE.PELVIS * 3 + 2] = -0.05;
-    r[BONE.SPINE * 3 + 2] = -0.08;
-    r[BONE.CHEST * 3 + 2] = -0.04;
+    out.pos[BONE.PELVIS * 3 + 1] = 0.5 * feet + pelvisMean;
+    r[BONE.PELVIS * 3 + 1] = HIP_TURN;
+    r[BONE.SPINE * 3 + 1] = -HIP_TURN * 0.6;
+    r[BONE.CHEST * 3 + 1] = -HIP_TURN * 0.4;
+    r[BONE.SPINE * 3 + 2] = 0.04;
     r[BONE.CHEST * 3] = 0.06 * Math.sin(2 * Math.PI * ph);
     r[BONE.HEAD * 3 + 2] = 0.3;
     // the beard swings aside (toward the camera side) instead of pressing into the rungs

@@ -73,7 +73,7 @@ function buildCards(parts: readonly ModelPart[], lod: LodLevel): Card[] {
       const first = parts[g[0]!]!;
       const pts = g.flatMap((i) => prof[i]!.poly);
       const poly = g.length === 1 ? prof[g[0]!]!.poly : convexHull2(pts);
-      const n = profileVerts(poly, 0.11, 3, 6);
+      const n = profileVerts(poly, 0.125, 3, 6);
       // the group is sorted largest first: the dominant part sets the draw order
       cards.push({ part: first, poly: reduceProfile(poly, n), layer: layerOf(first, prof[g[0]!]!), prio: cardPrio(first), order: g[0]!, thick: 0.03 });
     }

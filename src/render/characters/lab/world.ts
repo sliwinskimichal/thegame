@@ -22,6 +22,11 @@ import { refHeightTiles } from '../direction';
 export const TUNNEL_Z = -0.45;
 export const LADDER_Z = -0.85;
 export const TORCH_Z = -0.92;
+/** The hall is deeper than the drifts (back wall at z = -2): its furniture stands fully behind the dwarves, so
+ *  nothing intersects a figure and cuts its inverted-hull outline. */
+export const HALL_DEPTH = 2;
+/** Timbering and other drift dressing stands against the back wall, behind the figures (dwarf back ~ -0.75). */
+export const BACK_DRESS_Z = -0.88;
 /** Rungs of a 1-tile ladder segment (propsGeo 'ladder'): 0.12, 0.37, 0.62, 0.87 above the segment base. */
 export const RUNG_OFFSET = 0.12;
 export const RUNG_SPACING = 0.25;
@@ -124,20 +129,20 @@ export function buildStandWorld(seed = 7): StandWorld {
       }
       flags[i] = TF.EXPLORED;
     }
-  const dug = (x: number, y: number, back = host(x, y)) => {
+  const dug = (x: number, y: number, back = host(x, y), dep = 32) => {
     if (x < 1 || y < 1 || x >= W - 1 || y >= H - 2) return;
     const i = I(x, y);
     bg[i] = back;
     mat[i] = M.AIR;
     cav[i] = CAV.DUG;
-    depth[i] = 32;
+    depth[i] = dep;
   };
-  const room = (x0: number, x1: number, r0: number, r1: number, back?: number) => {
-    for (let y = r0; y <= r1; y++) for (let x = x0; x <= x1; x++) dug(x, y, back);
+  const room = (x0: number, x1: number, r0: number, r1: number, back?: number, dep = 32) => {
+    for (let y = r0; y <= r1; y++) for (let x = x0; x <= x1; x++) dug(x, y, back ?? host(x, y), dep);
   };
   const props: Prop[] = [];
-  const torch = (x: number, row: number) =>
-    props.push({ type: PROP.TORCH, x: x + 0.5, y: -row - 0.3, z: TORCH_Z, scale: 1, rot: 0, attach: 'wall', anchor: I(x, row), seed: rng.nextU32() });
+  const torch = (x: number, row: number, z = TORCH_Z) =>
+    props.push({ type: PROP.TORCH, x: x + 0.5, y: -row - 0.3, z, scale: 1, rot: 0, attach: 'wall', anchor: I(x, row), seed: rng.nextU32() });
   const d: DressItem[] = [];
   const planks = (x0: number, x1: number, floorRow: number) => {
     for (let x = x0; x <= x1; x++) d.push({ kind: 'planks', x: x + 0.5, y: -floorRow, z: 0 });
@@ -150,7 +155,7 @@ export function buildStandWorld(seed = 7): StandWorld {
   const hallX0 = xA0 + 1;
   const hallX1 = hallX0 + hallW - 1;
   for (let y = floorA - hallH - 1; y < floorA; y++) for (const x of [hallX0 - 1]) mat[I(x, y)] = bg[I(x, y)] = M.STONE_BRICK; // dressed wall
-  room(hallX0, hallX1, floorA - hallH, floorA - 1, undefined);
+  room(hallX0, hallX1, floorA - hallH, floorA - 1, undefined, HALL_DEPTH * 32);
   for (let x = hallX0; x <= hallX0 + S(5); x++) for (let y = floorA - hallH; y < floorA; y++) bg[I(x, y)] = M.STONE_BRICK; // built back wall in part
   const tunX0 = hallX1 + 1;
   const tunX1 = tunX0 + tunW - 1;
@@ -169,49 +174,56 @@ export function buildStandWorld(seed = 7): StandWorld {
   ladder(shaftX + 0.5, shaftTop - 1, floorA - 1);
   const izbaCenter = hallX0 + Math.round(hallW * 0.42);
   const izbaTorch = izbaCenter;
-  torch(izbaTorch, floorA - hallH);
-  torch(hallX0 + 1, floorA - hallH + 1); // forge corner
+  const hallTorchZ = -HALL_DEPTH + 0.08;
+  // three sources ~6–7 tiles apart (as the engine's tone scenes): over the line-up, at the forge, at the far end
+  torch(izbaTorch, floorA - hallH, hallTorchZ);
+  torch(hallX0 + 1, floorA - hallH + 1, hallTorchZ);
+  torch(hallX1 - 1, floorA - hallH, hallTorchZ);
   const drTorch = shaftX - 2;
   torch(drTorch, floorA - tH);
   torch(shaftX - S(2), shaftTop - tH + 1);
   planks(hallX0, hallX1, floorA);
   const fy = -floorA;
   const zj = (a: number) => rng.range(-a, a);
-  // dense evening hall (behind the play plane unless noted)
-  d.push({ kind: 'forge', x: hallX0 + 1.2, y: fy, z: -0.62, sx: 0.8, sy: 0.8, sz: 0.8 });
-  d.push({ kind: 'anvil', x: hallX0 + 2.6, y: fy, z: -0.75 });
-  d.push({ kind: 'table', x: izbaCenter - 0.4 + zj(0.1), y: fy, z: -0.72 });
-  d.push({ kind: 'bench', x: izbaCenter - 0.4, y: fy, z: -0.98, sx: 0.9 });
-  d.push({ kind: 'barrel', x: izbaCenter - 2.4, y: fy, z: -0.72, ry: rng.range(0, 6) });
-  d.push({ kind: 'barrel', x: izbaCenter - 1.85, y: fy, z: -0.86, ry: rng.range(0, 6) });
-  d.push({ kind: 'shelf', x: izbaCenter + 1.9, y: fy, z: -0.84 });
-  d.push({ kind: 'toolrack', x: izbaCenter + 0.6, y: fy + 0.55, z: -0.93 });
-  d.push({ kind: 'crate', x: izbaCenter + 3.0, y: fy, z: -0.7, ry: 0.25 });
-  d.push({ kind: 'crate', x: izbaCenter + 3.05, y: fy + 0.45, z: -0.72, ry: -0.2 });
-  d.push({ kind: 'sack', x: izbaCenter + 3.7, y: fy, z: -0.55 });
-  d.push({ kind: 'chest', x: izbaCenter - 3.3, y: fy, z: -0.78 });
+  // dense evening hall: every piece of furniture stands fully behind the figures (dwarf back at z ~ -0.75)
+  const B = -HALL_DEPTH; // back wall
+  d.push({ kind: 'forge', x: hallX0 + 1.2, y: fy, z: B + 0.5, sx: 0.8, sy: 0.8, sz: 0.8 });
+  d.push({ kind: 'anvil', x: hallX0 + 2.6, y: fy, z: -1.1 });
+  d.push({ kind: 'table', x: izbaCenter - 0.4 + zj(0.1), y: fy, z: -1.3 });
+  d.push({ kind: 'bench', x: izbaCenter - 0.4, y: fy, z: -1.82, sx: 0.9 });
+  d.push({ kind: 'barrel', x: izbaCenter - 2.4, y: fy, z: -1.15, ry: rng.range(0, 6) });
+  d.push({ kind: 'barrel', x: izbaCenter - 1.85, y: fy, z: -1.55, ry: rng.range(0, 6) });
+  d.push({ kind: 'shelf', x: izbaCenter + 1.9, y: fy, z: B + 0.2 });
+  d.push({ kind: 'toolrack', x: izbaCenter + 0.6, y: fy + 0.55, z: B + 0.07 });
+  d.push({ kind: 'crate', x: izbaCenter + 3.0, y: fy, z: -1.3, ry: 0.25 });
+  d.push({ kind: 'crate', x: izbaCenter + 3.05, y: fy + 0.45, z: -1.32, ry: -0.2 });
+  d.push({ kind: 'sack', x: izbaCenter + 3.7, y: fy, z: -1.05 });
+  d.push({ kind: 'chest', x: izbaCenter - 3.3, y: fy, z: -1.6 });
   d.push({ kind: 'bench', x: hallX0 + 0.9, y: fy, z: -0.18, sx: 0.7 }); // foreground, clear of the line-up
   d.push({ kind: 'barrel', x: hallX1 - 0.6, y: fy, z: -0.3, ry: 1.1 }); // foreground, right edge
-  d.push({ kind: 'lantern', x: izbaCenter - 1.4, y: -(floorA - hallH), z: -0.55 });
-  d.push({ kind: 'lantern', x: izbaCenter + 1.6, y: -(floorA - hallH), z: -0.6 });
-  for (let x = hallX0 + 1; x <= hallX1; x += 3) d.push({ kind: 'beam', x: x + 0.5, y: -(floorA - hallH), z: 0 });
-  for (let x = hallX0; x <= hallX1; x++) d.push({ kind: 'pipe', x: x + 0.5, y: -(floorA - hallH) - 0.3, z: -0.88 });
-  d.push({ kind: 'shelf', x: hallX1 - 2.2, y: fy, z: -0.86 });
-  d.push({ kind: 'grindstone', x: hallX1 - 3.6, y: fy, z: -0.7 });
-  // drift: timbering
-  for (let x = tunX0 + 1; x <= tunX1 - 1; x += 3) d.push({ kind: 'support', x: x + 0.5, y: fy, z: -0.55, sy: tH * 0.98 });
-  d.push({ kind: 'debris', x: faceX - 0.9, y: fy, z: -0.7, sx: 0.6, sy: 0.6, sz: 0.6 });
+  d.push({ kind: 'lantern', x: izbaCenter - 1.4, y: -(floorA - hallH), z: -1.2 });
+  d.push({ kind: 'lantern', x: izbaCenter + 1.6, y: -(floorA - hallH), z: -1.45 });
+  for (let x = hallX0 + 1; x <= hallX1; x += 3) d.push({ kind: 'beam', x: x + 0.5, y: -(floorA - hallH), z: 0, sz: HALL_DEPTH });
+  for (let x = hallX0; x <= hallX1; x++) d.push({ kind: 'pipe', x: x + 0.5, y: -(floorA - hallH) - 0.3, z: B + 0.12 });
+  d.push({ kind: 'shelf', x: hallX1 - 2.2, y: fy, z: B + 0.18 });
+  d.push({ kind: 'grindstone', x: hallX1 - 3.6, y: fy, z: -1.3 });
+  // drift: timbering against the back wall
+  for (let x = tunX0 + 1; x <= tunX1 - 1; x += 3) d.push({ kind: 'support', x: x + 0.5, y: fy, z: BACK_DRESS_Z, sy: tH * 0.98 });
+  d.push({ kind: 'debris', x: faceX - 0.9, y: fy, z: -0.82, sx: 0.6, sy: 0.6, sz: 0.6 });
 
   // ------------------------------------------------------------------ B: strip corridors
   const sx0 = xB0;
   const sx1 = xB0 + stripW - 1;
   room(sx0, sx1, floorB1 - tH, floorB1 - 1);
   room(sx0, sx1, floorB2 - tH, floorB2 - 1);
-  const stripCenter = (sx0 + sx1 + 1) / 2;
-  const stripStep = 2 * u;
-  const stripXs = Array.from({ length: 8 }, (_, k) => stripCenter + (k - 3.5) * stripStep);
+  // identical light for every dwarf of a strip: integer tile spacing, dwarves on tile centres, one torch per
+  // dwarf at the same offset (period = spacing; the light field is per tile)
+  const stripStep = Math.max(2, Math.round(2 * u));
+  const stripX0 = Math.floor((sx0 + sx1 + 1) / 2 - 3.5 * stripStep);
+  const stripXs = Array.from({ length: 8 }, (_, k) => stripX0 + k * stripStep + 0.5);
+  const stripCenter = (stripXs[0]! + stripXs[7]!) / 2;
   for (const f of [floorB1, floorB2]) {
-    for (let k = 0; k <= 8; k += 2) torch(Math.floor(stripCenter + (k - 4) * stripStep), f - tH); // a torch every 2 dwarves
+    for (const x of stripXs) torch(Math.floor(x) - 1, f - tH);
     planks(sx0, sx1, f);
   }
 
@@ -220,13 +232,14 @@ export function buildStandWorld(seed = 7): StandWorld {
   const cx1 = xC0 + climbW - 1;
   const climbTop = floorC - climbRows;
   room(cx0, cx1, climbTop, floorC - 1);
-  const climbCenter = (cx0 + cx1 + 1) / 2;
-  const ladders = Array.from({ length: 8 }, (_, k) => Math.floor(climbCenter + (k - 3.5) * stripStep) + 0.5);
-  for (const lx of ladders) ladder(lx, climbTop, floorC - 1);
-  for (let k = 0; k <= 8; k += 2) {
-    const tx = Math.floor(climbCenter + (k - 4) * stripStep);
-    torch(tx, climbTop + Math.round(climbRows * 0.3));
-    torch(tx, climbTop + Math.round(climbRows * 0.72));
+  const ladX0 = Math.floor((cx0 + cx1 + 1) / 2 - 3.5 * stripStep);
+  const ladders = Array.from({ length: 8 }, (_, k) => ladX0 + k * stripStep + 0.5);
+  const climbCenter = (ladders[0]! + ladders[7]!) / 2;
+  for (const lx of ladders) {
+    ladder(lx, climbTop, floorC - 1);
+    // the same two torches beside every ladder: identical light on every climber
+    torch(Math.floor(lx) - 1, climbTop + Math.round(climbRows * 0.3));
+    torch(Math.floor(lx) - 1, climbTop + Math.round(climbRows * 0.72));
   }
   planks(cx0, cx1, floorC);
 
@@ -239,7 +252,7 @@ export function buildStandWorld(seed = 7): StandWorld {
   const dc = dTorch + 0.5;
   const core = [-1.8, -0.6, 0.6, 1.8].map((o) => dc + o * u);
   const edge = [6.4, 7.6, 8.8, 10.0].map((o) => dc + o * u);
-  for (let x = dx0 + 2; x <= dx1 - 2; x += 4) d.push({ kind: 'support', x: x + 0.5, y: -floorD, z: -0.55, sy: tH * 0.98 });
+  for (let x = dx0 + 2; x <= dx1 - 2; x += 4) d.push({ kind: 'support', x: x + 0.5, y: -floorD, z: BACK_DRESS_Z, sy: tH * 0.98 });
 
   // ------------------------------------------------------------------ E: network
   const ex0 = xE0;
@@ -261,7 +274,7 @@ export function buildStandWorld(seed = 7): StandWorld {
     tunnels.push({ floorY: -f, x0: a + 0.5, x1: b + 0.5 });
     planks(a, b, f);
     for (let x = a + 3; x <= b - 3; x += 7) torch(x, f - tH);
-    for (let x = a + 5; x <= b - 4; x += 6) d.push({ kind: 'support', x: x + 0.5, y: -f, z: -0.55, sy: tH * 0.98 });
+    for (let x = a + 5; x <= b - 4; x += 6) d.push({ kind: 'support', x: x + 0.5, y: -f, z: BACK_DRESS_Z, sy: tH * 0.98 });
     // a face of ore at one or both ends
     const ores = [M.COPPER, M.IRON, M.COAL, M.SILVER];
     for (const [fx, dir] of [
@@ -275,13 +288,13 @@ export function buildStandWorld(seed = 7): StandWorld {
     // a hall on the level
     const hx = a + Math.round((b - a) * (0.25 + 0.4 * (k % 2)));
     const hw = S(9);
-    room(hx, hx + hw - 1, f - hallH, f - 1);
+    room(hx, hx + hw - 1, f - hallH, f - 1, undefined, HALL_DEPTH * 32);
     halls.push({ floorY: -f, x0: hx + 0.5, x1: hx + hw - 0.5 });
-    torch(hx + 2, f - hallH);
-    torch(hx + hw - 3, f - hallH);
-    d.push({ kind: 'table', x: hx + hw * 0.5, y: -f, z: -0.75 });
-    d.push({ kind: 'barrel', x: hx + 1.2, y: -f, z: -0.8 });
-    d.push({ kind: 'shelf', x: hx + hw - 1.5, y: -f, z: -0.86 });
+    torch(hx + 2, f - hallH, -HALL_DEPTH + 0.08);
+    torch(hx + hw - 3, f - hallH, -HALL_DEPTH + 0.08);
+    d.push({ kind: 'table', x: hx + hw * 0.5, y: -f, z: -1.3 });
+    d.push({ kind: 'barrel', x: hx + 1.2, y: -f, z: -1.2 });
+    d.push({ kind: 'shelf', x: hx + hw - 1.5, y: -f, z: -1.8 });
   });
   // shafts with ladders between consecutive levels
   for (let k = 0; k < 3; k++) {

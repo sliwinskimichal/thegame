@@ -18,6 +18,8 @@ export interface ArmSpec {
   pitch: number;
   /** Tool local Euler (relative to the fist). */
   tool: readonly [number, number, number];
+  /** Where along the handle the fist holds it (0 = the butt, the contract's tool origin). */
+  grip?: number;
 }
 
 /** Baked arm: local Euler of ARM, FORE, HAND (9) + tool local Euler (3) + the spec (for IK use). */
@@ -76,11 +78,6 @@ export function holdsOf(d: RigData): HoldSet {
   return h;
 }
 
-/** Whether a tool hung head-down from a fist at height y clears the floor. */
-function hangsClear(t: ToolInfo | null, y: number, u: number): boolean {
-  return !!t && y - t.head > 0.15 * u;
-}
-
 function buildHolds(d: RigData): HoldSet {
   const u = d.unit;
   const sY = d.shoulderY;
@@ -110,12 +107,17 @@ function buildHolds(d: RigData): HoldSet {
   const hold = (r: ArmSpec | null, l: ArmSpec | null, swing: number): BakedHold => ({ r: r ? bake(1, r) : null, l: l ? bake(-1, l) : null, swing });
 
   // --- building blocks (all lengths from the rig measures)
+  // a tool hangs head down along the thigh, the edge down and back, the head below the belt; the
+  // fist slides up the handle as far as needed for the head to clear the floor
   const hangTool = (side: 1 | -1, t: ToolInfo | null): ArmSpec => {
     const y = hangY + 0.02 * u;
-    // head down along the leg when it clears the floor, else carried upright along the forearm
-    const down = hangsClear(t, y, u);
-    return { x: 0.06 * u, y, z: side * (sZ + 0.03 * u), pitch: 0.12, tool: [0, 0, down ? Math.PI - 0.35 : 0.2] };
+    const th = Math.PI + 0.25;
+    const drop = Math.cos(0.25);
+    const grip = t ? Math.max(0, Math.min(t.head * 0.8, t.head - (y - 0.2 * u) / drop)) : 0;
+    return { x: 0.06 * u, y, z: side * (sZ + 0.03 * u), pitch: 0.12, tool: [0, 0, th - 0.12], grip };
   };
+  // handle across the fist (swing grip): fist pitch = handle angle + 90°, tool turned -90° in the fist
+  const tongsForward: ArmSpec = { x: cR * 0.72, y: sY - 0.25 * u, z: -sZ * 0.72, pitch: -1.85 + Math.PI / 2, tool: [0, 0, -Math.PI / 2] };
   const overShoulder: ArmSpec = { x: cR * 0.55, y: sY - 0.05 * u, z: sZ * 0.8, pitch: 0.85, tool: [0, 0, 0] };
   const strap = (side: 1 | -1): ArmSpec => ({ x: cR * 0.62, y: sY - 0.11 * u, z: side * sZ * 0.48, pitch: -0.45, tool: [0, 0, 0] });
   const beamSteady: ArmSpec = { x: 0.1 * u, y: sY + 0.1 * u, z: -sZ * 0.72, pitch: 0.6, tool: [0, 0, 0] };
@@ -134,15 +136,20 @@ function buildHolds(d: RigData): HoldSet {
   let idle: BakedHold;
   switch (d.hold) {
     case HOLD.TOOL_SHOULDER:
+      // the pick rides the shoulder also at rest: the T of the head over the shoulder is the
+      // miner's silhouette (lead's review of E1; pickRest kept for a calmer variant)
       walk = hold(tR ? overShoulder : null, null, 0.25);
-      idle = hold(tR ? (tR.kind === 'pick' || hangsClear(tR, hangY, u) ? pickRest(tR) : overShoulder) : null, null, 0);
+      idle = hold(tR ? overShoulder : null, null, 0);
+      void pickRest;
       break;
     case HOLD.FRAME_STRAPS:
       walk = hold(strap(1), strap(-1), 0.08);
       idle = walk;
       break;
     case HOLD.TWO_TOOLS:
-      walk = hold(hangTool(1, tR), hangTool(-1, tL), 0.55);
+      // hammer along the right thigh; the tongs held forward at the belt, jaws forward and a little
+      // down, sticking out past the belly (the smith's silhouette; lead's review of E1)
+      walk = hold(hangTool(1, tR), tL ? tongsForward : null, 0.55);
       idle = walk;
       break;
     case HOLD.BEAM_SHOULDER:
@@ -184,6 +191,17 @@ export function applyArmFK(p: PoseFrame, side: 1 | -1, a: BakedArm, swingZ: numb
   p.rot[t * 3] = a.rot[9]!;
   p.rot[t * 3 + 1] = a.rot[10]!;
   p.rot[t * 3 + 2] = a.rot[11]!;
+  gripSlide(p, t, a.spec);
+}
+
+/** Slide the tool in the fist: the handle point at `grip` lands on the fist (tool origin). */
+function gripSlide(p: PoseFrame, t: number, s: ArmSpec): void {
+  const g = s.grip ?? 0;
+  // pos = -Rz(tool z)·(0, g, 0) (tool rot x / y are 0 for holds)
+  const th = s.tool[2];
+  p.pos[t * 3] = g * Math.sin(th);
+  p.pos[t * 3 + 1] = -g * Math.cos(th);
+  p.pos[t * 3 + 2] = 0;
 }
 
 /** Blend the arm channels already in the pose toward a baked arm (FK) by weight w. */
@@ -206,6 +224,7 @@ export function applyArmIK(p: PoseFrame, side: 1 | -1, a: BakedArm, w: number, d
   p.rot[t * 3] = s.tool[0];
   p.rot[t * 3 + 1] = s.tool[1];
   p.rot[t * 3 + 2] = s.tool[2];
+  gripSlide(p, t, s);
 }
 
 const ARM_BONES_R = [BONE.ARM_R, BONE.FORE_R, BONE.HAND_R] as const;

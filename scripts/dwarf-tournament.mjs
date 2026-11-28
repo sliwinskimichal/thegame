@@ -47,6 +47,9 @@ const info = await probe.page.evaluate(() => ({
   shotNames: window.__dwarf.shotNames,
   scale: window.__dwarf.scale,
   light: window.__dwarf.light,
+  lightGain: window.__dwarf.lightGain,
+  zoomPx: window.__dwarf.zoomPx,
+  tone: window.__dwarf.tone(),
   mirror: window.__dwarf.mirror,
 }));
 await probe.page.close();
@@ -61,7 +64,7 @@ for (const v of variants) if (!info.variants.includes(v)) {
 
 const manifest = { width: Number(W), height: Number(H), scenarios: info.shots, styles: {} };
 const metrics = {
-  meta: { date: new Date().toISOString(), base, size: [Number(W), Number(H)], scale: info.scale, light: info.light, mirror: info.mirror, extra, renderer: 'Chromium SwiftShader (frame times relative only)' },
+  meta: { date: new Date().toISOString(), base, size: [Number(W), Number(H)], scale: info.scale, zoomPx: info.zoomPx, light: info.light, lightGain: info.lightGain, tone: info.tone, mirror: info.mirror, extra, renderer: 'Chromium SwiftShader (frame times relative only)' },
   shots: info.shotNames,
   variants: {},
 };

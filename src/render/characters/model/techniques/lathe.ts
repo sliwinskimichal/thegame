@@ -175,29 +175,24 @@ function refine(parts: ModelPart[], f: Frame): ModelPart[] {
       });
       continue;
     }
-    if (sh.k === 'wedge' && /^beard\.(top|bot)$/.test(n)) {
-      const { w0, w1, h, d } = sh;
-      const bot = n === 'beard.bot';
-      const prof: Prof = bot
-        ? smoothProfile(
+    if (sh.k === 'frustum' && /^beard\.s\dl$/.test(n)) {
+      // lower half of a strand: rounded tip curling slightly
+      const { r0, r1, h } = sh;
+      out.push({
+        ...p,
+        shape: lathe(
+          smoothProfile(
             [
-              [0, -h - 0.035],
-              [w1 * 0.3, -h - 0.01],
-              [w1 * 0.5, -h * 0.6],
-              [w0 * 0.5, 0],
-            ],
-            7,
-          )
-        : smoothProfile(
-            [
-              [w1 * 0.5, -h],
-              [w1 * 0.52, -h * 0.6],
-              [w0 * 0.52, -h * 0.2],
-              [w0 * 0.4, 0.01],
+              [0, -h / 2 - r0 * 0.8],
+              [r0 * 0.9, -h / 2],
+              [(r0 + r1) * 0.55, 0],
+              [r1, h / 2],
             ],
             6,
-          );
-      out.push({ ...p, shape: lathe(prof), s: [d / ((w0 + w1) / 2), 1, 1], cap: bot ? 2 : CAP_BOTH });
+          ),
+        ),
+        cap: 2,
+      });
       continue;
     }
     if (sh.k === 'lathe' && (n === 'torso' || n === 'skirt' || n === 'basket')) {

@@ -18,13 +18,25 @@
  * separate buckets per facing with hardware culling (side per bucket), no discard (benchmark twin).
  *
  * Modes (uMode): 0 colour, 1 mask (fill white, hull grey, unlit), 2 silhouette (black, hull hidden).
+ *
+ * Draw order: the materials are "transparent" with NoBlending and the crowd meshes carry CROWD_RENDER_ORDER, so
+ * the dwarves are drawn AFTER the style's glowing air sheet (additive, z = -0.25, in front of the play plane):
+ * otherwise the haze is added over every figure and lifts the ink of the outline to brown (L12 restores the
+ * pre-bloom colour, which already contains the haze). Opaque output: colour and alpha are written as is.
  */
+export const CROWD_RENDER_ORDER = 10;
 import * as THREE from 'three';
 import { GLSL_INK } from '../../ink';
 import { GLSL_LIGHT, GLSL_NOISE, MAX_DYN_LIGHTS } from '../../shaderlib';
 import { GLSL_WORLD } from '../../worldTex';
 
-export const MODE = { color: 0, mask: 1, sil: 2 } as const;
+/** Render modes: colour (style), mask (fill white, hull grey), silhouette (black), slot (metrics: colour slot ids). */
+export const MODE = { color: 0, mask: 1, sil: 2, slot: 3 } as const;
+/** Slot-mode encoding: red = (id + 1) * 32 / 255 with id = SLOT.* or SLOT_LAMP for emissive pixels; black = none. */
+export const SLOT_LAMP = 7;
+export function decodeSlot(r: number): number {
+  return Math.round(r / 32) - 1;
+}
 export type CrowdMode = keyof typeof MODE;
 
 /** Flat tone model (data-driven; the lab may override from the URL). */
@@ -55,6 +67,10 @@ export interface ToneParams {
   figDesat: number;
   /** Share of the props' light the face, hands and the accent keep (the bright "eye" of the dark figure). */
   faceLift: number;
+  /** Soft knee of the light on the figure, E' = k (1 − exp(−E / k)): garments, and face / hands / accent (0 = off).
+   *  Keeps the garments at most ~L* 48 on screen in the core of a pool, the face up to ~68 (art bible §0). */
+  knee: number;
+  faceKnee: number;
 }
 
 export const DEFAULT_TONE: ToneParams = {
@@ -73,6 +89,8 @@ export const DEFAULT_TONE: ToneParams = {
   lightCap: 1.8,
   figDesat: 0,
   faceLift: 0,
+  knee: 0,
+  faceKnee: 0,
 };
 
 /** Parse tone overrides from URL-like pairs: tone.shadeDL=-12&tone.ambK=0.6 (numbers; key/core as a,b[,c]). */
@@ -207,6 +225,7 @@ uniform float uFlicker;
 uniform float uSelfLight;
 uniform vec4 uFig; // ambient gain, light gain, light cap, light-hue desaturation (figure vs ground)
 uniform float uFaceLift; // face, hands and the accent keep this share of the props' light ("the bright eye")
+uniform vec2 uKnee; // soft knee of the light on garments / on face, hands and accent
 varying vec3 vLamp;
 flat varying float vSlot;
 varying vec3 vColor;
@@ -273,6 +292,7 @@ void main() {
 #endif
   if (uMode == 2) { gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0); return; }
   if (uMode == 1) { gl_FragColor = vec4(1.0); return; }
+  if (uMode == 3) { gl_FragColor = vec4(((vEmi > 0.5 ? 7.0 : floor(vSlot + 0.5)) + 1.0) * 32.0 / 255.0, 0.0, 0.0, 1.0); return; }
   if (fogAt(vPos.xy).x < 0.5) discard; // never leak shapes into unexplored rock
   vec3 N = normalize(vNormal);
   vec3 V = normalize(uCamPos - vPos);
@@ -285,7 +305,10 @@ void main() {
   int slot = int(vSlot + 0.5);
   float lift = (slot == 4 || slot == 6) ? uFaceLift : 0.0; // SLOT.SKIN, SLOT.ACCENT
   float lbF = lightBands(min(l, mix(uFig.z, 1.8, lift)), uBands, uBandSoft);
-  vec3 col = base * (uAmbCool * uDwarfAmb * mix(uFig.x, 1.0, lift) + hue * lbF * uPropLight * mix(uFig.y, 1.0, lift));
+  vec3 E = uAmbCool * uDwarfAmb * mix(uFig.x, 1.0, lift) + hue * lbF * uPropLight * mix(uFig.y, 1.0, lift);
+  float km = lift > 0.0 ? uKnee.y : uKnee.x;
+  if (km > 0.0) E = km * (vec3(1.0) - exp(-E / km)); // soft knee: dark keeps its response, the core is compressed
+  vec3 col = base * E;
   // flat tones: the side toward the light is lighter, the other side drops toward the ambient
   vec3 ld = lightDirection(vPos);
   float amt = smoothstep(0.02, 0.3, length(ld));
@@ -343,6 +366,7 @@ void main() {
   if (gl_FrontFacing != (vMirror < 0.0)) discard; // keep true back faces only
 #endif
   if (uMode == 1) { gl_FragColor = vec4(0.5, 0.5, 0.5, 1.0); return; }
+  if (uMode == 3) { gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0); return; }
   if (texture(uFogTex, vec2(vWp.x / uWorldSize.x, -vWp.y / uWorldSize.y)).r < 0.5) discard;
   gl_FragColor = vec4(uInk, 0.5); // alpha 0.5 = ink coverage (InkCapture / InkOver of L12)
 }
@@ -364,6 +388,7 @@ export interface DwarfUniforms {
   uSelfLight: THREE.IUniform<number>;
   uFig: THREE.IUniform<THREE.Vector4>;
   uFaceLift: THREE.IUniform<number>;
+  uKnee: THREE.IUniform<THREE.Vector2>;
 }
 
 export function dwarfUniforms(style: Uniforms, tone: ToneParams = DEFAULT_TONE): DwarfUniforms {
@@ -381,6 +406,7 @@ export function dwarfUniforms(style: Uniforms, tone: ToneParams = DEFAULT_TONE):
     uSelfLight: { value: tone.selfLight },
     uFig: { value: new THREE.Vector4(tone.ambK, tone.lightK, tone.lightCap, tone.figDesat) },
     uFaceLift: { value: tone.faceLift },
+    uKnee: { value: new THREE.Vector2(tone.knee, tone.faceKnee) },
   };
 }
 
@@ -394,6 +420,7 @@ export function setTone(d: DwarfUniforms, t: ToneParams): void {
   d.uSelfLight.value = t.selfLight;
   d.uFig.value.set(t.ambK, t.lightK, t.lightCap, t.figDesat);
   d.uFaceLift.value = t.faceLift;
+  d.uKnee.value.set(t.knee, t.faceKnee);
 }
 
 /** Fill material; `side` only matters with MIRROR_SPLIT (FrontSide for facing +1, BackSide for −1). */
@@ -406,6 +433,8 @@ export function dwarfFillMaterial(style: Uniforms, d: DwarfUniforms, opts: { par
     uniforms: { ...style, ...(d as unknown as Uniforms) },
     defines,
     side: opts.split ? (opts.side ?? THREE.FrontSide) : THREE.DoubleSide,
+    transparent: true,
+    blending: THREE.NoBlending,
   });
 }
 
@@ -427,6 +456,8 @@ export function dwarfHullMaterial(style: Uniforms, d: DwarfUniforms, px: number,
     },
     defines,
     side: opts.split ? (opts.side ?? THREE.BackSide) : THREE.DoubleSide,
+    transparent: true,
+    blending: THREE.NoBlending,
   });
 }
 

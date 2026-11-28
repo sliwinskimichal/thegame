@@ -20,7 +20,7 @@ import { refHeightTiles, ZOOMS } from '../direction';
 import { VAR_SLOTS, type CrowdMember, type DwarfCrowdRenderer, type DwarfMesh, type DwarfPalette, type LodLevel } from '../types';
 import { BoneTexture, writeSkinRow } from './boneTexture';
 import { lodWithHysteresis, refDwarfPxAtDepth, viewDepth } from './lod';
-import { dwarfFillMaterial, dwarfHullMaterial, dwarfUniforms, MODE, type CrowdMode, type DwarfUniforms, type ToneParams, type Uniforms } from './materials';
+import { CROWD_RENDER_ORDER, dwarfFillMaterial, dwarfHullMaterial, dwarfUniforms, MODE, type CrowdMode, type DwarfUniforms, type ToneParams, type Uniforms } from './materials';
 
 /** Floats per instance of the welded path: aInst (4) + 6 palette slots (18) + own lamp position (3). */
 export const INSTANCE_STRIDE = 25;
@@ -229,11 +229,15 @@ export class CrowdRenderer implements DwarfCrowdRenderer {
             if (dot(q, q) > 0.25) discard;
             if (uMode == 2) { gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0); return; }
             if (uMode == 1) { gl_FragColor = vec4(1.0); return; }
+            if (uMode == 3) { gl_FragColor = vec4(8.0 * 32.0 / 255.0, 0.0, 0.0, 1.0); return; }
             gl_FragColor = vec4(vC * uGlow, 1.0);
           }`,
+        transparent: true,
+        blending: THREE.NoBlending,
       }),
     );
     this.sprites.frustumCulled = false;
+    this.sprites.renderOrder = CROWD_RENDER_ORDER;
     this.sprites.layers.set(this.opts.layer);
     this.group.add(this.sprites);
   }
@@ -255,6 +259,12 @@ export class CrowdRenderer implements DwarfCrowdRenderer {
   /** LOD the member was drawn with in the last sync (forced LOD wins). */
   lodOf(anim: DwarfAnimator): LodLevel {
     return this.opts.forceLod ?? ((this.prevLod.get(anim) ?? 1) as LodLevel);
+  }
+
+  /** Metrics mode: the fill writes colour-slot ids (MODE.slot), hulls black. Leave with setMode(). */
+  setSlotMode(): void {
+    this.setMode('mask');
+    this.uniforms.uMode.value = MODE.slot;
   }
 
   setForceLod(lod: LodLevel | null): void {
@@ -313,6 +323,7 @@ export class CrowdRenderer implements DwarfCrowdRenderer {
       attach(b.fillGeo, m.geometry);
       b.fill = new THREE.Mesh(b.fillGeo, this.fillMats[side]!);
       b.fill.frustumCulled = false;
+      b.fill.renderOrder = CROWD_RENDER_ORDER;
       b.fill.layers.set(this.opts.layer);
       this.group.add(b.fill);
       b.fillTris = triangles(m.geometry);
@@ -325,6 +336,7 @@ export class CrowdRenderer implements DwarfCrowdRenderer {
         attach(b.hullGeo, m.hull);
         b.hull = new THREE.Mesh(b.hullGeo, this.hullMats[side]![m.lod]!);
         b.hull.frustumCulled = false;
+        b.hull.renderOrder = CROWD_RENDER_ORDER;
         b.hull.layers.set(this.opts.layer);
         this.group.add(b.hull);
         b.hullTris = triangles(m.hull);
@@ -357,6 +369,7 @@ export class CrowdRenderer implements DwarfCrowdRenderer {
         fill.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
         fill.frustumCulled = false;
         fill.count = 0;
+        fill.renderOrder = CROWD_RENDER_ORDER;
         fill.layers.set(this.opts.layer);
         this.group.add(fill);
         let hull: THREE.InstancedMesh | null = null;
@@ -365,6 +378,7 @@ export class CrowdRenderer implements DwarfCrowdRenderer {
           hull.instanceMatrix = fill.instanceMatrix; // same matrices, one upload
           hull.frustumCulled = false;
           hull.count = 0;
+          hull.renderOrder = CROWD_RENDER_ORDER;
           hull.layers.set(this.opts.layer);
           this.group.add(hull);
         }

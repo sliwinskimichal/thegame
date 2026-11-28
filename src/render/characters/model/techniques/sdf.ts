@@ -12,7 +12,7 @@
  */
 import * as THREE from 'three';
 import { BONE } from '../../../anim/types';
-import { SLOT, type LodLevel } from '../../types';
+import type { LodLevel } from '../../types';
 import type { Frame } from '../anatomy';
 import { attrsOf } from '../build';
 import type { MeshBuilder, VertexAttrs } from '../mesh';
@@ -353,10 +353,9 @@ export function sdfTechnique(): TechniqueImpl {
       lods: [0],
       build(parts: ModelPart[], _lod: LodLevel, _f: Frame, b: MeshBuilder) {
         CHAINS.forEach((bones, c) => {
-          const prims = parts.filter((p) => bones.includes(p.bone) && p.slot !== undefined).map(primOf);
+          const prims = parts.filter((p) => bones.includes(p.bone)).map(primOf);
           polygonizeChain(prims, CELL[c]!, BLEND[c]!, b);
         });
-        void SLOT;
       },
     },
   };

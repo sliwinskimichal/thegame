@@ -95,6 +95,33 @@ export function beardFrame(f: Frame) {
   return { tilt, faceX, topY, topX, midY, botY, xAt };
 }
 
+/** Front surface of the barrel torso (x) at height y: the profile of the torso lathe × TORSO_DEPTH. */
+export function torsoFront(f: Frame, y: number): number {
+  const prof = torsoProfile(f);
+  const yy = Math.max(prof[0]![1], Math.min(prof[prof.length - 1]![1], y));
+  for (let i = 0; i < prof.length - 1; i++) {
+    const a = prof[i]!, b = prof[i + 1]!;
+    if (yy >= a[1] && yy <= b[1]) return (a[0] + ((b[0] - a[0]) * (yy - a[1])) / Math.max(1e-9, b[1] - a[1])) * TORSO_DEPTH;
+  }
+  return prof[prof.length - 1]![0] * TORSO_DEPTH;
+}
+
+/** Revolved profile of the barrel torso (belt to neck). */
+export function torsoProfile(f: Frame): [number, number][] {
+  const p = f.p;
+  const sY = f.shoulderY;
+  const bY = f.beltY;
+  return [
+    [p.bellyR, bY - 0.03],
+    [p.bellyR + 0.012, bY + 0.07],
+    [(p.bellyR + p.chestR) / 2 + 0.012, bY + 0.17],
+    [p.chestR, sY - 0.09],
+    [p.chestR - 0.025, sY - 0.035],
+    [p.chestR - 0.08, sY + 0.01],
+    [0.13, sY + 0.03],
+  ];
+}
+
 export function bodyParts(f: Frame): ModelPart[] {
   const { p, k, spec } = f;
   const out: ModelPart[] = [];
@@ -145,13 +172,14 @@ export function bodyParts(f: Frame): ModelPart[] {
       t: [f.hx - 0.02 * k, f.chinY + 0.44 * p.headH, s * (f.hrz + 0.004)],
       slot: SLOT.SKIN,
       minLod: 0,
+      layer: 0,
     });
     add({
       name: `mous.${side}`,
       bone: BONE.HEAD,
-      shape: { k: 'ellipsoid', rx: 0.05 * k, ry: 0.03 * k, rz: 0.075 * k },
-      t: [f.hx + f.hrx * 0.9, f.chinY + 0.31 * p.headH, s * 0.045 * k],
-      r: [s * -0.35, 0, -0.1],
+      shape: { k: 'ellipsoid', rx: 0.055 * k, ry: 0.034 * k, rz: 0.085 * k },
+      t: [f.hx + f.hrx * 0.92, f.chinY + 0.27 * p.headH, s * 0.05 * k],
+      r: [s * -0.45, 0, -0.15],
       slot: SLOT.BEARD,
       minLod: 0,
     });
@@ -167,7 +195,10 @@ export function bodyParts(f: Frame): ModelPart[] {
     rings: 5,
   });
 
-  // ---------------------------------------------------------------- beard: jaw mass, wedge (2 bones), locks, braids
+  // ---------------------------------------------------------------- beard: a wedge IN PROFILE (lead, E1 review)
+  // Thick at the chin (0.12), thin at the tips (0.035), its back lying on the barrel of the torso (no gap),
+  // front hanging straight; in front view a trapezoid 0.26 -> beardW of 4 strands with an irregular bottom.
+  // LOD0: strands (upper halves on BEARD, lower on BEARD2) + jaw mass; LOD1: two profile wedges; LOD2: token.
   const bf = beardFrame(f);
   add({
     name: 'beard.jaw',
@@ -181,61 +212,105 @@ export function bodyParts(f: Frame): ModelPart[] {
     rings: 6,
     lod1: { seg: 5, rings: 2 },
   });
-  const wMid = (0.26 + p.beardW) / 2;
-  add({
-    name: 'beard.top',
-    bone: BONE.BEARD,
-    shape: { k: 'wedge', w0: 0.26 * k, w1: wMid, h: bf.topY - bf.midY, d: 0.12 },
-    t: [bf.topX, bf.topY, 0],
-    r: [0, 0, bf.tilt],
-    slot: SLOT.BEARD,
-    minLod: 1,
-    skin: true,
-    round: 0.8,
-  });
-  const wBot = p.beardW * (0.82 + 0.3 * shape);
-  add({
-    name: 'beard.bot',
-    bone: BONE.BEARD2,
-    shape: { k: 'wedge', w0: wMid, w1: wBot, h: bf.midY - bf.botY + 0.02, d: 0.095 },
-    t: [bf.xAt(bf.midY) + 0.004, bf.midY + 0.02, 0],
-    r: [0, 0, bf.tilt + 3 * DEG],
-    slot: SLOT.BEARD,
-    minLod: 1,
-    skin: true,
-    round: 0.8,
-  });
-  // locks break the straight cut (pointed centre for high beardShape)
-  for (const [i, z] of [-1, 0, 1].entries()) {
-    const zz = (z * wBot) / 3;
-    const ly = 0.045 + (z === 0 ? 0.02 * shape : 0);
+  const tf = (y: number) => torsoFront(f, y);
+  const L = bf.topY - bf.botY;
+  const rTop = 0.056 * k;
+  const rTip = 0.018;
+  const sxStrand = 0.12 / (2 * rTop);
+  const topZ = [-0.35, -0.115, 0.115, 0.35].map((z) => z * 0.26 * k);
+  const botZ = [-0.36, -0.12, 0.12, 0.36].map((z) => z * p.beardW * (0.92 + 0.16 * shape));
+  // elliptic strand section: the profile depth tapers 0.12 -> 0.035, the width overlaps the neighbours (one mass)
+  const szStrand = 1.4;
+  const lens = shape < 0.5 ? [0.8, 1.0, 0.93, 0.84] : [0.84, 0.93, 1.0, 0.8];
+  for (let i = 0; i < 4; i++) {
+    const yEnd = bf.topY - L * lens[i]!;
+    const xTop = tf(bf.topY) + rTop * sxStrand - 0.012;
+    const xEnd = tf(yEnd) + rTip * sxStrand - 0.004;
+    const d = [xEnd - xTop, yEnd - bf.topY, botZ[i]! - topZ[i]!] as const;
+    const len = Math.hypot(d[0], d[1], d[2]);
+    const u = [-d[0] / len, -d[1] / len, -d[2] / len]; // strand axis pointing up (frustum +Y)
+    const rx = Math.asin(u[2]!);
+    const rz = Math.atan2(-u[0]!, u[1]!);
+    const rAt = (t: number) => rTop + (rTip - rTop) * t; // t = 0 at the chin, 1 at the tip
+    const tSplit = Math.min(0.92, (bf.topY - bf.midY) / (bf.topY - yEnd));
+    for (const [half, t0, t1, bone] of [
+      ['u', 0, tSplit, BONE.BEARD],
+      ['l', tSplit, 1, BONE.BEARD2],
+    ] as const) {
+      const tm = (t0 + t1) / 2;
+      add({
+        name: `beard.s${i}${half}`,
+        bone,
+        shape: { k: 'frustum', r0: rAt(t1), r1: rAt(t0) * (half === 'l' ? 1.04 : 1), h: len * (t1 - t0) + (half === 'u' ? 0.01 : 0) },
+        t: [xTop + d[0] * tm, bf.topY + d[1] * tm, topZ[i]! + d[2] * tm],
+        r: [rx, 0, rz],
+        s: [sxStrand, 1, szStrand],
+        slot: SLOT.BEARD,
+        minLod: 0,
+        skin: true,
+        seg: 9,
+      });
+    }
+  }
+  // LOD1 (75 px): a forked pair of tapering strands with a diamond section (a ridge in front, never a
+  // flat board), thick under the chin, thin at the tips; whole length on BEARD (24 triangles).
+  for (const [i, zs] of [-1, 1].entries()) {
+    const r1 = 0.07 * k;
+    const r0 = 0.02;
+    const y0 = bf.topY;
+    const y1 = bf.botY - 0.01 + (i === 0 ? 0.03 : 0);
+    const x0 = tf(y0) + r1 * 0.86 - 0.012;
+    const x1 = tf(y1) + r0 * 0.86 - 0.004;
+    const z0 = zs * 0.065 * k;
+    const z1 = zs * p.beardW * 0.36;
+    const d = [x1 - x0, y1 - y0, z1 - z0] as const;
+    const len = Math.hypot(d[0], d[1], d[2]);
+    const u = [-d[0] / len, -d[1] / len, -d[2] / len];
+    add({
+      name: `beard.fork${i}`,
+      bone: BONE.BEARD,
+      shape: { k: 'frustum', r0, r1, h: len },
+      t: [(x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2],
+      r: [Math.asin(u[2]!), 0, Math.atan2(-u[0]!, u[1]!)],
+      s: [0.86, 1, 1],
+      slot: SLOT.BEARD,
+      fromLod: 1,
+      minLod: 1,
+      seg: 4,
+    });
+  }
+  // small irregular locks between the strand tips and braids with beads (cech signs)
+  for (const [i, z] of [-0.28, 0, 0.28].entries()) {
+    const y = bf.botY + L * 0.12 - (i === 1 ? 0.02 : 0);
     add({
       name: `beard.lock${i}`,
       bone: BONE.BEARD2,
-      shape: { k: 'ellipsoid', rx: 0.05, ry: ly, rz: wBot / 6 + 0.012 },
-      t: [bf.xAt(bf.botY) + 0.012, bf.botY - 0.005, zz],
+      shape: { k: 'ellipsoid', rx: 0.024, ry: 0.05, rz: 0.03 },
+      t: [tf(y) + 0.03, y, z * p.beardW],
+      r: [z * 0.6, 0, 0.15],
       slot: SLOT.BEARD,
       minLod: 0,
     });
   }
-  const braidZ = spec.braids <= 1 ? [0] : [-0.075, 0.075];
+  const braidZ = spec.braids <= 1 ? [0] : [-0.07, 0.07];
   braidZ.forEach((z, i) => {
-    const x = bf.xAt(bf.botY) + 0.04;
+    const y = bf.botY + 0.02;
+    const x = tf(y) + 0.045;
     add({
       name: `braid${i}`,
       bone: BONE.BEARD2,
-      shape: { k: 'capsule', r: 0.018, len: 0.16 },
-      t: [x, bf.botY - 0.045, z * k],
-      r: [0, 0, 0.12],
+      shape: { k: 'capsule', r: 0.017, len: 0.17 },
+      t: [x, y - 0.06, z * k],
+      r: [0, 0, 0.1],
       slot: SLOT.BEARD,
       minLod: 1,
-      lod1: { shape: { k: 'frustum', r0: 0, r1: 0.022, h: 0.16 }, seg: 3 },
+      lod1: { shape: { k: 'frustum', r0: 0, r1: 0.021, h: 0.16 }, seg: 3 },
     });
     add({
       name: `bead${i}`,
       bone: BONE.BEARD2,
       shape: { k: 'ellipsoid', rx: 0.022, ry: 0.026, rz: 0.022 },
-      t: [x - 0.012, bf.botY - 0.13, z * k],
+      t: [x - 0.012, y - 0.135, z * k],
       slot: SLOT.FIXED,
       color: MODEL_COLORS.brass,
       minLod: 0,
@@ -260,18 +335,7 @@ export function bodyParts(f: Frame): ModelPart[] {
   add({
     name: 'torso',
     bone: BONE.SPINE,
-    shape: {
-      k: 'lathe',
-      profile: [
-        [p.bellyR, bY - 0.03],
-        [p.bellyR + 0.012, bY + 0.07],
-        [(p.bellyR + p.chestR) / 2 + 0.012, bY + 0.17],
-        [p.chestR, sY - 0.09],
-        [p.chestR - 0.025, sY - 0.035],
-        [p.chestR - 0.08, sY + 0.01],
-        [0.13, sY + 0.03],
-      ],
-    },
+    shape: { k: 'lathe', profile: torsoProfile(f) },
     t: [0, 0, 0],
     s: [TORSO_DEPTH, 1, 1],
     slot: SLOT.TUNIC,
@@ -477,34 +541,38 @@ export function bodyParts(f: Frame): ModelPart[] {
   }
 
   // ---------------------------------------------------------------- LOD2 token (30 triangles of body)
-  for (const [th, , , s, side] of legs) {
-    add({
-      name: `tok.leg.${side}`,
-      bone: th,
-      shape: { k: 'frustum', r0: 0.115, r1: 0, h: f.hipY + 0.02 },
-      t: [0.035, (f.hipY + 0.02) / 2, s * J(f, th)[2] * 1.15],
-      s: [1.3, 1, 0.85],
-      slot: SLOT.TUNIC2,
-      fromLod: 2,
-      minLod: 2,
-      seg: 3,
-    });
-  }
+  // A trapezoid WIDER AT THE BOTTOM (lead, E1 review): one body from the boots to the shoulders narrowing
+  // upward, two squat boots that still step, head and beard; headgear and back element come from the role.
   const c45 = Math.SQRT1_2;
-  const tb = f.hipY - 0.04;
-  const tt = sY + 0.03;
+  const tb = 0.15;
+  const tt = sY + 0.02;
   add({
-    name: 'tok.torso',
-    bone: BONE.SPINE,
-    shape: { k: 'frustum', r0: (p.bellyR - 0.005) / c45, r1: p.shoulderW / 2 / c45, h: tt - tb },
+    name: 'tok.body',
+    bone: BONE.PELVIS,
+    shape: { k: 'frustum', r0: 0.28 / c45, r1: 0.22 / c45, h: tt - tb },
     t: [0, (tb + tt) / 2, 0],
-    s: [0.58, 1, 1],
+    s: [0.6, 1, 1],
     slot: SLOT.TUNIC,
     fromLod: 2,
     minLod: 2,
     seg: 4,
     phase: Math.PI / 4,
   });
+  for (const [, , ft, , side] of legs) {
+    const A = J(f, ft);
+    add({
+      name: `tok.boot.${side}`,
+      bone: ft,
+      shape: { k: 'frustum', r0: 0.11, r1: 0, h: 0.2 },
+      t: [A[0] + 0.065, 0.1, A[2] * 1.3],
+      s: [1.65, 1, 0.85],
+      slot: SLOT.FIXED,
+      color: FIXED_COLORS.boot,
+      fromLod: 2,
+      minLod: 2,
+      seg: 3,
+    });
+  }
   add({
     name: 'tok.head',
     bone: BONE.HEAD,
@@ -517,10 +585,11 @@ export function bodyParts(f: Frame): ModelPart[] {
     rings: 2,
   });
   const tokBeardH = p.beardLen + 0.06;
+  // apex down: thick under the chin, a point at the tip (a wedge in profile)
   add({
     name: 'tok.beard',
     bone: BONE.BEARD,
-    shape: { k: 'frustum', r0: (p.beardW / 2) * 1.15, r1: 0, h: tokBeardH },
+    shape: { k: 'frustum', r0: 0, r1: (p.beardW / 2) * 1.05, h: tokBeardH },
     t: [bf.xAt(f.chinY - p.beardLen / 2) + 0.01, f.chinY - p.beardLen / 2 + 0.03, 0],
     r: [0, 0, bf.tilt],
     s: [0.5, 1, 1],

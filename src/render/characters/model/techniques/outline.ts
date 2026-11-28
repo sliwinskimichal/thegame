@@ -45,7 +45,7 @@ export function outlineTechnique(): TechniqueImpl {
           const poly = g.length === 1 ? prof[g[0]!]!.poly : convexHull2(g.flatMap((i) => prof[i]!.poly));
           const z0 = Math.min(...g.map((i) => prof[i]!.z0));
           const z1 = Math.max(...g.map((i) => prof[i]!.z1));
-          const n = profileVerts(poly, 0.11, 3, 6);
+          const n = profileVerts(poly, 0.125, 3, 6);
           out.push({ part: body[g[0]!]!, out: { raw: slab(reduceProfile(poly, n), z0, z1, 0, 0), space: 'model' } });
         }
         return out;

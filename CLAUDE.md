@@ -15,8 +15,9 @@ Projekt: **Underhearth** — przeglądarkowa gra o krasnoludzkiej kolonii w prze
   (biomy kopalni, wyzwania środowiskowe, rzemiosło), Palworld — WYŁĄCZNIE najazdy na gród i bossowie
   strzegący biomów. **ZAKAZ: żadnego oswajania stworzeń ani stworzeń-pracowników** (decyzja właściciela).
   Pracują tylko krasnoludy i maszyny; stworzenia to zwierzyna i potwory (źródło dropu).
-- **Samouczek ~1 h** na starcie, płynnie przechodzący w grę swobodną. Przewodnikiem jest **stary król**, który
-  ginie w zawale tunelu na końcu samouczka i przekazuje władzę następcy (graczowi) — decyzja właściciela.
+- **Samouczek ~1 h** na starcie, płynnie przechodzący w grę swobodną. **Gracz gra starym królem Gostomirem** (decyzja
+  właściciela 2026-11-28: gracz ma się z nim zżyć), który ginie w zawale tunelu na końcu samouczka — jego śmierć jest
+  szokiem i motywacją dla drużyny; władzę przejmuje następca (dalej gracz).
 - **Główny przeciwnik**: oryginalny demon cienia i ognia z głębin, *na wzór* archetypu balroga — bez nazw
   i szczegółów z Tolkiena (decyzja właściciela; nazwy własne wymyślamy sami).
 - **Warstwa drużyny (RPG)** inspirowana Dragon Age: Origins / Mass Effect 2: nazwani towarzysze w kolonii

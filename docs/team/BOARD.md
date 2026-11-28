@@ -27,7 +27,7 @@ Statusy: `kolejka` · `w toku` · `do przeglądu` · `zrobione` · `zablokowane 
 | F2-5 | HUD i sterowanie — specyfikacja + makiety do turnieju | ui-ux-designer | kolejka |
 | F2-6 | Zadania jako dane + testy kompletności | quest-designer (**lider zespołu 4 scenarzystów** — decyzja właściciela 2026-11-28; start wg harmonogramu) | kolejka |
 | F2-7 | Teksty samouczka (król Gostomir) i Krążków Pamięci | zespół scenarzystów (lider: quest-designer) | kolejka (M4) |
-| F2-8 | Przegląd spójności biblii po nowym kierunku sztuki (+ usunięcie zależności od R2B w 01-world §10 i 05-level §1.4) | lead-narrative-designer | kolejka |
+| F2-8 | Przegląd spójności biblii po nowym kierunku sztuki (+ usunięcie zależności od R2B w 01-world §10 i 05-level §1.4) **+ przepisanie samouczka: gracz gra Gostomirem** (persona gracza, Kołysanka trzymana przez gracza, następca; decyzja właściciela 2026-11-28) + sala zawału 14×3 | lead-narrative-designer + quest-designer | kolejka (przed tekstami M4) |
 | F2-9 | Gobliny: pogodzić dane (drapieżcy) z biblią (lud wypierany przez Raroga) | lead-narrative-designer + systems-designer | kolejka |
 | F2-10 | Przegląd Kręgów Otchłani pod charakter gry o kolonii | systems-designer + game-director | kolejka |
 | F2-11 | Metryka nasycenia (udział pikseli chroma > 30) w `scripts/refstats.py` | tools-programmer | kolejka |

@@ -23,6 +23,11 @@
 | V | trzeba pokonać demona | trzeba zdecydować, czym jest strażnik: kat, zabójca czy następca Prakowali |
 
 ## 2. Samouczek (ok. 60 min): stary król Gostomir
+> **Zmiana właściciela 2026-11-28 (do przepisania tej sekcji przez lead-narrative + quest-designer, F2-8):** gracz
+> **gra Gostomirem** — król jest personą gracza (jego głos wydaje rozkazy, jego Pieśni są mocami gracza), a nie
+> przewodnikiem obok gracza. Gracz sam trzyma Kołysankę w zawale, żeby drużyna uciekła; król ginie zawsze. Potem gracz
+> przejmuje następcę. Szczegóły: `docs/team/DECISIONS.md` (2026-11-28). Poniższy tekst opisuje wersję sprzed zmiany.
+
 **Król Gostomir, Ostatni Pamiętający** — 321 lat, ślepy na lewe oko, nosi **Młot Pamięci** (regalia z gniazdem
 na Krążki Królewskie w obuchu). Dowcipny, zmęczony, z poczuciem winy, którego nie nazywa. Prowadzi wyprawę,
 bo jako jedyny żyjący pamięta korytarze góry. Ma zawsze rację co do skały i nigdy co do siebie.

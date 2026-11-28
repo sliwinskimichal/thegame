@@ -52,6 +52,8 @@ interface Plan {
   aimX: number;
   aimY: number;
   tile: number;
+  /** view yaw the plan was made for (the body turns toward the camera while working) */
+  view: number;
   two: boolean;
   zt: number;
   dx: number;
@@ -65,7 +67,7 @@ interface Plan {
   /** shortfall of the left fist at the hit (0 = on the handle) — reported by tests */
   leftShort: number;
 }
-const newPlan = (): Plan => ({ aimX: Number.NaN, aimY: Number.NaN, tile: 0, two: false, zt: 0, dx: 0, sx: 0, sy: 0, ready: key(), apex: key(), hold: key(), hit: key(), recoil: key(), leftShort: 0 });
+const newPlan = (): Plan => ({ aimX: Number.NaN, aimY: Number.NaN, tile: 0, view: 0, two: false, zt: 0, dx: 0, sx: 0, sy: 0, ready: key(), apex: key(), hold: key(), hit: key(), recoil: key(), leftShort: 0 });
 
 const MODE = { DIG: 0, BUILD: 1 } as const;
 /** a stand-in "tool" for empty hands: the fists themselves strike */
@@ -86,7 +88,7 @@ function planFor(d: RigData, ctx: ClipContext, mode: number): Plan {
     ax = tile;
     ay = 0.5 * tile;
   }
-  if (p.aimX !== ax || p.aimY !== ay || p.tile !== tile) solvePlan(d, mode, Math.abs(ax), ay, tile, p);
+  if (p.aimX !== ax || p.aimY !== ay || p.tile !== tile || p.view !== ctx.viewYaw) solvePlan(d, mode, Math.abs(ax), ay, tile, ctx.viewYaw, p);
   return p;
 }
 
@@ -137,7 +139,14 @@ function leftGrip(d: RigData, t: ToolInfo, k: Key, zt: number, gmin: number): [n
   return [best, bestOver];
 }
 
-function solvePlan(d: RigData, mode: number, ax: number, ay: number, tile: number, p: Plan): void {
+/**
+ * The aim is along the WORLD axes (tiles to the face) while the working body stands under the view
+ * yaw v: a model point (x, y, z) lands at world x = dx + x cos v - z sin v, so the face at world
+ * distance F is met in the tool plane z at model x = (F - dx + z sin v) / cos v.
+ */
+function solvePlan(d: RigData, mode: number, ax: number, ay: number, tile: number, view: number, p: Plan): void {
+  const cv = Math.cos(view);
+  const sv = Math.sin(view);
   const u = d.unit;
   const t = toolOf(d);
   const two = t.gripL > 0;
@@ -192,7 +201,7 @@ function solvePlan(d: RigData, mode: number, ax: number, ay: number, tile: numbe
       const align = 1 + (c * nx + s2 * ny);
       for (let j = 0; j <= 20; j++) {
         const dx = (-0.6 + j * 0.04) * u;
-        hit.fx = sx - dx - rx;
+        hit.fx = (sx - dx + zt * sv) / cv - rx;
         hit.fy = sy - ry;
         hit.th = th;
         const oR = overreach(d, 1, hit, hit.fx, hit.fy, zt, th);
@@ -214,10 +223,11 @@ function solvePlan(d: RigData, mode: number, ax: number, ay: number, tile: numbe
       }
     }
   }
-  p.sx = sx;
+  // p.sx: model x of the strike (the stance shift and the view yaw included)
+  p.sx = (sx - p.dx + p.zt * sv) / cv;
   p.sy = sy;
   hit.th = bestTh;
-  hit.fx = sx - p.dx - (sxl * Math.cos(bestTh) - syl * Math.sin(bestTh));
+  hit.fx = p.sx - (sxl * Math.cos(bestTh) - syl * Math.sin(bestTh));
   hit.fy = sy - (sxl * Math.sin(bestTh) + syl * Math.cos(bestTh));
   if (two) {
     const [g, o] = leftGrip(d, t, hit, p.zt, 0.5);
@@ -267,6 +277,7 @@ function solvePlan(d: RigData, mode: number, ax: number, ay: number, tile: numbe
   recoil.fx = hit.fx - 0.012 * u;
   recoil.fy = hit.fy + 0.025 * u;
   recoil.lean = hit.lean - 0.05;
+  p.view = view;
   p.aimX = ax;
   p.aimY = ay;
   p.tile = tile;
@@ -352,7 +363,7 @@ function sampleSwing(ctx: ClipContext, phase: number, out: PoseFrame, mode: numb
   } else {
     // the left hand steadies the work (tongs forward toward it, or the bare hand), within reach
     shoulder(d, -1, k.yaw, k.lean, k.px, k.py, sh);
-    const tx = p.sx - p.dx - 0.08 * u;
+    const tx = p.sx - 0.08 * u;
     const ty = p.sy - 0.1 * u;
     const tz = -0.05 * u;
     let vx = tx - sh[0]!;
@@ -395,7 +406,7 @@ function makeSwing(id: string, mode: number): StrikeClip {
     },
     strike(ctx, out) {
       const p = planFor(rdOf(ctx), ctx, mode);
-      out[0] = p.sx - p.dx;
+      out[0] = p.sx;
       out[1] = p.sy;
       out[2] = p.zt + toolOf(rdOf(ctx)).strike[2];
     },

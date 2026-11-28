@@ -34,9 +34,9 @@ describe('dig: timing from the concept card', () => {
       const want = new Float64Array(3);
       digClip.strike(ctx, want);
       expect(Math.hypot(p[0]! - want[0]!, p[1]! - want[1]!, p[2]! - want[2]!)).toBeLessThan(2e-3);
-      // the face of the tile in front: x = aimX - 0.5 tile in the root space before the stance shift
+      // the face of the tile in front (world x = aimX - 0.5 tile from the root) through the view yaw
       const plan = swingPlan(ctx, 'dig');
-      expect(want[0]! + plan.dx).toBeCloseTo(0.5, 6);
+      expect(plan.dx + want[0]! * Math.cos(ctx.viewYaw) - want[2]! * Math.sin(ctx.viewYaw)).toBeCloseTo(0.5, 6);
       // anticipation: at the windup apex the tool head is behind the head (x < 0) and up
       pose.reset();
       digClip.sample(ctx, SWING.windupEnd, pose);

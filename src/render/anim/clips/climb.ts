@@ -15,7 +15,7 @@
  * yaw ψ a model point (x, z) lies on the plane when x = (standoff + cos ψ · z) / sin ψ.
  */
 import { MOTION } from '../../characters/direction';
-import { easeInOut, frac } from '../curves';
+import { frac, hermite } from '../curves';
 import { AnimPose, setIK } from '../pose';
 import type { RigData } from '../rigdata';
 import { BONE, IK, NOTIFY, type AnimClip, type ClipContext, type PoseFrame } from '../types';
@@ -69,9 +69,11 @@ function limbHeight(target: number, sp: number, start: number, phase: number, o:
   }
   o[0] = 1;
   o[1] = u / MOVE;
-  // from the rung below (relative yEnd - 2sp(BEAT - MOVE)) up to yEnd while the root rises
+  // from the rung below (relative yEnd - 2sp(BEAT - MOVE)) up to yEnd while the root rises; the
+  // tangents equal the hold's relative motion, so in the world the limb leaves and lands at rest
   const drop = 2 * sp * (BEAT - MOVE);
-  return yEnd - drop + drop * easeInOut(u / MOVE);
+  const m = -2 * sp * MOVE;
+  return hermite(yEnd - drop, m, yEnd, m, u / MOVE);
 }
 
 const st = new Float64Array(2);

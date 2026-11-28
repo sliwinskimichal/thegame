@@ -33,6 +33,9 @@ daje najlepszą czytelność i detal; skala jest parametrem (`CHARACTER_SCALE`),
 - **Ujęcia** (identyczne dla każdego wariantu): `izba`, `grod`, `okolica`, `walk8`, `dig8`, `climb8`, `carry8`,
   `swiatlo`, `sil75`, `sil24`, `seq30` (opis w kontrakcie i briefie W3).
 - **Zamrożony build** (vite build → serwer statyczny), sprawdzenie id wariantu, zero błędów konsoli.
+- **Powtórzenie przebiegu**: `bash scripts/dwarf-e3run.sh <out> [warianty|all] ["scale=1.2&pxGrod=95"]`
+  (build, `scripts/dwarf-tournament.mjs`, plansze `scripts/contact-sheet.py`, tabela
+  `python3 scripts/dwarf-evaltable.py <out>` z podocenami metrycznymi czytelności i wydajności).
 
 ## 3. Warianty rundy 1 (12)
 

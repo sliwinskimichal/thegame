@@ -103,7 +103,7 @@ function slotStats(color: MX.Rgba, slots: MX.Rgba, fill: MX.BinMask): SlotL {
  */
 export const STAND_LIGHT_GAIN = 0.5;
 /** Tone of the station (tuned on the fixture against the figure/ground and accent metrics; see the report). */
-export const DWARF_TONE: ToneParams = { ...DEFAULT_TONE, ambK: 0.65, lightK: 1.1, lightCap: 1.8, figDesat: 0.65, selfLight: 0.1, knee: 0.85, faceKnee: 1.1, faceLift: 0.6 };
+export const DWARF_TONE: ToneParams = { ...DEFAULT_TONE, ambK: 0.65, lightK: 1.1, lightCap: 1.8, figDesat: 0.65, selfLight: 0.1, knee: 0.85, faceKnee: 1.1, faceLift: 0.6, baseDesat: 0.3 };
 const SHOT_TIME = 1.5; // fixed uTime of every shot (deterministic flicker, grain, dust)
 const LAYER_WORLD = 0;
 const LAYER_CROWD = 1;

@@ -42,7 +42,7 @@ Statusy: `kolejka` · `w toku` · `do przeglądu` · `zrobione` · `zablokowane 
 ## Punkty kontrolne i platforma (decyzje właściciela 2026-11-28)
 | Id | Zadanie | Agent | Status |
 |---|---|---|---|
-| K-SKALA | **Weryfikacja skali** po ukończeniu wszystkich modeli (krasnoludy → ekwipunek i budowle → sale, biomy, świat): skala kafla, wymiary sal, rozmiar świata, prześwity nawigacji, zoomy, budżety | producent + level-systems + engine + ai | czeka na modele (F3-1 i zespół budowli) |
+| K-SKALA | **Weryfikacja skali** po ukończeniu wszystkich modeli (krasnoludy → ekwipunek i budowle → sale, biomy, świat): skala kafla, wymiary sal, rozmiar świata, prześwity nawigacji, zoomy, budżety. **Dane z ruchu (W2, 2026-11-28)**: przy skali 1,0 (1,29 kafla) role nie sięgają stropu 2 kafle nad stopami (hajer od 1,1, cieśla od 1,3, kowal od 1,4); rekomendacja ruchu: **skala ≈ 1,4** (1,81 kafla: wszystkie role sięgają, szczeble trafiane, kadencja bliska karcie); od 1,55 krasnolud potrzebuje 3 wierszy ciała w nawigacji; rozstaw szczebli ok. 0,7 długości nogi | producent + level-systems + engine + ai | czeka na turniej krasnoludów (eksperyment 75/95/115 px) i modele budowli |
 | F7-1 | Warstwa platformy `src/platform/` (zapis/odczyt plików, ustawienia) — interfejs teraz, implementacje przy pakowaniu | gameplay-programmer | kolejka (przy F2-3c) |
 | F7-2 | Budżety wydajności per klasa sprzętu (desktop średni GPU / Android średni) w QUALITY + tryb jakości mobilnej | engine-graphics + producent | kolejka (po M1) |
 | F7-3 | Opakowanie natywne: benchmark Electron vs Tauri vs Capacitor (rozmiar, start, FPS, zgodność renderu), instalatory Windows/macOS, APK; podpisywanie kodu | tools-programmer + engine | M7 |

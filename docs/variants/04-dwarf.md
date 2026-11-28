@@ -135,6 +135,19 @@ każe chodzić **„ciężko i pewnie”: 2 kroki / 0,9 s** przy nogach **0,30 k
   utratę przepustowości logistyki oddać przez tory, windy i tragarzy (to i tak oś postępu gry). Do tego czasu
   animator obsługuje cały zakres (blend chód ↔ trucht po prędkości, faza sterowana drogą — bez poślizgu).
 
+### 7a. Skala postaci — dane z rigu (W2, preset A)
+
+| Skala (`worldPerModel`) | Wzrost [kafle] | Kadencja przy 1,1 kafla/s | Chód koncepcyjny (2,22 kroku/s) | Zasięg stropu 2 kafle nad stopami | Ciało w nawigacji |
+|---|---|---|---|---|---|
+| 1,0 | 1,29 | 2,95 kroku/s | 0,69 kafla/s | tylko część: hajer brakuje 0,16, cieśla 0,37, kowal 0,50 | 2 wiersze |
+| 1,2 | 1,55 | 2,61 | 0,83 | hajer tak, cieśla brakuje 0,06, kowal nie | 2 wiersze |
+| **1,4** | **1,81** | **2,42** (karta 2,22) | 0,97 | **wszystkie 3 role** | 2 wiersze |
+| ≥ 1,55 | ≥ 2,0 | — | — | strop się odsuwa | **3 wiersze** (nowa geometria tuneli) |
+
+Wniosek z ruchu: **skala ~1,4** spełnia jednocześnie zasięg pracy do stropu dla wszystkich ról, dokładne szczeble
+i kadencję bliską karcie przy tymczasowej prędkości 1,1 kafla/s, nie zmieniając jeszcze wysokości ciała w nawigacji
+(2 wiersze). Ostateczna rekomendacja (z czytelnością w px) — §6 po eksperymencie skali.
+
 ## 8. Plan rundy 2 (szkic, do potwierdzenia po E3)
 
 Runda 2 dopracowuje 2–3 finalistów i domyka **pełną maszynę stanów** na prawdziwej symulacji (`src/sim/dwarves.ts`).

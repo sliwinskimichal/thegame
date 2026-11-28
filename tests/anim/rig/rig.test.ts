@@ -120,14 +120,15 @@ describe('rig: two-bone IK', () => {
     const rng = new Rng(9);
     for (let i = 0; i < 40; i++) {
       p.reset();
-      // inside 0.9 of the arm reach around the right shoulder, in front of it
-      const r = d.armReach * (0.45 + 0.45 * rng.next());
+      // wrist inside 0.9 of the shoulder-wrist reach, in front; the fist follows from the hand pitch
+      const r = (d.upper + d.fore) * (0.45 + 0.45 * rng.next());
       const az = (rng.next() - 0.5) * 2.6;
       const el = (rng.next() - 0.5) * 1.2;
-      const tx = Math.cos(el) * Math.cos(az) * r * 0.9 + 0.02;
-      const ty = d.shoulderY + Math.sin(az) * Math.cos(el) * r;
-      const tz = d.shoulderZ + Math.sin(el) * r;
       const pitch = (rng.next() - 0.5) * 3;
+      // fist = wrist + Rz(pitch) * (0, -fist, 0)
+      const tx = Math.cos(el) * Math.cos(az) * r * 0.9 + 0.02 + Math.sin(pitch) * d.fist;
+      const ty = d.shoulderY + Math.sin(az) * Math.cos(el) * r - Math.cos(pitch) * d.fist;
+      const tz = d.shoulderZ + Math.sin(el) * r;
       setIK(p, IK.HAND_R, tx, ty, tz, pitch, 1);
       rig.solve(p);
       const fist = pos(rig, BONE.TOOL_R);

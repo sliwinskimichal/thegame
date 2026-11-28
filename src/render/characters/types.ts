@@ -18,7 +18,7 @@ export const ROLE_NAMES_PL = ['hajer (górnik)', 'cieśla / stemplarz', 'tragarz
 export const SOCIAL = { FREE_MINER: 0, MASTER: 1, CROWN: 2, PLEDGED: 3 } as const;
 export type SocialId = (typeof SOCIAL)[keyof typeof SOCIAL];
 
-/** Body proportions in tiles (presets in direction.ts). */
+/** Body proportions in MODEL UNITS (presets in direction.ts; world tiles = units × CHARACTER_SCALE.worldPerModel). */
 export interface Proportions {
   /** Crown height in head modules (3.0–3.6; the vision allows 3–3.5, C "Słup" tests 3.6). */
   heads: number;
@@ -99,6 +99,8 @@ export interface PartDef {
   /** Placement of the shape in REST MODEL SPACE (not bone-local): translation and Euler ZYX. */
   t: readonly [number, number, number];
   r?: readonly [number, number, number];
+  /** Non-uniform scale of the shape, applied before the rotation (e.g. an elliptic barrel torso). */
+  s?: readonly [number, number, number];
   /** Colour slot (SLOT.*) and the fixed colour when slot = FIXED. */
   slot: number;
   color?: number;
@@ -108,8 +110,12 @@ export interface PartDef {
   layer?: -1 | 0 | 1;
   /** Part belongs to the role's identity (headgear, tool, back element) — never dropped by LOD. */
   identity?: boolean;
-  /** Smallest LOD level that still draws the part (0 = Izba only ... 2 = everywhere). */
+  /** Identity group (finer than `identity`; the LOD test checks every group survives in every LOD). */
+  ident?: 'headgear' | 'tool' | 'load' | 'back' | 'apron' | 'lamp';
+  /** The part is drawn for LOD levels fromLod <= lod <= minLod. minLod = the COARSEST level that still
+   *  draws it (0 = Izba only ... 2 = everywhere, default 2); fromLod > 0 marks LOD2 tokens (default 0). */
   minLod?: 0 | 1 | 2;
+  fromLod?: 0 | 1 | 2;
 }
 
 /** Everything that makes one dwarf (deterministic from the seed). */
@@ -121,6 +127,9 @@ export interface DwarfSpec {
   palette: DwarfPalette;
   /** Number of braids (cech: 1 miner, 2 craftsman) and a beard shape knob 0..1. */
   braids: number;
+  /** Shape knob for a single hero model only. CROWDS SHARE ONE GEOMETRY PER (variant, role, LOD): per-dwarf
+   *  variety comes from the palette (VAR_SLOTS) and per-seed bone scale set by the animator (beard ±10%),
+   *  so the seed must never be needed to read the role. */
   beardShape: number;
 }
 
@@ -128,8 +137,12 @@ export interface DwarfSpec {
 /** Zoom-driven level of detail (Izba ~220 px, Gród ~75 px, Okolica ~24 px dwarf at 1080p). */
 export const LOD = { IZBA: 0, GROD: 1, OKOLICA: 2 } as const;
 export type LodLevel = (typeof LOD)[keyof typeof LOD];
-/** Triangle budgets per dwarf (concept card §5): Izba ~1200, Gród <= 400, Okolica <= 60 (+ lamp sprite). */
-export const LOD_TRIANGLE_BUDGET: readonly [number, number, number] = [1500, 400, 60];
+/**
+ * Triangle budgets per dwarf. LOD1 <= 400 and LOD2 <= 60 (+ lamp sprite) are HARD (tests). LOD0 is SOFT
+ * (reported, not blocking): owner 2026-11-28 — main characters, rich in detail, no saving in close-ups.
+ */
+export const LOD_TRIANGLE_BUDGET: readonly [number, number, number] = [4000, 400, 60];
+export const LOD_BUDGET_HARD: readonly [boolean, boolean, boolean] = [false, true, true];
 
 /**
  * Geometry attribute contract of a welded (skinned) mesh. Positions and normals in REST MODEL SPACE.
@@ -221,11 +234,14 @@ export interface DwarfCrowdRenderer {
 }
 
 // ------------------------------------------------------------------------------------------------ lab (tournament station)
-/** The three zooms of the vision at 1080p (FOV 30°): px per tile, LOD, outline widths in px. */
+/** The three zooms of the vision at 1080p (FOV 30°): reference dwarf height in px, LOD, outline widths in px. */
 export interface ZoomDef {
   id: 'izba' | 'grod' | 'okolica';
   namePl: string;
-  pxPerTile: number;
+  /** On-screen height of the reference dwarf (preset A with headgear) at 1080p. */
+  dwarfPx: number;
+  /** Derived: dwarfPx / refHeightTiles() — follows CHARACTER_SCALE (getter in direction.ts). */
+  readonly pxPerTile: number;
   lod: LodLevel;
   /** W1 silhouette outline and Wd inner lines (px at 1080p; lab shots are 1:1 crops of a 1080p screen). */
   hullPx: number;
@@ -237,7 +253,8 @@ export interface ShotDwarf {
   role: RoleId;
   social: SocialId;
   seed: number;
-  /** World feet position and facing. */
+  /** World feet position (tiles) and facing. Lab worlds and cameras are built from CHARACTER_SCALE and
+   *  the REFERENCE height — identical for every variant (variant heights differ and are reported). */
   x: number;
   y: number;
   z?: number;

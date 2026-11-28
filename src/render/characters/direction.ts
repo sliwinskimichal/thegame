@@ -34,9 +34,24 @@ export const PROPORTIONS_3_0: Proportions = { ...PROPORTIONS_A, heads: 3.0, head
 
 export const PROPORTION_PRESETS = { A: PROPORTIONS_A, B: PROPORTIONS_B, C: PROPORTIONS_C, A_PLUS: PROPORTIONS_A_PLUS, H3_0: PROPORTIONS_3_0 } as const;
 
-/** Total height with headgear. */
+/** Total height with headgear (model units). */
 export function totalHeight(p: Proportions): number {
   return p.heads * p.headH + p.hatH;
+}
+
+// ------------------------------------------------------------------------------------------------ character scale
+/**
+ * Owner decision 2026-11-28: the WORLD scales to the models, not the models to the world. Proportions,
+ * joints and geometry are in MODEL UNITS (design metres: dwarf A is 1.294 tall); the placement matrix
+ * multiplies by `worldPerModel` (world tiles per model unit). Nothing in the model, rig, IK or metrics may
+ * assume 1 model unit = 1 tile: world inputs (edges, floors, rungs, speeds) are divided by this factor.
+ * Set once at start-up (lab: `?scale=`); the tournament reports the recommended value.
+ */
+export const CHARACTER_SCALE = { worldPerModel: 1 };
+
+/** Height of the reference dwarf (preset A, with headgear) in world tiles at the current scale. */
+export function refHeightTiles(): number {
+  return totalHeight(PROPORTIONS_A) * CHARACTER_SCALE.worldPerModel;
 }
 
 /**
@@ -212,18 +227,49 @@ export const VALUE_BANDS = {
 
 // ------------------------------------------------------------------------------------------------ zooms and lines
 /**
- * Zooms of the vision at 1080p (FOV 30°). Lab shots are 960×540 crops at the SAME pixel density as a
- * 1080p screen, so a dwarf is ~220 / ~75 / ~24 px tall and line widths are the 1080p values.
+ * Zooms of the vision at 1080p (FOV 30°), defined by the on-screen height of the REFERENCE dwarf
+ * (preset A); px per tile follows from the character scale (getter), so a scale change moves the
+ * camera, never the dwarf's pixel size. Lab shots are 960×540 crops at the SAME pixel density as a
+ * 1080p screen (see LAB_FRAME), so a dwarf is ~218 / ~75 / ~24 px tall and line widths are 1080p values.
+ * The pixel targets themselves are a tournament question (owner: main characters, rich in detail).
  */
-export const ZOOMS: Readonly<Record<ZoomDef['id'], ZoomDef>> = {
-  izba: { id: 'izba', namePl: 'Izba', pxPerTile: 168, lod: LOD.IZBA, hullPx: 4, innerPx: 1.25 },
-  grod: { id: 'grod', namePl: 'Gród', pxPerTile: 57.7, lod: LOD.GROD, hullPx: 4, innerPx: 1.25 },
-  okolica: { id: 'okolica', namePl: 'Okolica', pxPerTile: 18.3, lod: LOD.OKOLICA, hullPx: 3, innerPx: 0 },
-};
-/** LOD from pixel density (px per tile on screen). */
-export function lodForPxPerTile(ppt: number): 0 | 1 | 2 {
-  return ppt >= 100 ? 0 : ppt >= 30 ? 1 : 2;
+function zoomDef(id: ZoomDef['id'], namePl: string, dwarfPx: number, lod: ZoomDef['lod'], hullPx: number, innerPx: number): ZoomDef {
+  return {
+    id,
+    namePl,
+    dwarfPx,
+    lod,
+    hullPx,
+    innerPx,
+    get pxPerTile() {
+      return dwarfPx / refHeightTiles();
+    },
+  };
 }
+export const ZOOMS: Readonly<Record<ZoomDef['id'], ZoomDef>> = {
+  izba: zoomDef('izba', 'Izba', 218, LOD.IZBA, 4, 1.25),
+  grod: zoomDef('grod', 'Gród', 75, LOD.GROD, 4, 1.25),
+  okolica: zoomDef('okolica', 'Okolica', 24, LOD.OKOLICA, 3, 0),
+};
+/** LOD from the on-screen height of the reference dwarf (px): >= 129 Izba, >= 39 Gród, else Okolica. */
+export function lodForDwarfPx(px: number): 0 | 1 | 2 {
+  return px >= 129 ? 0 : px >= 39 ? 1 : 2;
+}
+/** LOD from pixel density (px per tile on screen) at the current character scale. */
+export function lodForPxPerTile(ppt: number): 0 | 1 | 2 {
+  return lodForDwarfPx(ppt * refHeightTiles());
+}
+
+// ------------------------------------------------------------------------------------------------ lab frame and light
+/**
+ * Tournament frames: 960×540 canvas = a 1:1 crop of a 1080p screen (dwarf pixel sizes are the in-game
+ * ones). The engine lab defines its pixel widths for a 540-tall canvas showing the WHOLE screen
+ * ("2.2 px at 540 = 4 px at 1080p"), so in a crop every engine pixel width reachable through uniforms
+ * is multiplied by `enginePxScale` (= refH / 540); dwarf widths (ZOOMS.hullPx) are already 1080p values.
+ */
+export const LAB_FRAME = { w: 960, h: 540, refH: 1080, enginePxScale: 2 } as const;
+/** Light layer of the dwarf tournament (owner 2026-11-28: game light = L12, lava from L14). */
+export const LAB_LIGHT_VARIANT = 'l12-r2b-ink';
 
 // ------------------------------------------------------------------------------------------------ motion direction
 /** Timing targets (concept card §5, art notes for the animator). */
@@ -238,6 +284,10 @@ export const MOTION = {
   digRecover: 0.32,
   /** Carrying: forward lean 8 degrees. */
   carryLeanDeg: 8,
+  /** Speeds in WORLD tiles/s (divide by CHARACTER_SCALE.worldPerModel for model units). Producer decision
+   *  2026-11-27 (provisional): walk 1.1 tiles/s, jog 2.5 only when fleeing / on alarm. */
+  walkTilesPerSecond: 1.1,
+  fleeTilesPerSecond: 2.5,
   /** Nav speeds the sim uses today (src/sim/nav: walk 400 ms/tile, ladder up 900 / down 600 ms per row). */
   navWalkTilesPerSecond: 2.5,
   navClimbUpMsPerRow: 900,

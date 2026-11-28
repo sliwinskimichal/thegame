@@ -6,11 +6,13 @@ dopisani po przebiegu E3. Lider: animator-ta; zespół i briefy: `docs/team/dwar
 ## 1. Pytanie
 
 Z jakiej konstrukcji i w jakich proporcjach zbudować krasnoluda-robotnika, żeby w ilustrowanym przekroju
-(baza i08 „Głębia warstw”, światło L00) gracz w 1 s odczytał **rolę** (nakrycie głowy + narzędzie + element na
+(baza i08 „Głębia warstw”, światło gry **L12** — decyzja właściciela 2026-11-28) gracz w 1 s odczytał **rolę** (nakrycie głowy + narzędzie + element na
 plecach), **stan społeczny** (jeden akcent barwy) i **czy postać jest w świetle** — na zoomach Izba (~220 px),
 Gród (~75 px) i Okolica (~24 px), w plamie lampy i na jej skraju — a 200 krasnoludów zmieściło się w budżecie?
 Drugie pytanie (to samo stanowisko): czy rig proceduralny i cykle (spoczynek, chód, kopanie, wspinaczka,
-noszenie) dają ruch „ciężki i pewny” bez ślizgania stóp i z czytelną antycypacją uderzenia.
+noszenie) dają ruch „ciężki i pewny” bez ślizgania stóp i z czytelną antycypacją uderzenia. Trzecie (zasada
+właściciela „świat skaluje się do modeli”): **jaka skala postaci** — wzrost w kaflach i w px na każdym zoomie —
+daje najlepszą czytelność i detal; skala jest parametrem (`CHARACTER_SCALE`), świat i budowle dostosują się do wyniku.
 
 ## 2. Protokół
 
@@ -20,10 +22,14 @@ noszenie) dają ruch „ciężki i pewny” bez ślizgania stóp i z czytelną a
   `src/render/characters/direction.ts` (kierunek artystyczny jako dane, `referenceJoints`).
 - **Jedna anatomia, wiele technik**: każdy wariant buduje te same części (karta `docs/art/concepts/dwarf.md`)
   inną techniką lub w innych proporcjach; ten sam rig, te same cykle, te same palety z tych samych seedów,
-  te same materiały (płaska barwa 2–3 tony + obrys W1 o stałej grubości w px), to samo światło L00.
+  te same materiały (płaska barwa 2–3 tony + obrys W1 o stałej grubości w px), to samo światło L12
+  (`LAB_LIGHT_VARIANT`). Kontrakt v2 (2026-11-28): jednostki modelu + `CHARACTER_SCALE.worldPerModel`,
+  zoomy z wysokości wzorcowego krasnoluda w px (`ZOOMS.dwarfPx`), LOD0 bez oszczędzania (miękki budżet 4000 tr.).
 - **Stanowisko**: `dwarves.html` (własny świat: izba, tunel z przodkiem i szyb, korytarze pasków, ściana drabin,
-  ciemny tunel z jedną pochodnią, sieć dla tłumu), łańcuch L00 z laboratorium importowany bez zmian.
-  Zrzuty 960×540 jako wycinki ekranu 1080p w tej samej gęstości pikseli (krasnolud ~220 / ~75 / ~24 px).
+  ciemny tunel z jedną pochodnią, sieć dla tłumu), łańcuch światła z laboratorium importowany bez zmian.
+  Świat i kamery liczone ze skali i wysokości wzorcowej — identyczne dla wszystkich wariantów.
+  Zrzuty 960×540 jako wycinki 1:1 ekranu 1080p (krasnolud ~218 / ~75 / ~24 px); szerokości kreski silnika
+  przeskalowane ×2 do tej gęstości (`LAB_FRAME`).
 - **Ujęcia** (identyczne dla każdego wariantu): `izba`, `grod`, `okolica`, `walk8`, `dig8`, `climb8`, `carry8`,
   `swiatlo`, `sil75`, `sil24`, `seq30` (opis w kontrakcie i briefie W3).
 - **Zamrożony build** (vite build → serwer statyczny), sprawdzenie id wariantu, zero błędów konsoli.
@@ -59,7 +65,7 @@ karku i okularem z miki, młot i szczypce, długi fartuch z przodu).
 | poślizg stóp | maks. prędkość stopy podporowej / prędkość chodu (chód koncepcyjny i 2,5 kafla/s) | < 2% |
 | ciągłość cyklu | skok kości na szwie cyklu | ≤ 0,01 kafla |
 | stabilność sylwetki | średnie i min. IoU kolejnych klatek 30 kl./s (`seq30`) | wysokie, bez zapadnięć |
-| koszt | trójkąty na LOD (budżet 1500 / 400 / 60), wywołania rysowania 1 vs 200, czas klatki 0 vs 200, ms animacji 200 | 200 krasnoludów w kilku wywołaniach |
+| koszt | trójkąty na LOD (budżet 4000 miękki / 400 / 60), wywołania rysowania 1 vs 200, czas klatki 0 vs 200, ms animacji 200 | 200 krasnoludów w kilku wywołaniach |
 
 ## 5. Rubryka (ocena lidera, CLAUDE.md)
 

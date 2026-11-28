@@ -485,7 +485,9 @@ const OVER_FRAG = /* glsl */ `
 uniform sampler2D tDiffuse; uniform sampler2D tPre; uniform float uStrength; varying vec2 vUv;
 void main() {
   vec4 pre = texture2D(tPre, vUv);
-  float ink = smoothstep(0.0, 0.3, 1.0 - pre.a) * uStrength; // anti-aliased line edges restored too
+  // the scene encodes alpha = 1 - 0.5 * restore weight (coverage widened to the line's AA edges, times a
+  // per-zone strength, e.g. weaker in lava light)
+  float ink = clamp((1.0 - pre.a) * 2.0, 0.0, 1.0) * uStrength;
   vec3 c = texture2D(tDiffuse, vUv).rgb;
   gl_FragColor = vec4(mix(c, pre.rgb, ink), 1.0);
 }`;

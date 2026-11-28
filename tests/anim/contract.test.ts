@@ -2,8 +2,8 @@
 import * as THREE from 'three';
 import { describe, expect, it } from 'vitest';
 import { BONE, BONE_COUNT, BONE_NAMES, BONE_PARENT, CLIP_IDS, PoseFrame } from '../../src/render/anim/types';
-import { lodForPxPerTile, PROPORTION_PRESETS, referenceJoints, ROLE_DIRECTION, BEARD_COLORS, totalHeight, ZOOMS } from '../../src/render/characters/direction';
-import { cameraDistance, LOD_TRIANGLE_BUDGET, ROLE, ROLE_IDS, SHOT_IDS } from '../../src/render/characters/types';
+import { BEARD_COLORS, CHARACTER_SCALE, LAB_LIGHT_VARIANT, lodForDwarfPx, lodForPxPerTile, PROPORTION_PRESETS, referenceJoints, refHeightTiles, ROLE_DIRECTION, totalHeight, ZOOMS } from '../../src/render/characters/direction';
+import { cameraDistance, LOD_BUDGET_HARD, LOD_TRIANGLE_BUDGET, ROLE, ROLE_IDS, SHOT_IDS } from '../../src/render/characters/types';
 
 const L = (hex: number) => {
   // CIE L* of an sRGB colour
@@ -87,15 +87,37 @@ describe('dwarf contract: art direction data', () => {
 });
 
 describe('dwarf contract: lab', () => {
-  it('zooms give ~220 / ~75 / ~24 px dwarves and the matching LOD', () => {
+  it('zooms give ~218 / ~75 / ~24 px dwarves and the matching LOD', () => {
     const h = totalHeight(PROPORTION_PRESETS.A);
-    expect(ZOOMS.izba.pxPerTile * h).toBeGreaterThan(200);
-    expect(ZOOMS.grod.pxPerTile * h).toBeCloseTo(75, -1);
-    expect(ZOOMS.okolica.pxPerTile * h).toBeCloseTo(24, -0.5);
-    for (const z of Object.values(ZOOMS)) expect(lodForPxPerTile(z.pxPerTile)).toBe(z.lod);
-    // 960x540 crop at the Gród density: d ~ 17.5 (a 1080p screen at d ~ 35)
-    expect(cameraDistance(ZOOMS.grod.pxPerTile, 540)).toBeCloseTo(17.46, 1);
+    expect(refHeightTiles()).toBeCloseTo(h);
+    expect(ZOOMS.izba.pxPerTile * h).toBeCloseTo(218);
+    expect(ZOOMS.grod.pxPerTile * h).toBeCloseTo(75);
+    expect(ZOOMS.okolica.pxPerTile * h).toBeCloseTo(24);
+    for (const z of Object.values(ZOOMS)) {
+      expect(lodForPxPerTile(z.pxPerTile)).toBe(z.lod);
+      expect(lodForDwarfPx(z.dwarfPx)).toBe(z.lod);
+    }
+    // 960x540 crop at the Gród density: d ~ 17.4 (a 1080p screen at d ~ 35)
+    expect(cameraDistance(ZOOMS.grod.pxPerTile, 540)).toBeCloseTo(17.38, 1);
+    expect(LAB_LIGHT_VARIANT).toBe('l12-r2b-ink');
+  });
+
+  it('the character scale moves the camera, never the dwarf pixel size or the LOD', () => {
+    const keep = CHARACTER_SCALE.worldPerModel;
+    try {
+      CHARACTER_SCALE.worldPerModel = 1.4;
+      expect(refHeightTiles()).toBeCloseTo(totalHeight(PROPORTION_PRESETS.A) * 1.4);
+      expect(ZOOMS.grod.pxPerTile * refHeightTiles()).toBeCloseTo(75);
+      for (const z of Object.values(ZOOMS)) expect(lodForPxPerTile(z.pxPerTile)).toBe(z.lod);
+    } finally {
+      CHARACTER_SCALE.worldPerModel = keep;
+    }
+  });
+
+  it('budgets and shots', () => {
     expect(LOD_TRIANGLE_BUDGET[1]).toBe(400);
+    expect(LOD_TRIANGLE_BUDGET[2]).toBe(60);
+    expect(LOD_BUDGET_HARD).toEqual([false, true, true]);
     expect(new Set(SHOT_IDS).size).toBe(SHOT_IDS.length);
   });
 });

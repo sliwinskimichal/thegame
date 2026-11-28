@@ -21,6 +21,7 @@ import { buildFluidGeometry } from '../../render/fluids';
 import { buildHeightfield } from '../../render/heightfield';
 import { DepthInkPass, GLSL_INK, GLSL_ROCK_INK, hullGeometry, InkCapturePass, inkHullMaterial, InkOverPass, pxScale } from '../../render/ink';
 import { InkPost } from '../../render/inkPost';
+import WINNER from '../../render/illustrated-v1.json';
 import { PostFX } from '../../render/post';
 import { buildMannequin, buildPropGeometries, collectProps } from '../../render/propsGeo';
 import { GLSL_LIGHT, GLSL_NOISE, GLSL_ROCK } from '../../render/shaderlib';
@@ -111,6 +112,7 @@ export interface IllParams {
   inkMaskHi: number; // luminance up to which a pixel is protected (wider = anti-aliased edges too)
   inkMaskAlpha: number; // 1: exact ink coverage from the scene alpha instead of a luminance guess
   inkOver: number; // R2B chain: put the pre-bloom ink back after the bloom (0..1)
+  lavaInk: number; // strength of that restore in lava light (1 = as everywhere; the winner uses 0.6)
   tone: 'aces' | 'agx' | 'knee';
 }
 
@@ -187,6 +189,7 @@ export const ILL_BASE: IllParams = {
   inkMaskHi: 0.03,
   inkMaskAlpha: 0,
   inkOver: 0,
+  lavaInk: 1,
   tone: 'aces',
 };
 
@@ -272,6 +275,9 @@ uniform float uShaft;
 uniform float uLavaEmit;
 uniform float uHeat;
 uniform float uPropGlow;
+uniform float uLavaInk;
+// alpha written by the scene for the ink-over-bloom pass: 1 - 0.5 * restore weight
+float inkAlpha(float cover, float zone) { return 1.0 - 0.5 * min(cover * 4.0, 1.0) * zone; }
 vec3 desat(vec3 c, float k) { return mix(vec3(lum(c)), c, 1.0 - k); }
 `;
 
@@ -493,7 +499,9 @@ void main() {
 #ifdef PAPER
   col *= 1.0 + uPaper * paperGrain(wp.xy, wpp);
 #endif
-  gl_FragColor = vec4(col, 1.0 - 0.5 * clamp(ink, 0.0, 1.0)); // alpha carries ink coverage (InkPost mask)
+  // lava light (redder than torches and lanterns) restores the ink more softly: glow close to L00
+  float lavaZone = smoothstep(0.54, 0.6, (L.r - L.g) / max(L.r, 1e-3)) * smoothstep(0.05, 0.3, l0);
+  gl_FragColor = vec4(col, inkAlpha(clamp(ink, 0.0, 1.0), mix(1.0, uLavaInk, lavaZone))); // alpha: ink coverage
 }
 `;
 
@@ -585,6 +593,12 @@ varying vec3 vPos;
 varying float vKind;
 varying float vSurf;
 void main() {
+#ifdef ONLY_WATER
+  if (vKind > 1.5) discard;
+#endif
+#ifdef ONLY_LAVA
+  if (vKind < 1.5) discard;
+#endif
   vec2 p = vPos.xy;
   float wpp = worldPerPixel(vPos, uCamPos);
   float wW = uInkW.x * wpp;
@@ -615,10 +629,15 @@ void main() {
     float f = vnoise(p * 1.1 + uTime * 0.1);
     vec3 hot = mix(vec3(1.2, 0.3, 0.04), vec3(1.7, 0.72, 0.15), step(0.5, f)) * uLavaEmit;
     vec3 col = mix(hot, vec3(0.08, 0.03, 0.02), crust);
-    col = mix(col, uInk, inkLine(e, wW * 0.45, aa) * crust);
-    if (face && vSurf > 0.01) col = mix(col, uInk, inkLine(dTop, wW * 0.8, aa));
+    float cover = inkLine(e, wW * 0.45, aa) * crust;
+    col = mix(col, uInk, cover);
+    if (face && vSurf > 0.01) {
+      float top = inkLine(dTop, wW * 0.8, aa);
+      col = mix(col, uInk, top);
+      cover = max(cover, top);
+    }
     if (!face) col *= 0.7;
-    gl_FragColor = vec4(col, 1.0);
+    gl_FragColor = vec4(col, inkAlpha(cover, uLavaInk)); // opaque lava mesh: alpha = ink coverage
   }
 }
 `;
@@ -704,6 +723,7 @@ function styleUniforms(p: IllParams): WorldUniforms {
     uLavaEmit: { value: p.lavaEmit },
     uHeat: { value: p.heat },
     uPropGlow: { value: p.propGlow },
+    uLavaInk: { value: p.lavaInk },
     uPropAmb: { value: p.propAmb },
     uPropLight: { value: p.propLight },
   };
@@ -798,17 +818,24 @@ export function buildIllustratedScene(ctx: StyleContext, p: IllParams): Illustra
     }
   });
 
-  const fluid = new THREE.Mesh(
-    buildFluidGeometry(ctx.world),
+  // water: translucent, keeps the scene alpha; lava: opaque, writes its own ink coverage into alpha
+  const fluidGeo = buildFluidGeometry(ctx.world);
+  const water = new THREE.Mesh(
+    fluidGeo,
     new THREE.ShaderMaterial({
       vertexShader: FLUID_VERT, fragmentShader: FLUID_FRAG, uniforms: u, transparent: true, depthWrite: false, side: THREE.DoubleSide,
-      // colour blends over the scene, alpha (ink coverage) is kept
+      defines: { ONLY_WATER: 1 },
       blending: THREE.CustomBlending, blendSrc: THREE.SrcAlphaFactor, blendDst: THREE.OneMinusSrcAlphaFactor,
       blendSrcAlpha: THREE.ZeroFactor, blendDstAlpha: THREE.OneFactor,
     }),
   );
-  fluid.renderOrder = 2;
-  scene.add(fluid);
+  water.renderOrder = 2;
+  const lava = new THREE.Mesh(
+    fluidGeo,
+    new THREE.ShaderMaterial({ vertexShader: FLUID_VERT, fragmentShader: FLUID_FRAG, uniforms: u, side: THREE.DoubleSide, defines: { ONLY_LAVA: 1 } }),
+  );
+  lava.renderOrder = 2;
+  scene.add(water, lava);
 
   if (p.air > 0) {
     const { w, h } = ctx.world;
@@ -837,10 +864,23 @@ function noBloom(): boolean {
   return new URLSearchParams(globalThis.location?.search ?? '').get('nobloom') === '1';
 }
 
+/** Extra content for a style instance (e.g. the dwarf team's models), added before the post chain is built. */
+export type SceneExtra = (scene: THREE.Scene, u: WorldUniforms, p: IllParams) => void;
+
 /** Post chain: R2B's (RenderPass, UnrealBloom, grade, ACES output) or the merged InkPost. */
 export function createIllustrated(ctx: StyleContext, p: IllParams): StyleInstance {
-  if (p.post === 'ink') return createInkPosted(ctx, p);
+  return createIllustratedWith(ctx, p);
+}
+
+/**
+ * The same renderer with extra meshes in the scene: they get the same light, bloom and ink-over-bloom
+ * chain. A mesh that should keep its outline over the glow writes alpha = 1 - 0.5 * ink (the hull
+ * material from render/ink.ts already does).
+ */
+export function createIllustratedWith(ctx: StyleContext, p: IllParams, extra?: SceneExtra): StyleInstance {
+  if (p.post === 'ink') return createInkPosted(ctx, p, extra);
   const { scene, sky, u } = buildIllustratedScene(ctx, p);
+  extra?.(scene, u, p);
   const post = new PostFX(ctx.renderer, scene, ctx.camera, ctx.width, ctx.height);
   let inkPass: DepthInkPass | null = null;
   if (p.postInk > 0) {
@@ -882,8 +922,9 @@ export function createIllustrated(ctx: StyleContext, p: IllParams): StyleInstanc
   };
 }
 
-function createInkPosted(ctx: StyleContext, p: IllParams): StyleInstance {
+function createInkPosted(ctx: StyleContext, p: IllParams, extra?: SceneExtra): StyleInstance {
   const { scene, sky, u } = buildIllustratedScene(ctx, p);
+  extra?.(scene, u, p);
   ctx.renderer.toneMappingExposure = p.exposure;
   const post = new InkPost(ctx.renderer, scene, ctx.camera, ctx.width, ctx.height, {
     bloom: noBloom() ? 0 : p.bloom,
@@ -1062,6 +1103,12 @@ export const LIGHT_VARIANTS: readonly IllVariant[] = [
     descPl: 'L12 z podniesionym ambientem lica i tła, żeby czerń < 15 L* spadła do ok. 25%.',
     params: { ...R2B_LIGHT, inkOver: 1, cutAmb: 0.25, backAmb: 0.42 },
   },
+  {
+    id: 'l16-winner',
+    namePl: 'L16 Zwycięzca: L12 + lawa L14',
+    descPl: 'Wybór właściciela: łańcuch L00, kreska nad bloomem w całym kadrze, w świetle lawy przywracana w 60% (jak L14), żeby blask lawy był bliski L00.',
+    params: { ...R2B_LIGHT, inkOver: 1, lavaInk: 0.6 },
+  },
   { id: 'l11-night', namePl: 'L11 Noc (dawca i12)', descPl: 'L03 + najstromszy spadek (γ 1,8), ciemniejszy ambient, mrok mocniej zabiera kolor.', params: { ...PLAN, inkMask: 1, lightCurve: 1.8, cutAmb: 0.55, backAmb: 0.38, darkDesat: 0.6 } },
 ];
 
@@ -1088,3 +1135,18 @@ export const ROCK_STYLES: readonly RenderStyle[] = ROCK_VARIANTS.map((v) => ({
   descPl: v.descPl,
   create: (ctx: StyleContext) => createIllustrated(ctx, illParams({ ...I08_DRAWING, ...leader(), ...v.params })),
 }));
+
+// ------------------------------------------------------------------ winner of the light layer (data)
+/**
+ * The game's illustrated style, version 1, as data (`src/render/illustrated-v1.json`): drawing of i08
+ * "Głębia warstw" + light L16 (L00/R2B light, ink over the bloom, 60% in lava light). The game loads the
+ * same JSON; tests/lab/illustrated-style.test.ts checks it still equals that composition.
+ */
+export const STYLE_ILLUSTRATED_V1 = { id: WINNER.id, namePl: WINNER.namePl, params: WINNER.params as IllParams };
+
+export const WINNER_STYLE: RenderStyle = {
+  id: 'w1-illustrated',
+  namePl: 'Zwycięzca: ilustrowany v1',
+  descPl: 'Styl gry wczytywany z danych (illustrated-v1.json): rysunek i08 + światło L16.',
+  create: (ctx: StyleContext) => createIllustrated(ctx, STYLE_ILLUSTRATED_V1.params),
+};

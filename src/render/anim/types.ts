@@ -3,15 +3,22 @@
  * Workers implement against these types and never edit this file; changes go through the lead.
  * Briefs: docs/team/dwarf-team/BRIEFS.md.
  *
+ * Contract v2 (2026-11-28): character scale is a parameter (the world scales to the models), LOD0 soft,
+ * hand pitch in IK, ClipContext.viewYaw/danger/time, runtime re-parenting of tool sockets.
+ *
  * Conventions (shared by model, rig, renderer and lab):
- *  - Units: 1 unit = 1 tile (~1 m). A dwarf is ~1.30 tall (with headgear).
+ *  - Units: MODEL units (design metres; dwarf A is 1.294 tall with headgear) for proportions, joints,
+ *    geometry, poses and IK targets. WORLD units = tiles. The placement multiplies by
+ *    `worldPerModel` (CHARACTER_SCALE in characters/direction.ts, AnimatorOptions.worldPerModel); the
+ *    animator divides every world input (edge positions, floor heights, rung spacing, speeds) by it.
+ *    Nothing may assume 1 model unit = 1 tile.
  *  - Model space of one dwarf: +X forward (facing direction), +Y up, +Z the dwarf's RIGHT side.
  *    The root sits on the ground between the feet. Every bone's rest orientation is the identity;
  *    limbs (arms, legs, beard, aprons) point along -Y in the rest pose, torso and head along +Y.
  *  - Local rotations are Euler angles applied as R = Rz * Ry * Rx (three.js Euler order 'ZYX').
  *    Rz is pitch in the side-view plane (the main axis of every cycle): a positive Rz tilts the
  *    +Y axis toward -X (torso leans BACK) and swings a limb that hangs along -Y FORWARD.
- *  - Placement (model -> world): world position of the root, then the facing MIRROR (facing -1 =
+ *  - Placement (model -> world): world position of the root, uniform scale worldPerModel, the facing MIRROR (facing -1 =
  *    scale X by -1, so the tool hand stays on the camera side, like a flipped sprite), then the
  *    view yaw (turn toward the camera, variant parameter) and the clip's root yaw (e.g. climbing
  *    turns the back to the camera).
@@ -154,7 +161,11 @@ export interface RigInput {
 }
 
 // ------------------------------------------------------------------------------------------------ pose data
-/** IK effectors. Targets are in ROOT (model) space; pitch applies to feet (sole angle), hands ignore it. */
+/**
+ * IK effectors. Targets are in ROOT (model) space. The 4th value is a pitch (Rz, root space): feet = sole
+ * angle; hands = pitch of the fist, so a tool held in two hands stays one rigid body. Hand targets are the
+ * centre of the fist (origin of TOOL_R / TOOL_L).
+ */
 export const IK = { FOOT_R: 0, FOOT_L: 1, HAND_R: 2, HAND_L: 3 } as const;
 export const IK_COUNT = 4;
 
@@ -171,7 +182,7 @@ export class PoseFrame {
   readonly pos = new Float32Array(BONE_COUNT * 3);
   /** Uniform scale per bone; 0 hides the bone's geometry and its children. */
   readonly scale = new Float32Array(BONE_COUNT).fill(1);
-  /** IK target per effector: x, y, z (root space), pitch (feet: world sole pitch, radians). */
+  /** IK target per effector: x, y, z (root space), pitch (feet: sole pitch, hands: fist pitch; radians, root space). */
   readonly ik = new Float32Array(IK_COUNT * 4);
   /** IK weight per effector (0 = keep FK, 1 = reach the target). */
   readonly ikW = new Float32Array(IK_COUNT);
@@ -330,6 +341,11 @@ export interface ClipContext {
   aimX: number;
   aimY: number;
   probe: AnimWorldProbe | null;
+  /** View turn toward the camera of the variant (radians); clips may override the root yaw (climbing). */
+  viewYaw: number;
+  /** 0..1 danger (AnimInput.danger) and the animator's clock (seconds, deterministic) for idle fidgets. */
+  danger: number;
+  time: number;
 }
 
 /**
@@ -353,7 +369,10 @@ export interface AnimClip {
 /** One animated dwarf: state machine + rig. Allocation-free per update. */
 export interface DwarfAnimator {
   readonly state: number;
-  /** Model-space bone matrices after IK and FK (BONE_COUNT * 16, column-major like three.js). */
+  /** Model-space bone matrices after IK and FK (BONE_COUNT * 16, column-major like three.js). Final
+   *  matrices: the rig may re-parent sockets at runtime (tool slung on the back = TOOL_* relative to CHEST);
+   *  BONE_PARENT is only the default hierarchy. The animator may apply a constant per-seed scale to BEARD
+   *  (±10%) for crowd variety. */
   readonly bones: Float32Array;
   /** World matrix of the root: position, facing mirror, view yaw + clip yaw (16 floats). */
   readonly placement: Float32Array;
@@ -372,6 +391,8 @@ export interface DwarfAnimator {
 export interface AnimatorOptions {
   /** View turn toward the camera (degrees, from profile), from the variant. */
   viewYawDeg: number;
+  /** World tiles per model unit (default CHARACTER_SCALE.worldPerModel). */
+  worldPerModel?: number;
   probe?: AnimWorldProbe | null;
 }
 

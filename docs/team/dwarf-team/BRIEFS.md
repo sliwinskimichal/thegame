@@ -6,6 +6,46 @@
 > Zadanie: turniej ≥ 10 wariantów modelu krasnoluda × 4 role, rig proceduralny, cykle ruchu, maszyna stanów,
 > stanowisko zrzutów, metryki, plansza dla właściciela (`docs/variants/04-dwarf.md`).
 
+## Kontrakt v2 (2026-11-28) — zmiany wiążące, mają pierwszeństwo przed tekstem briefów poniżej
+
+Powód: dwie decyzje właściciela (`docs/team/DECISIONS.md` 2026-11-28) i pytania W1–W3.
+1. **Skala postaci jest parametrem** („świat skaluje się do modeli”). Proporcje, stawy, geometria, pozy i cele IK są
+   w **jednostkach modelu** (krasnolud A = 1,294 z nakryciem). `CHARACTER_SCALE.worldPerModel` (direction.ts,
+   domyślnie 1) = kafle świata na jednostkę modelu; mnoży ją `placement`, a animator **dzieli przez nią wszystkie
+   wejścia ze świata** (krawędzie, podłogi, szczeble, prędkości) — `AnimatorOptions.worldPerModel`. Laboratorium
+   ustawia skalę raz na starcie (`?scale=`), dla wszystkich wariantów naraz. Raport turnieju poda rekomendowaną
+   skalę (wzrost w kaflach i w px na każdym zoomie).
+2. **Zoomy z wysokości postaci w px**: `ZoomDef.dwarfPx` (Izba 218, Gród 75, Okolica 24 px przy 1080p) dla
+   **wzorcowego krasnoluda A**; `pxPerTile` jest pochodną (getter, idzie za skalą). LOD: `lodForDwarfPx(px)`
+   (progi 129 / 39 px), `lodForPxPerTile` liczy przez skalę. **Świat stanowiska i kamery liczone ze skali
+   i wysokości wzorcowej — identyczne dla wszystkich wariantów** (nie generujemy świata pod wariant; wysokości
+   wariantów mierzymy i raportujemy).
+3. **LOD0 bez oszczędzania**: budżet miękki 4000 tr. (raportowany, nie blokuje); LOD1 ≤ 400 i LOD2 ≤ 60 —
+   twarde (`LOD_BUDGET_HARD`).
+4. **`PartDef`**: dochodzą `s` (skala niejednorodna przed obrotem), `fromLod` (żetony LOD2; rysowanie dla
+   `fromLod ≤ lod ≤ minLod`), `ident` (grupa tożsamości: headgear / tool / load / back / apron / lamp).
+   `cap` zostaje lokalnie u W1.
+5. **Tłum: jedna geometria na (wariant, rola, LOD)**. Seed zmienia u członków tłumu tylko paletę (sloty zmienne);
+   zmienność brody daje animator stałą skalą kości `BEARD` z seeda (±10%). `beardShape` — tylko dla pojedynczego
+   modelu (bohater, zbliżenie).
+6. **IK dłoni**: cel = środek pięści (początek `TOOL_R/TOOL_L`), `ik[4k+3]` = pochylenie pięści (Rz, przestrzeń
+   korzenia) — narzędzie trzymane oburącz jest jedną bryłą.
+7. **`ClipContext`**: dochodzą `viewYaw`, `danger`, `time` (wymagane).
+8. **Przepinanie gniazd w czasie działania**: rig może liczyć `TOOL_*` względem `CHEST` (narzędzie na plecach przy
+   wspinaczce i noszeniu); `bones[]` to macierze końcowe, `BONE_PARENT` to tylko hierarchia domyślna.
+9. **Akcent stanu w LOD2 może zniknąć** (24 px, 60 tr.); kaganek hajera zostaje w LOD2 (rola), latarki pasowe
+   w LOD2 = sprite renderera (W3). Rozstaw stóp 0,58 to sprawa pozy (W2: odwiedzenie ud ±12–15°).
+10. **Światło turnieju: L12** (`LAB_LIGHT_VARIANT = 'l12-r2b-ink'`: łańcuch L00 + przywracanie kreski nad
+    bloomem, `InkCapturePass`/`InkOverPass` jak gałąź `inkOver` w `createIllustrated`); przełącznik `&light=`.
+11. **Semantyka kadru** (`LAB_FRAME`): 960×540 = wycinek 1:1 ekranu 1080p. Obrys postaci w px z `ZOOMS.hullPx`
+    (4 / 4 / 3 px — wartości 1080p). Szerokości silnika zdefiniowane są dla kadru 540 pokazującego cały ekran,
+    więc w laboratorium mnożymy wszystkie szerokości silnika osiągalne przez uniformy (`uInkW`, `uHullPx` skorup
+    rekwizytów, `uFogHatchPx`, `uMarkPx`, szerokość kreski z głębi) przez `LAB_FRAME.enginePxScale` (2); czego
+    nie da się osiągnąć — zgłosić (znane odchylenie: promień bloomu w px kadru).
+12. **Ujęcia W3**: `dig8` = hajer `dig` + kowal `build`; `walk8`, `climb8`, `carry8` = hajer + tragarz.
+13. **Tempo chodu (decyzja producenta 2026-11-27, tymczasowa)**: chód 1,1 kafla/s, trucht 2,5 tylko przy ucieczce
+    i alarmie (`MOTION.walkTilesPerSecond`, `fleeTilesPerSecond`, w kaflach świata).
+
 ## 0. Zasady wspólne (obowiązują każdego pracownika)
 
 1. **Przeczytaj przed pracą**: `CLAUDE.md`, `docs/team/CHARTER.md` §4–§7, `docs/art/concepts/dwarf.md`

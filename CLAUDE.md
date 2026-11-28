@@ -41,6 +41,9 @@ Projekt: **Underhearth** — przeglądarkowa gra o krasnoludzkiej kolonii w prze
 - **20 agentów-specjalistów** zdefiniowanych w `.claude/agents/*.md` (skład: `docs/team/ROSTER.md`), zasady
   współpracy, własność katalogów i przekazania: `docs/team/CHARTER.md`; plan produkcji: `docs/team/PRODUCTION.md`.
   Agenci nie commitują i nie edytują plików wspólnych; kończą raportem końcowym.
+- **Zespół scenarzystów** (decyzja właściciela 2026-11-28, start wg harmonogramu: teksty samouczka w M4, drużyna w M6):
+  quest-designer jako lider + 4 scenarzystów; umiejętności pisarskie z GitHuba tylko bez połączeń z systemami zewnętrznymi,
+  każdą przeczytaną w całości przed instalacją.
 - **Krasnoludy i budowle robi zespół: lider + 3 pracowników** (decyzja właściciela 2026-11-27). Lider pisze kontrakt
   i briefy w `docs/team/<zespół>-team/BRIEFS.md`, producent uruchamia pracowników na tych briefach; w czasie sprintu
   zespołu inne zadania tylko kończą rozpoczęte etapy (limit 4 agentów naraz).

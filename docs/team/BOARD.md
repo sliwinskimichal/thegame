@@ -25,8 +25,8 @@ Statusy: `kolejka` · `w toku` · `do przeglądu` · `zrobione` · `zablokowane 
 | F2-19 | Zatwierdzenie liczb rdzenia: rozpiętości stropów per skała, czasy ostrzeżeń (samouczek: ≥ 60 s), rumosz bez łupu, 1 blok z muru; udźwig i prędkości krasnoludów (tymczasowo: chód 1,1 kafla/s, trucht 2,5 przy alarmie — skutki dla tempa 40 h) | systems-designer | kolejka (z F2-15) |
 | F2-4 | Nawigacja z grawitacją — benchmark 3 algorytmów | ai-programmer | **zrobione** (HPA\* 16×16 + kolejka planowania; 200 krasnoludów 0,29 ms mediany / 1,7 ms p95 na tick; `docs/design/ai/NAVIGATION.md`) |
 | F2-5 | HUD i sterowanie — specyfikacja + makiety do turnieju | ui-ux-designer | kolejka |
-| F2-6 | Zadania jako dane + testy kompletności | quest-designer | kolejka |
-| F2-7 | Teksty samouczka (król Gostomir) i Krążków Pamięci | narrative-writer | kolejka |
+| F2-6 | Zadania jako dane + testy kompletności | quest-designer (**lider zespołu 4 scenarzystów** — decyzja właściciela 2026-11-28; start wg harmonogramu) | kolejka |
+| F2-7 | Teksty samouczka (król Gostomir) i Krążków Pamięci | zespół scenarzystów (lider: quest-designer) | kolejka (M4) |
 | F2-8 | Przegląd spójności biblii po nowym kierunku sztuki (+ usunięcie zależności od R2B w 01-world §10 i 05-level §1.4) | lead-narrative-designer | kolejka |
 | F2-9 | Gobliny: pogodzić dane (drapieżcy) z biblią (lud wypierany przez Raroga) | lead-narrative-designer + systems-designer | kolejka |
 | F2-10 | Przegląd Kręgów Otchłani pod charakter gry o kolonii | systems-designer + game-director | kolejka |

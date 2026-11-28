@@ -88,7 +88,7 @@ export function beardFrame(f: Frame) {
   const tilt = 8 * DEG;
   const faceX = f.hx + f.hrx;
   const topY = f.chinY + 0.06 * f.k;
-  const topX = faceX - 0.045;
+  const topX = faceX - 0.06;
   const midY = f.chinY - p.beardLen * 0.5;
   const botY = f.chinY - p.beardLen;
   const xAt = (y: number) => topX + (topY - y) * Math.tan(tilt);
@@ -103,7 +103,7 @@ export function bodyParts(f: Frame): ModelPart[] {
   const smith = f.role === 3;
 
   // ---------------------------------------------------------------- head and face
-  add({ name: 'head', bone: BONE.HEAD, shape: { k: 'ellipsoid', rx: f.hrx, ry: f.hry, rz: f.hrz }, t: [f.hx, f.hy, 0], slot: SLOT.SKIN, minLod: 1, skin: true });
+  add({ name: 'head', bone: BONE.HEAD, shape: { k: 'ellipsoid', rx: f.hrx, ry: f.hry, rz: f.hrz }, t: [f.hx, f.hy, 0], slot: SLOT.SKIN, minLod: 1, skin: true, lod1: { seg: 6, rings: 3 } });
   const noseS = 1 + (shape - 0.5) * 0.12;
   add({
     name: 'nose',
@@ -113,6 +113,7 @@ export function bodyParts(f: Frame): ModelPart[] {
     r: [0, 0, -0.25],
     slot: SLOT.SKIN,
     minLod: 1,
+    lod1: { seg: 4, rings: 2 },
   });
   add({
     name: 'brow',
@@ -162,6 +163,8 @@ export function bodyParts(f: Frame): ModelPart[] {
     t: [f.hx - 0.09 * k, f.chinY + 0.24 * p.headH, 0],
     slot: SLOT.BEARD,
     minLod: 0,
+    seg: 10,
+    rings: 5,
   });
 
   // ---------------------------------------------------------------- beard: jaw mass, wedge (2 bones), locks, braids
@@ -174,6 +177,9 @@ export function bodyParts(f: Frame): ModelPart[] {
     slot: SLOT.BEARD,
     minLod: 1,
     skin: true,
+    seg: 12,
+    rings: 6,
+    lod1: { seg: 5, rings: 2 },
   });
   const wMid = (0.26 + p.beardW) / 2;
   add({
@@ -191,7 +197,7 @@ export function bodyParts(f: Frame): ModelPart[] {
   add({
     name: 'beard.bot',
     bone: BONE.BEARD2,
-    shape: { k: 'wedge', w0: wMid, w1: wBot, h: bf.midY - bf.botY + 0.02, d: 0.11 },
+    shape: { k: 'wedge', w0: wMid, w1: wBot, h: bf.midY - bf.botY + 0.02, d: 0.095 },
     t: [bf.xAt(bf.midY) + 0.004, bf.midY + 0.02, 0],
     r: [0, 0, bf.tilt + 3 * DEG],
     slot: SLOT.BEARD,
@@ -223,6 +229,7 @@ export function bodyParts(f: Frame): ModelPart[] {
       r: [0, 0, 0.12],
       slot: SLOT.BEARD,
       minLod: 1,
+      lod1: { shape: { k: 'frustum', r0: 0, r1: 0.022, h: 0.16 }, seg: 3 },
     });
     add({
       name: `bead${i}`,
@@ -246,6 +253,9 @@ export function bodyParts(f: Frame): ModelPart[] {
     slot: SLOT.TUNIC,
     minLod: 1,
     skin: true,
+    seg: 14,
+    rings: 6,
+    lod1: { seg: 6, rings: 3 },
   });
   add({
     name: 'torso',
@@ -267,6 +277,7 @@ export function bodyParts(f: Frame): ModelPart[] {
     slot: SLOT.TUNIC,
     minLod: 1,
     skin: true,
+    lod1: { cap: 0, seg: 6 },
   });
   add({
     name: 'collar',
@@ -294,6 +305,12 @@ export function bodyParts(f: Frame): ModelPart[] {
     slot: SLOT.TUNIC,
     minLod: 1,
     skin: true,
+    lod1: {
+      shape: { k: 'frustum', r0: p.bellyR + 0.045, r1: p.bellyR + 0.004, h: bY - hY - 0.005 },
+      t: [0, (bY + hY - 0.015) / 2, 0],
+      seg: 6,
+      cap: CAP_BOTTOM,
+    },
   });
   add({
     name: 'hem',
@@ -317,6 +334,7 @@ export function bodyParts(f: Frame): ModelPart[] {
     color: FIXED_COLORS.leather,
     minLod: 1,
     cap: 0,
+    lod1: { seg: 6 },
   });
   add({
     name: 'buckle',
@@ -356,9 +374,9 @@ export function bodyParts(f: Frame): ModelPart[] {
   ] as const;
   for (const [arm, fore, hand, tool, s, side] of arms) {
     const up = span(f, arm, fore);
-    add({ name: `arm.${side}`, bone: arm, shape: { k: 'capsule', r: 0.068, len: up.len + 0.1 }, t: up.m, slot: smith ? SLOT.TUNIC2 : SLOT.TUNIC, minLod: 1, skin: true });
+    add({ name: `arm.${side}`, bone: arm, shape: { k: 'capsule', r: 0.068, len: up.len + 0.1 }, t: up.m, slot: smith ? SLOT.TUNIC2 : SLOT.TUNIC, minLod: 1, skin: true, lod1: { shape: { k: 'frustum', r0: 0.066, r1: 0.068, h: up.len + 0.04 }, seg: 4, cap: 0, phase: Math.PI / 4 } });
     const lo = span(f, fore, hand);
-    add({ name: `fore.${side}`, bone: fore, shape: { k: 'capsule', r: 0.061, len: lo.len + 0.075 }, t: lo.m, slot: SLOT.TUNIC2, minLod: 1, skin: true });
+    add({ name: `fore.${side}`, bone: fore, shape: { k: 'capsule', r: 0.061, len: lo.len + 0.075 }, t: lo.m, slot: SLOT.TUNIC2, minLod: 1, skin: true, lod1: { shape: { k: 'frustum', r0: 0.058, r1: 0.062, h: lo.len + 0.05 }, seg: 4, cap: 0, phase: Math.PI / 4 } });
     const W = J(f, hand);
     add({
       name: `cuff.${side}`,
@@ -380,6 +398,7 @@ export function bodyParts(f: Frame): ModelPart[] {
       slot: SLOT.SKIN,
       minLod: 1,
       skin: true,
+      lod1: { seg: 5, rings: 2 },
     });
     add({
       name: `thumb.${side}`,
@@ -399,9 +418,9 @@ export function bodyParts(f: Frame): ModelPart[] {
   ] as const;
   for (const [th, sh, ft, , side] of legs) {
     const a = span(f, th, sh);
-    add({ name: `thigh.${side}`, bone: th, shape: { k: 'frustum', r0: 0.07, r1: 0.084, h: a.len + 0.06 }, t: a.m, slot: SLOT.TUNIC2, minLod: 1, skin: true });
+    add({ name: `thigh.${side}`, bone: th, shape: { k: 'frustum', r0: 0.07, r1: 0.084, h: a.len + 0.06 }, t: a.m, slot: SLOT.TUNIC2, minLod: 1, skin: true, lod1: { seg: 4, cap: 0, phase: Math.PI / 4 } });
     const b = span(f, sh, ft);
-    add({ name: `shin.${side}`, bone: sh, shape: { k: 'frustum', r0: 0.061, r1: 0.071, h: b.len + 0.04 }, t: b.m, slot: SLOT.TUNIC2, minLod: 1, skin: true });
+    add({ name: `shin.${side}`, bone: sh, shape: { k: 'frustum', r0: 0.061, r1: 0.071, h: b.len + 0.04 }, t: b.m, slot: SLOT.TUNIC2, minLod: 1, skin: true, lod1: { seg: 4, cap: 0, phase: Math.PI / 4 } });
     const K = J(f, sh);
     add({
       name: `knee.${side}`,
@@ -423,6 +442,7 @@ export function bodyParts(f: Frame): ModelPart[] {
       minLod: 1,
       skin: true,
       round: 0.7,
+      lod1: { shape: { k: 'box', w: 0.14, h: 0.1, d: 0.23 }, t: [A[0] + 0.045, 0.05, A[2]] },
     });
     add({
       name: `toe.${side}`,
@@ -431,7 +451,7 @@ export function bodyParts(f: Frame): ModelPart[] {
       t: [A[0] + 0.105, 0.054, A[2]],
       slot: SLOT.FIXED,
       color: FIXED_COLORS.boot,
-      minLod: 1,
+      minLod: 0,
       skin: true,
     });
     add({
@@ -441,7 +461,7 @@ export function bodyParts(f: Frame): ModelPart[] {
       t: [A[0] - 0.005, 0.12, A[2]],
       slot: SLOT.FIXED,
       color: FIXED_COLORS.boot,
-      minLod: 1,
+      minLod: 0,
       skin: true,
     });
     add({
@@ -461,7 +481,7 @@ export function bodyParts(f: Frame): ModelPart[] {
     add({
       name: `tok.leg.${side}`,
       bone: th,
-      shape: { k: 'frustum', r0: 0.1, r1: 0, h: f.hipY + 0.02 },
+      shape: { k: 'frustum', r0: 0.115, r1: 0, h: f.hipY + 0.02 },
       t: [0.035, (f.hipY + 0.02) / 2, s * J(f, th)[2] * 1.15],
       s: [1.3, 1, 0.85],
       slot: SLOT.TUNIC2,
@@ -476,7 +496,7 @@ export function bodyParts(f: Frame): ModelPart[] {
   add({
     name: 'tok.torso',
     bone: BONE.SPINE,
-    shape: { k: 'frustum', r0: (p.bellyR + 0.03) / c45, r1: p.shoulderW / 2 / c45, h: tt - tb },
+    shape: { k: 'frustum', r0: (p.bellyR - 0.005) / c45, r1: p.shoulderW / 2 / c45, h: tt - tb },
     t: [0, (tb + tt) / 2, 0],
     s: [0.58, 1, 1],
     slot: SLOT.TUNIC,
@@ -488,7 +508,7 @@ export function bodyParts(f: Frame): ModelPart[] {
   add({
     name: 'tok.head',
     bone: BONE.HEAD,
-    shape: { k: 'ellipsoid', rx: f.hrx * 1.1, ry: f.hry * 1.02, rz: f.hrz },
+    shape: { k: 'ellipsoid', rx: f.hrx * 1.2, ry: f.hry * 1.05, rz: f.hrz * 1.15 },
     t: [f.hx, f.hy, 0],
     slot: SLOT.SKIN,
     fromLod: 2,

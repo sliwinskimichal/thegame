@@ -52,17 +52,33 @@ export interface HoldSet {
 const cache = new WeakMap<RigInput, HoldSet>();
 
 export function holdSet(rig: Rig): HoldSet {
+  const c = rig.d.cache;
+  if (c.holds) return c.holds as HoldSet;
   let h = cache.get(rig.d.input);
   if (!h) {
     h = buildHolds(rig.d);
     cache.set(rig.d.input, h);
   }
+  c.holds = h;
+  return h;
+}
+
+/** Hold set of a rig input (cached on its RigData). */
+export function holdsOf(d: RigData): HoldSet {
+  const c = d.cache;
+  if (c.holds) return c.holds as HoldSet;
+  let h = cache.get(d.input);
+  if (!h) {
+    h = buildHolds(d);
+    cache.set(d.input, h);
+  }
+  c.holds = h;
   return h;
 }
 
 /** Whether a tool hung head-down from a fist at height y clears the floor. */
 function hangsClear(t: ToolInfo | null, y: number, u: number): boolean {
-  return !!t && y - t.head > 0.07 * u;
+  return !!t && y - t.head > 0.15 * u;
 }
 
 function buildHolds(d: RigData): HoldSet {
@@ -168,6 +184,15 @@ export function applyArmFK(p: PoseFrame, side: 1 | -1, a: BakedArm, swingZ: numb
   p.rot[t * 3] = a.rot[9]!;
   p.rot[t * 3 + 1] = a.rot[10]!;
   p.rot[t * 3 + 2] = a.rot[11]!;
+}
+
+/** Blend the arm channels already in the pose toward a baked arm (FK) by weight w. */
+export function blendArmFK(p: PoseFrame, side: 1 | -1, a: BakedArm, w: number): void {
+  const bones = side > 0 ? ARM_BONES_R : ARM_BONES_L;
+  for (let i = 0; i < 3; i++) {
+    const b = bones[i]!;
+    for (let k = 0; k < 3; k++) p.rot[b * 3 + k] += (a.rot[i * 3 + k]! - p.rot[b * 3 + k]!) * w;
+  }
 }
 
 /** Write a baked arm as an IK target (root space = model space of the rest chest) with weight w. */

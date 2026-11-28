@@ -5,7 +5,9 @@
  *  - `skin`  the part is a primitive of the smooth SDF skin (technique `sdf`, d08);
  *  - `prio`  papercut draw order inside one layer (higher = nearer the camera);
  *  - `seg`, `rings`, `phase`  segment-count override for round shapes (LOD2 tokens use exact counts);
- *  - `round` 0..1 how much a technique may round / bevel the part (0 = keep crisp: blades, plates).
+ *  - `round` 0..1 how much a technique may round / bevel the part (0 = keep crisp: blades, plates);
+ *  - `lod1`  overrides applied when meshing LOD1 (Gród, <= 400 triangles: simpler shape, fewer segments,
+ *            open tube ends hidden inside other parts). Dropping a part at LOD1 = `minLod: 0`.
  * All lengths are MODEL units (contract v2: the world scales to the models).
  */
 import * as THREE from 'three';
@@ -22,6 +24,12 @@ export interface ModelPart extends PartDef {
   rings?: number;
   phase?: number;
   round?: number;
+  lod1?: Partial<Omit<ModelPart, 'name' | 'bone' | 'lod1' | 'minLod' | 'fromLod' | 'ident' | 'identity'>>;
+}
+
+/** The part as meshed at a LOD (LOD1 overrides applied). */
+export function atLod(p: ModelPart, lod: number): ModelPart {
+  return lod === 1 && p.lod1 ? { ...p, ...p.lod1 } : p;
 }
 
 export const CAP_BOTTOM = 1;

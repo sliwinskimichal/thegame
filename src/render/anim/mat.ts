@@ -10,6 +10,26 @@ export type Mat = Float64Array | Float32Array;
 
 /** out[o..o+15] = T(tx, ty, tz) * Rz(rz) * Ry(ry) * Rx(rx) * S(s). */
 export function composeTRS(out: Mat, o: number, tx: number, ty: number, tz: number, rx: number, ry: number, rz: number, s: number): void {
+  if (rx === 0 && ry === 0 && rz === 0) {
+    // sockets and resting gear: no trigonometry
+    out[o] = s;
+    out[o + 1] = 0;
+    out[o + 2] = 0;
+    out[o + 3] = 0;
+    out[o + 4] = 0;
+    out[o + 5] = s;
+    out[o + 6] = 0;
+    out[o + 7] = 0;
+    out[o + 8] = 0;
+    out[o + 9] = 0;
+    out[o + 10] = s;
+    out[o + 11] = 0;
+    out[o + 12] = tx;
+    out[o + 13] = ty;
+    out[o + 14] = tz;
+    out[o + 15] = 1;
+    return;
+  }
   const a = Math.cos(rx);
   const b = Math.sin(rx);
   const c = Math.cos(ry);

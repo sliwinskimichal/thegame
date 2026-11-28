@@ -48,10 +48,10 @@ const N_PARAMS = 15;
 const KEYS_V = [0.18, 0.36, 0.64, 1.3];
 /** slow shuffle · concept walk (card: 2 steps / 0.9 s) · fast walk (1.1 tiles/s) · flee jog (2.5 tiles/s). */
 const KEYS: readonly GaitParams[] = [
-  { duty: 0.66, crouch: -0.006, bob: 0.005, sway: 0.022, roll: 0.03, twist: 0.05, lean: 0.03, heel: 0.2, toe: 0.4, clear: 0.035, track: 0.13, toeOut: 0.16, armSwing: 0.14, elbow: 0.18, lcFrac: 0.85 },
-  { duty: 0.6, crouch: -0.012, bob: 0.01, sway: 0.02, roll: 0.05, twist: 0.08, lean: 0.06, heel: 0.3, toe: 0.6, clear: 0.05, track: 0.125, toeOut: 0.14, armSwing: 0.3, elbow: 0.25, lcFrac: 0.9 },
-  { duty: 0.56, crouch: -0.03, bob: 0.011, sway: 0.015, roll: 0.05, twist: 0.1, lean: 0.11, heel: 0.33, toe: 0.78, clear: 0.06, track: 0.115, toeOut: 0.1, armSwing: 0.42, elbow: 0.42, lcFrac: 0.9 },
-  { duty: 0.36, crouch: -0.042, bob: -0.013, sway: 0.01, roll: 0.04, twist: 0.13, lean: 0.24, heel: 0.16, toe: 0.86, clear: 0.085, track: 0.1, toeOut: 0.06, armSwing: 0.6, elbow: 1.2, lcFrac: 0.92 },
+  { duty: 0.66, crouch: -0.022, bob: 0.005, sway: 0.022, roll: 0.03, twist: 0.05, lean: 0.03, heel: 0.2, toe: 0.4, clear: 0.035, track: 0.13, toeOut: 0.16, armSwing: 0.14, elbow: 0.18, lcFrac: 0.85 },
+  { duty: 0.6, crouch: -0.032, bob: 0.01, sway: 0.02, roll: 0.05, twist: 0.08, lean: 0.06, heel: 0.3, toe: 0.6, clear: 0.05, track: 0.125, toeOut: 0.14, armSwing: 0.3, elbow: 0.25, lcFrac: 0.9 },
+  { duty: 0.56, crouch: -0.038, bob: 0.011, sway: 0.015, roll: 0.05, twist: 0.1, lean: 0.11, heel: 0.33, toe: 0.78, clear: 0.06, track: 0.115, toeOut: 0.1, armSwing: 0.42, elbow: 0.42, lcFrac: 0.9 },
+  { duty: 0.36, crouch: -0.048, bob: -0.013, sway: 0.01, roll: 0.04, twist: 0.13, lean: 0.24, heel: 0.16, toe: 0.86, clear: 0.085, track: 0.1, toeOut: 0.06, armSwing: 0.6, elbow: 1.2, lcFrac: 0.92 },
 ];
 const LENGTH_KEYS: readonly (keyof GaitParams)[] = ['crouch', 'bob', 'sway', 'clear', 'track'];
 const PARAM_NAMES = Object.keys(KEYS[0]!) as (keyof GaitParams)[];
@@ -60,8 +60,10 @@ export const G = 9.81;
 /** Card cadence: one stride (2 steps) per 0.9 s at preset A (scaled with sqrt of the leg length). */
 const CARD_STRIDE_S = 0.9;
 /** Heel roll ends / toe roll starts at these shares of the stance. */
-const SH = 0.16;
-const ST = 0.58;
+const SH = 0.18;
+const ST = 0.5;
+/** Highest hip-ankle distance allowed over a flat foot (share of the leg reach): a soft knee. */
+const FLAT_EXT = 0.97;
 
 export function newGaitParams(): GaitParams {
   return { ...KEYS[1]! };
@@ -85,6 +87,11 @@ export function gaitParams(d: RigData, v: number, out: GaitParams): GaitParams {
     out[n] = lerp(a[n], b[n], t);
   }
   for (const n of LENGTH_KEYS) out[n] *= d.legUnit;
+  // whatever the rig's legs: over a flat foot (ankle straight below) the hip stays within FLAT_EXT of
+  // the reach at the top of the bob (a straight rest leg would otherwise be unreachable)
+  const top = d.hipY + out.crouch + Math.max(0, out.bob) - d.ankleY;
+  const lim = FLAT_EXT * d.legReach;
+  if (top > lim) out.crouch -= top - lim;
   return out;
 }
 
@@ -126,14 +133,60 @@ export function gaitGeom(d: RigData, P: GaitParams, v: number, out: GaitGeom): G
   const heelMax = front - asx;
   const toeMin = -back - atx;
   const lcMax = Math.max(0.01 * d.legUnit, heelMax + (d.toeX - d.heelX) - toeMin);
-  const strideGeo = (P.lcFrac * lcMax) / P.duty;
   const strideCard = v * CARD_STRIDE_S * Math.sqrt(d.legUnit);
+  let strideGeo = (P.lcFrac * lcMax) / P.duty;
+  // the endpoints are not the whole story (mid toe-roll can be the farthest): verify the stance
+  for (let it = 0; it < 4; it++) {
+    const st = Math.max(0.02 * d.legUnit, Math.min(strideGeo, strideCard));
+    const hs = heelMax - (lcMax - st * P.duty) * 0.5;
+    const over = stanceOverreach(d, P, st, hs);
+    if (over <= 1) break;
+    strideGeo = Math.min(strideGeo, st) * (1 - Math.min(0.5, (over - 1) * 3 + 0.02));
+  }
   const stride = Math.max(0.02 * d.legUnit, Math.min(strideGeo, strideCard));
   const slack = lcMax - stride * P.duty;
   out.lcMax = lcMax;
   out.stride = stride;
   out.heelStrike = heelMax - slack * 0.5;
   return out;
+}
+
+const SAMPLE_S = [0, 0.04, 0.08, 0.12, 0.16, 0.58, 0.64, 0.7, 0.76, 0.82, 0.88, 0.94, 1];
+
+/** Largest hip-ankle distance / reach over the stance of one foot (right; the left mirrors it). */
+function stanceOverreach(d: RigData, P: GaitParams, stride: number, heelStrike: number): number {
+  const R = d.legReach * 0.985;
+  const yaw = -P.toeOut;
+  const ftx = (d.toeX - d.heelX) * Math.cos(yaw);
+  let worst = 0;
+  for (let i = 0; i < SAMPLE_S.length; i++) {
+    const s = SAMPLE_S[i]!;
+    const u = s * P.duty;
+    const heelX = heelStrike - stride * u;
+    let pitch: number;
+    let px: number;
+    let plx: number;
+    if (s < ST) {
+      pitch = s < SH ? P.heel * (1 - easeOut(s / SH)) : 0;
+      px = heelX;
+      plx = d.heelX;
+    } else {
+      pitch = -P.toe * easeIn((s - ST) / (1 - ST));
+      px = heelX + ftx;
+      plx = d.toeX;
+    }
+    soleOffset(plx, -d.ankleY, yaw, pitch, pv);
+    const ax = px - pv[0]!;
+    const ay = -pv[1]!;
+    const mid = P.duty * 0.5;
+    const c2 = Math.cos(2 * Math.PI * (u - mid));
+    const hy = d.hipY + P.crouch + P.bob * Math.cos(4 * Math.PI * (u - mid)) - d.hipZ * Math.sin(-P.roll * c2);
+    const hx = d.hipZ * Math.sin(P.twist * Math.cos(2 * Math.PI * u));
+    const hz = d.hipZ + P.sway * c2;
+    const dist = Math.hypot(ax - hx, ay - hy, P.track - hz);
+    worst = Math.max(worst, dist / R);
+  }
+  return worst;
 }
 
 /** Concept walk speed of this rig: the fastest speed that still keeps the card cadence. */
@@ -156,7 +209,7 @@ const pv = new Float64Array(3);
  * Sample the gait at phase into `out`: pelvis, spine, chest, head, both legs (IK) and free-arm swing.
  * `slope` (dy/dx along +X, root space) bends the ground for stairs; `heavy` 0..1 adds a load.
  */
-export function sampleGait(d: RigData, P: GaitParams, g: GaitGeom, phase: number, out: PoseFrame, slope = 0): void {
+export function sampleGait(d: RigData, P: GaitParams, g: GaitGeom, phase: number, out: PoseFrame, slope = 0, viewYaw = 0): void {
   const TAU = Math.PI * 2;
   const ph = wrap01(phase);
   const mid = P.duty * 0.5;
@@ -180,6 +233,12 @@ export function sampleGait(d: RigData, P: GaitParams, g: GaitGeom, phase: number
   r[BONE.HEAD * 3] = -P.roll * c2 * 0.2;
   r[BONE.HEAD * 3 + 1] = P.twist * tw * 0.12;
   r[BONE.HEAD * 3 + 2] = P.lean * 0.78 - 0.012 * c4;
+  // travel runs along world X: pelvis and legs in profile (the root cancels the view yaw), torso,
+  // beard and head turn back toward the camera by the same yaw (readability of the variant)
+  out.root[3] = viewYaw;
+  r[BONE.SPINE * 3 + 1] -= viewYaw * 0.45;
+  r[BONE.CHEST * 3 + 1] -= viewYaw * 0.4;
+  r[BONE.HEAD * 3 + 1] -= viewYaw * 0.15;
   foot(d, P, g, frac(ph), 1, out, slope);
   foot(d, P, g, frac(ph - 0.5), -1, out, slope);
   // free arms swing against the legs (right arm forward with the left leg), slight lag
@@ -250,8 +309,9 @@ function foot(d: RigData, P: GaitParams, g: GaitGeom, u: number, side: 1 | -1, o
     const x1 = g.heelStrike - pv[0]!;
     const y1 = -pv[1]!;
     const z1 = z - pv[2]!;
+    // lift-off still moving back, arrival with zero velocity (no forward overshoot past the strike)
     const m = -stride * (1 - duty) * 0.5;
-    ax = hermite(x0, m, x1, m, w);
+    ax = hermite(x0, m, x1, 0, w);
     ayy = lerp(y0, y1, w) + P.clear * bump(w, 0.42);
     pitch = lerp(-P.toe, P.heel, easeInOut(w));
     az = z1 - side * 0.012 * d.legUnit * bump(w, 0.5);

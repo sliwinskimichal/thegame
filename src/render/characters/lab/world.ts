@@ -81,7 +81,7 @@ export function buildStandWorld(seed = 7): StandWorld {
   const xD0 = xC0 + climbW + S(3);
   const darkW = S(32);
   const xE0 = xD0 + darkW + S(4);
-  const netW = S(60);
+  const netW = S(46);
   const W = xE0 + netW + 4;
 
   // ---- vertical plan (rows: floor rows are solid tiles, feet Y = -row)
@@ -91,7 +91,7 @@ export function buildStandWorld(seed = 7): StandWorld {
   const climbRows = S(10);
   const floorC = floorA;
   const floorD = floorA;
-  const netRows = [S(12), S(12) + tH + S(7), S(12) + 2 * (tH + S(7)), S(12) + 3 * (tH + S(7))].map((r) => r + top);
+  const netRows = [S(12), S(12) + tH + S(6), S(12) + 2 * (tH + S(6)), S(12) + 3 * (tH + S(6))].map((r) => r + top);
   const H = Math.max(floorA + 12, netRows[3]! + 8);
 
   const world = new World(W, H, seed);
@@ -156,7 +156,7 @@ export function buildStandWorld(seed = 7): StandWorld {
   const tunX1 = tunX0 + tunW - 1;
   room(tunX0, tunX1, floorA - tH, floorA - 1);
   const faceX = tunX1 + 1;
-  for (let y = floorA - tH - 2; y <= floorA + 1; y++)
+  for (let y = floorA - tH - 1; y <= floorA - 1; y++)
     for (let x = faceX; x < faceX + faceW; x++) {
       const dx = (x - faceX - 0.6) / 1.8;
       const dy = (y - (floorA - tH / 2 - 0.5)) / 1.7;
@@ -211,7 +211,7 @@ export function buildStandWorld(seed = 7): StandWorld {
   const stripStep = 2 * u;
   const stripXs = Array.from({ length: 8 }, (_, k) => stripCenter + (k - 3.5) * stripStep);
   for (const f of [floorB1, floorB2]) {
-    for (let k = 0; k <= 8; k++) torch(Math.floor(stripCenter + (k - 4) * stripStep), f - tH);
+    for (let k = 0; k <= 8; k += 2) torch(Math.floor(stripCenter + (k - 4) * stripStep), f - tH); // a torch every 2 dwarves
     planks(sx0, sx1, f);
   }
 
@@ -223,7 +223,7 @@ export function buildStandWorld(seed = 7): StandWorld {
   const climbCenter = (cx0 + cx1 + 1) / 2;
   const ladders = Array.from({ length: 8 }, (_, k) => Math.floor(climbCenter + (k - 3.5) * stripStep) + 0.5);
   for (const lx of ladders) ladder(lx, climbTop, floorC - 1);
-  for (let k = 0; k <= 8; k++) {
+  for (let k = 0; k <= 8; k += 2) {
     const tx = Math.floor(climbCenter + (k - 4) * stripStep);
     torch(tx, climbTop + Math.round(climbRows * 0.3));
     torch(tx, climbTop + Math.round(climbRows * 0.72));
@@ -238,7 +238,7 @@ export function buildStandWorld(seed = 7): StandWorld {
   torch(dTorch, floorD - tH);
   const dc = dTorch + 0.5;
   const core = [-1.8, -0.6, 0.6, 1.8].map((o) => dc + o * u);
-  const edge = [5.2, 6.4, 7.6, 8.8].map((o) => dc + o * u);
+  const edge = [6.4, 7.6, 8.8, 10.0].map((o) => dc + o * u);
   for (let x = dx0 + 2; x <= dx1 - 2; x += 4) d.push({ kind: 'support', x: x + 0.5, y: -floorD, z: -0.55, sy: tH * 0.98 });
 
   // ------------------------------------------------------------------ E: network

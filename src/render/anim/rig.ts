@@ -16,12 +16,17 @@ import { BONE, BONE_COUNT, BONE_PARENT, IK, type PoseFrame, type RigInput } from
 /** Upper limit of the automatic pelvis drop (fraction of the hip height). */
 const MAX_DROP = 0.4;
 
-/** Limb chains: [effector, upper, lower, end, socket (arms: fist) or -1, side sign]. */
-const LEG_R = [IK.FOOT_R, BONE.THIGH_R, BONE.SHIN_R, BONE.FOOT_R, -1, 1] as const;
-const LEG_L = [IK.FOOT_L, BONE.THIGH_L, BONE.SHIN_L, BONE.FOOT_L, -1, -1] as const;
-const ARM_R = [IK.HAND_R, BONE.ARM_R, BONE.FORE_R, BONE.HAND_R, BONE.TOOL_R, 1] as const;
-const ARM_L = [IK.HAND_L, BONE.ARM_L, BONE.FORE_L, BONE.HAND_L, BONE.TOOL_L, -1] as const;
-type Chain = typeof LEG_R | typeof LEG_L | typeof ARM_R | typeof ARM_L;
+/** Limb chains, 6 ints each: effector, upper, lower, end, socket (arms: fist) or -1, side sign. */
+const CHAINS = Int32Array.of(
+  IK.FOOT_R, BONE.THIGH_R, BONE.SHIN_R, BONE.FOOT_R, -1, 1,
+  IK.FOOT_L, BONE.THIGH_L, BONE.SHIN_L, BONE.FOOT_L, -1, -1,
+  IK.HAND_R, BONE.ARM_R, BONE.FORE_R, BONE.HAND_R, BONE.TOOL_R, 1,
+  IK.HAND_L, BONE.ARM_L, BONE.FORE_L, BONE.HAND_L, BONE.TOOL_L, -1,
+);
+const LEG_R = 0;
+const LEG_L = 6;
+const ARM_R = 12;
+const ARM_L = 18;
 
 export class Rig {
   readonly d: RigData;
@@ -37,6 +42,9 @@ export class Rig {
   readonly slung = new Float64Array(12);
 
   private readonly loc = new Float64Array(16);
+  /** Local 3x3 rotations solved by IK (used directly by FK when the weight is 1). */
+  private readonly lrot = new Float64Array(BONE_COUNT * 9);
+  private readonly useL = new Uint8Array(BONE_COUNT);
   private readonly tmp = new Float64Array(32);
   private readonly R = new Float64Array(9 * 8);
   private readonly v = new Float64Array(3 * 12);
@@ -56,13 +64,15 @@ export class Rig {
     const ap = p instanceof AnimPose ? p : null;
     this.lastDrop = 0;
     this.ikError.fill(0);
+    this.useL.fill(0);
     for (let b = 0; b < BONE_COUNT; b++) {
       if (b === BONE.THIGH_R && p.ikW[IK.FOOT_R]! > 0) this.solveChain(p, ap, LEG_R);
       else if (b === BONE.THIGH_L && p.ikW[IK.FOOT_L]! > 0) this.solveChain(p, ap, LEG_L);
       else if (b === BONE.ARM_R && p.ikW[IK.HAND_R]! > 0) this.solveChain(p, ap, ARM_R);
       else if (b === BONE.ARM_L && p.ikW[IK.HAND_L]! > 0) this.solveChain(p, ap, ARM_L);
       const o3 = b * 3;
-      composeTRS(this.loc, 0, off[o3]! + p.pos[o3]!, off[o3 + 1]! + p.pos[o3 + 1]!, off[o3 + 2]! + p.pos[o3 + 2]!, rot[o3]!, rot[o3 + 1]!, rot[o3 + 2]!, p.scale[b]!);
+      if (this.useL[b] === 1) this.localFromRot3(b, off[o3]! + p.pos[o3]!, off[o3 + 1]! + p.pos[o3 + 1]!, off[o3 + 2]! + p.pos[o3 + 2]!, p.scale[b]!);
+      else composeTRS(this.loc, 0, off[o3]! + p.pos[o3]!, off[o3 + 1]! + p.pos[o3 + 1]!, off[o3 + 2]! + p.pos[o3 + 2]!, rot[o3]!, rot[o3 + 1]!, rot[o3 + 2]!, p.scale[b]!);
       const parent = BONE_PARENT[b]!;
       if (parent < 0) W.set(this.loc, 0);
       else mulAffine(W, b * 16, W, parent * 16, this.loc, 0);
@@ -72,6 +82,28 @@ export class Rig {
         if (a > 0) this.sling(b, a, p.scale[b]!);
       }
     }
+  }
+
+  private localFromRot3(b: number, tx: number, ty: number, tz: number, s: number): void {
+    const L = this.loc;
+    const r = this.lrot;
+    const o = b * 9;
+    L[0] = r[o]! * s;
+    L[1] = r[o + 1]! * s;
+    L[2] = r[o + 2]! * s;
+    L[3] = 0;
+    L[4] = r[o + 3]! * s;
+    L[5] = r[o + 4]! * s;
+    L[6] = r[o + 5]! * s;
+    L[7] = 0;
+    L[8] = r[o + 6]! * s;
+    L[9] = r[o + 7]! * s;
+    L[10] = r[o + 8]! * s;
+    L[11] = 0;
+    L[12] = tx;
+    L[13] = ty;
+    L[14] = tz;
+    L[15] = 1;
   }
 
   /** World-free helper: model-space position of a point given in bone b's local frame. */
@@ -126,8 +158,13 @@ export class Rig {
    * Two-bone IK of one limb. Writes blended local Euler angles for the upper, lower and end bones
    * into this.rot (FK continues from them).
    */
-  private solveChain(p: PoseFrame, ap: AnimPose | null, c: Chain): void {
-    const [eff, upper, lower, end, socket, side] = c;
+  private solveChain(p: PoseFrame, ap: AnimPose | null, c: number): void {
+    const eff = CHAINS[c]!;
+    const upper = CHAINS[c + 1]!;
+    const lower = CHAINS[c + 2]!;
+    const end = CHAINS[c + 3]!;
+    const socket = CHAINS[c + 4]!;
+    const side = CHAINS[c + 5]!;
     const isArm = socket >= 0;
     const W = this.W;
     const off = this.d.off;
@@ -177,22 +214,33 @@ export class Rig {
     v[15] = px;
     v[16] = py;
     v[17] = pz;
-    const l1 = Math.hypot(off[lower * 3]!, off[lower * 3 + 1]!, off[lower * 3 + 2]!);
-    const l2 = Math.hypot(off[end * 3]!, off[end * 3 + 1]!, off[end * 3 + 2]!);
+    const l1 = Math.sqrt(off[lower * 3]! * off[lower * 3]! + off[lower * 3 + 1]! * off[lower * 3 + 1]! + off[lower * 3 + 2]! * off[lower * 3 + 2]!);
+    const l2 = Math.sqrt(off[end * 3]! * off[end * 3]! + off[end * 3 + 1]! * off[end * 3 + 1]! + off[end * 3 + 2]! * off[end * 3 + 2]!);
     twoBone(v, R, l1, l2, isArm ? -1 : 1, off, lower, end);
     // reached error (for tests): |E - T|
-    this.ikError[eff] = Math.hypot(v[30]! - tx, v[31]! - ty, v[32]! - tz);
+    const ex = v[30]! - tx;
+    const ey = v[31]! - ty;
+    const ez = v[32]! - tz;
+    this.ikError[eff] = Math.sqrt(ex * ex + ey * ey + ez * ez);
     // locals: L1 = Rpᵀ R1, L2 = R1ᵀ R2, L3 = R2ᵀ Rend
     const e = this.e;
-    mulT3(R, 63, R, 0, R, 9);
-    eulerFromRot3(R, 63, e, 0);
+    const full = w >= 1;
+    const lr = this.lrot;
+    mulT3(full ? lr : R, full ? upper * 9 : 63, R, 0, R, 9);
+    eulerFromRot3(full ? lr : R, full ? upper * 9 : 63, e, 0);
     blendRot(rot, upper, e, w);
-    mulT3(R, 63, R, 9, R, 18);
-    eulerFromRot3(R, 63, e, 0);
+    mulT3(full ? lr : R, full ? lower * 9 : 63, R, 9, R, 18);
+    eulerFromRot3(full ? lr : R, full ? lower * 9 : 63, e, 0);
     blendRot(rot, lower, e, w);
-    mulT3(R, 63, R, 18, R, 27);
-    eulerFromRot3(R, 63, e, 0);
+    mulT3(full ? lr : R, full ? end * 9 : 63, R, 18, R, 27);
+    eulerFromRot3(full ? lr : R, full ? end * 9 : 63, e, 0);
     blendRot(rot, end, e, w);
+    if (full) {
+      // FK uses these matrices directly (the Euler copy stays for readers of rig.rot)
+      this.useL[upper] = 1;
+      this.useL[lower] = 1;
+      this.useL[end] = 1;
+    }
   }
 
   // ---------------------------------------------------------------------------------------------- slung tools
@@ -211,7 +259,7 @@ export class Rig {
       let yx = -0.18;
       let yy = 0.86;
       let yz = 0.48 * side;
-      const yl = Math.hypot(yx, yy, yz);
+      const yl = Math.sqrt(yx * yx + yy * yy + yz * yz);
       yx /= yl;
       yy /= yl;
       yz /= yl;
@@ -219,7 +267,7 @@ export class Rig {
       let xx = -1 + yx * yx;
       let xy = yx * yy;
       let xz = yx * yz;
-      const xl = Math.hypot(xx, xy, xz);
+      const xl = Math.sqrt(xx * xx + xy * xy + xz * xz);
       xx /= xl;
       xy /= xl;
       xz /= xl;
@@ -296,19 +344,19 @@ function twoBone(v: Float64Array, R: Float64Array, l1: number, l2: number, bendS
   let nx = v[3]! - ax;
   let ny = v[4]! - ay;
   let nz = v[5]! - az;
-  let d = Math.hypot(nx, ny, nz);
+  let d = Math.sqrt(nx * nx + ny * ny + nz * nz);
   // rest directions of the two bones (unit)
   let r1x = off[lower * 3]!;
   let r1y = off[lower * 3 + 1]!;
   let r1z = off[lower * 3 + 2]!;
-  const r1l = Math.hypot(r1x, r1y, r1z) || 1;
+  const r1l = Math.sqrt(r1x * r1x + r1y * r1y + r1z * r1z) || 1;
   r1x /= r1l;
   r1y /= r1l;
   r1z /= r1l;
   let r2x = off[end * 3]!;
   let r2y = off[end * 3 + 1]!;
   let r2z = off[end * 3 + 2]!;
-  const r2l = Math.hypot(r2x, r2y, r2z) || 1;
+  const r2l = Math.sqrt(r2x * r2x + r2y * r2y + r2z * r2z) || 1;
   r2x /= r2l;
   r2y /= r2l;
   r2z /= r2l;
@@ -333,7 +381,7 @@ function twoBone(v: Float64Array, R: Float64Array, l1: number, l2: number, bendS
   let bx = px - pn * nx;
   let by = py - pn * ny;
   let bz = pz - pn * nz;
-  let bl = Math.hypot(bx, by, bz);
+  let bl = Math.sqrt(bx * bx + by * by + bz * bz);
   if (bl < 1e-6) {
     // pole along the chain: fall back to the rest bend axis (x) then z
     px = bendSign;
@@ -343,7 +391,7 @@ function twoBone(v: Float64Array, R: Float64Array, l1: number, l2: number, bendS
     bx = px - pn * nx;
     by = -pn * ny;
     bz = -pn * nz;
-    bl = Math.hypot(bx, by, bz);
+    bl = Math.sqrt(bx * bx + by * by + bz * bz);
     if (bl < 1e-6) {
       bx = 0;
       by = 0;
@@ -373,7 +421,7 @@ function twoBone(v: Float64Array, R: Float64Array, l1: number, l2: number, bendS
   let b0x = bendSign - (bendSign * r1x) * r1x;
   let b0y = -(bendSign * r1x) * r1y;
   let b0z = -(bendSign * r1x) * r1z;
-  const b0l = Math.hypot(b0x, b0y, b0z) || 1;
+  const b0l = Math.sqrt(b0x * b0x + b0y * b0y + b0z * b0z) || 1;
   b0x /= b0l;
   b0y /= b0l;
   b0z /= b0l;
@@ -393,7 +441,7 @@ function twoBone(v: Float64Array, R: Float64Array, l1: number, l2: number, bendS
 
 /** Orthonormal frame [X = Y × Z', Y, Z'] (column-major) from a Y axis and an approximate Z. */
 function frame(R: Float64Array, o: number, yx: number, yy: number, yz: number, zx: number, zy: number, zz: number): void {
-  const yl = Math.hypot(yx, yy, yz) || 1;
+  const yl = Math.sqrt(yx * yx + yy * yy + yz * yz) || 1;
   yx /= yl;
   yy /= yl;
   yz /= yl;
@@ -401,7 +449,7 @@ function frame(R: Float64Array, o: number, yx: number, yy: number, yz: number, z
   zx -= d * yx;
   zy -= d * yy;
   zz -= d * yz;
-  const zl = Math.hypot(zx, zy, zz) || 1;
+  const zl = Math.sqrt(zx * zx + zy * zy + zz * zz) || 1;
   zx /= zl;
   zy /= zl;
   zz /= zl;

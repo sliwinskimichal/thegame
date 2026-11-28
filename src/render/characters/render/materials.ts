@@ -45,6 +45,14 @@ export interface ToneParams {
   core: [number, number];
   /** Lamp emission flicker amplitude (±2% = 0.02). */
   flicker: number;
+  /** Share of the dwarf's own lamp that lights its own body (concept card: in the dark only the outline and the light stay). */
+  selfLight: number;
+  /** Figure against ground: ambient and light gains relative to the props' (uPropAmb·1.25, uPropLight), the light
+   *  level cap and how much the light's hue is taken off the figure (so the garments stay muted, C* <= 26). */
+  ambK: number;
+  lightK: number;
+  lightCap: number;
+  figDesat: number;
 }
 
 export const DEFAULT_TONE: ToneParams = {
@@ -57,7 +65,28 @@ export const DEFAULT_TONE: ToneParams = {
   soft: 0.08,
   core: [1.15, 1.6],
   flicker: 0.02,
+  selfLight: 0.25,
+  ambK: 1,
+  lightK: 1,
+  lightCap: 1.8,
+  figDesat: 0,
 };
+
+/** Parse tone overrides from URL-like pairs: tone.shadeDL=-12&tone.ambK=0.6 (numbers; key/core as a,b[,c]). */
+export function toneFromParams(params: URLSearchParams, base: ToneParams = DEFAULT_TONE): ToneParams {
+  const t: ToneParams = { ...base, key: [...base.key], core: [...base.core] };
+  for (const [k, v] of params) {
+    if (!k.startsWith('tone.')) continue;
+    const name = k.slice(5) as keyof ToneParams;
+    if (!(name in t)) throw new Error(`nieznany parametr tonu "${name}"`);
+    const nums = v.split(',').map(Number);
+    if (nums.some((x) => !Number.isFinite(x))) throw new Error(`parametr tonu "${name}": "${v}" nie jest liczbą`);
+    if (name === 'key') t.key = [nums[0]!, nums[1]!, nums[2]!];
+    else if (name === 'core') t.core = [nums[0]!, nums[1]!];
+    else (t[name] as number) = nums[0]!;
+  }
+  return t;
+}
 
 const SKIN_ATTRS = /* glsl */ `
 attribute vec3 color;
@@ -76,6 +105,7 @@ attribute vec3 aPal3; // BEARD
 attribute vec3 aPal4; // SKIN
 attribute vec3 aPal5; // CLOTH
 attribute vec3 aPal6; // ACCENT
+attribute vec3 aLamp; // world position of this dwarf's own lamp (far away when it has none)
 uniform sampler2D uBoneTex;
 void boneRows(float row, float bone, out vec4 r0, out vec4 r1, out vec4 r2) {
   ivec2 c = ivec2(int(bone + 0.5) * 3, int(row + 0.5));
@@ -115,6 +145,7 @@ vec3 slotColor() {
 const PARTS_INSTANCE = /* glsl */ `
 attribute vec4 aInst; // x: unused, y: mirror sign, z: lamp on, w: seed
 attribute vec3 aTint; // palette colour of the part's slot (white for FIXED)
+attribute vec3 aLamp; // world position of this dwarf's own lamp
 void skin(vec3 p, vec3 n, out vec3 wp, out vec3 wn) {
   wp = (modelMatrix * instanceMatrix * vec4(p, 1.0)).xyz;
   wn = mat3(modelMatrix) * mat3(instanceMatrix) * n;
@@ -130,10 +161,12 @@ varying vec3 vNormal;
 varying vec3 vPos;
 varying float vEmi;
 varying vec3 vInst; // mirror sign, lamp on, seed
+varying vec3 vLamp;
 void main() {
   vec3 wp;
   vec3 wn;
   skin(position, normal, wp, wn);
+  vLamp = aLamp;
   float nl = length(wn);
   vNormal = nl > 1e-6 ? wn / nl : vec3(0.0, 0.0, 1.0);
   vPos = wp;
@@ -166,6 +199,9 @@ uniform vec4 uTone; // shadeDL, shadeHue, lightDL, lightHue
 uniform float uToneSoft;
 uniform vec2 uCore;
 uniform float uFlicker;
+uniform float uSelfLight;
+uniform vec4 uFig; // ambient gain, light gain, light cap, light-hue desaturation (figure vs ground)
+varying vec3 vLamp;
 varying vec3 vColor;
 varying vec3 vNormal;
 varying vec3 vPos;
@@ -202,6 +238,27 @@ vec3 lightDirection(vec3 p) {
   }
   return acc;
 }
+// Light of the dwarf's OWN lamp on its own body (the dynamic light at vLamp), the same term worldLight adds.
+// The concept card: in the dark the dwarf keeps only its outline and the little light, so the own lamp
+// lights its body only by uSelfLight.
+vec3 ownLamp(vec3 p, vec3 n) {
+  for (int i = 0; i < ${MAX_DYN_LIGHTS}; i++) {
+    if (i >= uDynCount) break;
+    if (distance(uDynPos[i].xyz, vLamp) > 1e-3) continue;
+    vec3 d = uDynPos[i].xyz - p;
+    float dist = length(d);
+    float rad = uDynPos[i].w;
+    if (dist > rad) return vec3(0.0);
+    vec3 l = d / max(dist, 1e-3);
+    float att = 1.0 - dist / rad;
+    att *= att;
+    vec2 a = p.xy + n.xy * 0.3;
+    vec2 b = uDynPos[i].xy;
+    float occ = (1.0 - fogAt(mix(a, b, 0.33)).y) * (1.0 - fogAt(mix(a, b, 0.66)).y);
+    return uDynCol[i].rgb * att * occ * (max(dot(n, l), 0.0) * 0.8 + 0.2);
+  }
+  return vec3(0.0);
+}
 void main() {
   bool mirrored = vInst.x < 0.0;
 #ifndef MIRROR_SPLIT
@@ -214,11 +271,12 @@ void main() {
   vec3 V = normalize(uCamPos - vPos);
   vec3 spec;
   vec3 L = worldLight(vPos, N, vPos.xy, V, 16.0, smoothstep(0.55, 0.95, lightAt(vPos.xy).a), spec);
+  L = max(L - ownLamp(vPos, N) * (1.0 - uSelfLight), vec3(0.0));
   float l = max(max(L.r, L.g), L.b);
-  vec3 hue = desatC(L / max(l, 1e-3), uLightDesat);
-  float lb = lightBands(min(l, 1.8), uBands, uBandSoft);
+  vec3 hue = desatC(L / max(l, 1e-3), max(uLightDesat, uFig.w));
+  float lb = lightBands(min(l, uFig.z), uBands, uBandSoft);
   vec3 base = desatC(vColor, uDesat);
-  vec3 col = base * (uAmbCool * uDwarfAmb + hue * lb * uPropLight);
+  vec3 col = base * (uAmbCool * uDwarfAmb * uFig.x + hue * lb * uPropLight * uFig.y);
   // flat tones: the side toward the light is lighter, the other side drops toward the ambient
   vec3 ld = lightDirection(vPos);
   float amt = smoothstep(0.02, 0.3, length(ld));
@@ -294,6 +352,8 @@ export interface DwarfUniforms {
   uToneSoft: THREE.IUniform<number>;
   uCore: THREE.IUniform<THREE.Vector2>;
   uFlicker: THREE.IUniform<number>;
+  uSelfLight: THREE.IUniform<number>;
+  uFig: THREE.IUniform<THREE.Vector4>;
 }
 
 export function dwarfUniforms(style: Uniforms, tone: ToneParams = DEFAULT_TONE): DwarfUniforms {
@@ -308,6 +368,8 @@ export function dwarfUniforms(style: Uniforms, tone: ToneParams = DEFAULT_TONE):
     uToneSoft: { value: tone.soft },
     uCore: { value: new THREE.Vector2(...tone.core) },
     uFlicker: { value: tone.flicker },
+    uSelfLight: { value: tone.selfLight },
+    uFig: { value: new THREE.Vector4(tone.ambK, tone.lightK, tone.lightCap, tone.figDesat) },
   };
 }
 
@@ -318,6 +380,8 @@ export function setTone(d: DwarfUniforms, t: ToneParams): void {
   d.uToneSoft.value = t.soft;
   d.uCore.value.set(...t.core);
   d.uFlicker.value = t.flicker;
+  d.uSelfLight.value = t.selfLight;
+  d.uFig.value.set(t.ambK, t.lightK, t.lightCap, t.figDesat);
 }
 
 /** Fill material; `side` only matters with MIRROR_SPLIT (FrontSide for facing +1, BackSide for −1). */

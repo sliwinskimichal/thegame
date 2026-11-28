@@ -8,7 +8,7 @@
  */
 import { CHARACTER_SCALE, MOTION } from '../../characters/direction';
 import { AnimPose, setIK } from '../pose';
-import type { RigData } from '../rigdata';
+import { rigData, type RigData } from '../rigdata';
 import { BONE, IK, type ClipContext, type PoseFrame } from '../types';
 
 export interface AnimCtx extends ClipContext {
@@ -18,6 +18,13 @@ export interface AnimCtx extends ClipContext {
   slope?: number;
   /** Fall height in rows (land strength), edge progress for edge-driven states. */
   rows?: number;
+  /** The rig's derived data (saves a WeakMap lookup per sample). */
+  rd?: RigData;
+}
+
+/** RigData of the context's rig (from the animator's context, else the cache). */
+export function rdOf(ctx: ClipContext): RigData {
+  return (ctx as AnimCtx).rd ?? rigData(ctx.rig);
 }
 
 export function wpm(ctx: ClipContext): number {

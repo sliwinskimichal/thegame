@@ -22,8 +22,9 @@ import { BoneTexture, writeSkinRow } from './boneTexture';
 import { lodWithHysteresis, refDwarfPxAtDepth, viewDepth } from './lod';
 import { dwarfFillMaterial, dwarfHullMaterial, dwarfUniforms, MODE, type CrowdMode, type DwarfUniforms, type ToneParams, type Uniforms } from './materials';
 
-/** Floats per instance of the welded path: aInst (4) + 6 palette slots (18). */
-export const INSTANCE_STRIDE = 22;
+/** Floats per instance of the welded path: aInst (4) + 6 palette slots (18) + own lamp position (3). */
+export const INSTANCE_STRIDE = 25;
+const NO_LAMP = 1e6;
 const ZOOM_BY_LOD = [ZOOMS.izba, ZOOMS.grod, ZOOMS.okolica] as const;
 
 export interface CrowdLights {
@@ -117,6 +118,7 @@ interface PartDraw {
   hull: THREE.InstancedMesh | null;
   inst: THREE.InstancedBufferAttribute;
   tint: THREE.InstancedBufferAttribute;
+  lamp: THREE.InstancedBufferAttribute;
   bone: number;
   slot: number;
   fillTris: number;
@@ -250,6 +252,11 @@ export class CrowdRenderer implements DwarfCrowdRenderer {
     }
   }
 
+  /** LOD the member was drawn with in the last sync (forced LOD wins). */
+  lodOf(anim: DwarfAnimator): LodLevel {
+    return this.opts.forceLod ?? ((this.prevLod.get(anim) ?? 1) as LodLevel);
+  }
+
   setForceLod(lod: LodLevel | null): void {
     this.opts.forceLod = lod;
   }
@@ -295,6 +302,7 @@ export class CrowdRenderer implements DwarfCrowdRenderer {
         g.setIndex(src.index);
         g.setAttribute('aInst', new THREE.InterleavedBufferAttribute(b.buffer!, 4, 0));
         for (let k = 0; k < 6; k++) g.setAttribute(`aPal${k + 1}`, new THREE.InterleavedBufferAttribute(b.buffer!, 3, 4 + k * 3));
+        g.setAttribute('aLamp', new THREE.InterleavedBufferAttribute(b.buffer!, 3, 22));
         g.instanceCount = 0;
       };
       if (b.fill) {
@@ -333,6 +341,7 @@ export class CrowdRenderer implements DwarfCrowdRenderer {
       b.parts = m.parts.map((pm) => {
         const inst = new THREE.InstancedBufferAttribute(new Float32Array(c * 4), 4).setUsage(THREE.DynamicDrawUsage);
         const tint = new THREE.InstancedBufferAttribute(new Float32Array(c * 3), 3).setUsage(THREE.DynamicDrawUsage);
+        const lamp = new THREE.InstancedBufferAttribute(new Float32Array(c * 3), 3).setUsage(THREE.DynamicDrawUsage);
         const mk = (src: THREE.BufferGeometry) => {
           const g = new THREE.BufferGeometry();
           for (const [name, a] of Object.entries(src.attributes)) g.setAttribute(name, a);
@@ -340,6 +349,7 @@ export class CrowdRenderer implements DwarfCrowdRenderer {
           g.setIndex(src.index);
           g.setAttribute('aInst', inst);
           g.setAttribute('aTint', tint);
+          g.setAttribute('aLamp', lamp);
           return g;
         };
         const fill = new THREE.InstancedMesh(mk(pm.geometry), this.partsFill[side]!, c);
@@ -357,7 +367,7 @@ export class CrowdRenderer implements DwarfCrowdRenderer {
           hull.layers.set(this.opts.layer);
           this.group.add(hull);
         }
-        return { fill, hull, inst, tint, bone: pm.bone, slot: pm.slot, fillTris: triangles(pm.geometry), hullTris: pm.hull ? triangles(pm.hull) : 0 };
+        return { fill, hull, inst, tint, lamp, bone: pm.bone, slot: pm.slot, fillTris: triangles(pm.geometry), hullTris: pm.hull ? triangles(pm.hull) : 0 };
       });
     }
   }
@@ -411,6 +421,10 @@ export class CrowdRenderer implements DwarfCrowdRenderer {
       const pal = paletteLinear(model.spec.palette);
       const lampOn = mem.lampOn !== false;
       const sd = seed01(model.spec.seed);
+      const hasLamp = lampOn && mem.anim.lampWorld(this.lampTmp, 0);
+      const lx = hasLamp ? this.lampTmp[0]! : NO_LAMP;
+      const ly = hasLamp ? this.lampTmp[1]! : NO_LAMP;
+      const lz = hasLamp ? this.lampTmp[2]! : NO_LAMP;
       if (mesh.mode === 'welded') {
         welded = true;
         writeSkinRow(pl, mem.anim.bones, model.rig.rest, this.bones.data, this.bones.rowOffset(row));
@@ -421,6 +435,9 @@ export class CrowdRenderer implements DwarfCrowdRenderer {
         a[o + 2] = lampOn ? 1 : 0;
         a[o + 3] = sd;
         a.set(pal, o + 4);
+        a[o + 22] = lx;
+        a[o + 23] = ly;
+        a[o + 24] = lz;
         row++;
       } else {
         const bones = mem.anim.bones;
@@ -434,20 +451,24 @@ export class CrowdRenderer implements DwarfCrowdRenderer {
           ia[k * 4 + 2] = lampOn ? 1 : 0;
           ia[k * 4 + 3] = sd;
           slotTint(pd.slot, pal, pd.tint.array as Float32Array, k * 3);
+          const la = pd.lamp.array as Float32Array;
+          la[k * 3] = lx;
+          la[k * 3 + 1] = ly;
+          la[k * 3 + 2] = lz;
         }
       }
       b.count++;
       // lamps: dynamic lights and, for belt lanterns at LOD2, a sprite
-      if (lampOn && mem.anim.lampWorld(this.lampTmp, 0)) {
-        this.lampX[lamps] = this.lampTmp[0]!;
-        this.lampY[lamps] = this.lampTmp[1]!;
-        this.lampZ[lamps] = this.lampTmp[2]!;
+      if (hasLamp) {
+        this.lampX[lamps] = lx;
+        this.lampY[lamps] = ly;
+        this.lampZ[lamps] = lz;
         this.lampM[lamps] = mem;
         lamps++;
         if (lod === 2 && model.rig.lamp.bone !== BONE.HEAD && spriteN < 256) {
-          spritePos[spriteN * 3] = this.lampTmp[0]!;
-          spritePos[spriteN * 3 + 1] = this.lampTmp[1]!;
-          spritePos[spriteN * 3 + 2] = this.lampTmp[2]! + 0.05;
+          spritePos[spriteN * 3] = lx;
+          spritePos[spriteN * 3 + 1] = ly;
+          spritePos[spriteN * 3 + 2] = lz + 0.05;
           const c = model.rig.lamp.color;
           spriteCol[spriteN * 3] = c[0];
           spriteCol[spriteN * 3 + 1] = c[1];
@@ -496,6 +517,9 @@ export class CrowdRenderer implements DwarfCrowdRenderer {
           pd.tint.clearUpdateRanges();
           pd.tint.addUpdateRange(0, c * 3);
           pd.tint.needsUpdate = true;
+          pd.lamp.clearUpdateRanges();
+          pd.lamp.addUpdateRange(0, c * 3);
+          pd.lamp.needsUpdate = true;
           draws += 1 + (pd.hull && hullOn ? 1 : 0);
           tris += c * (pd.fillTris + (pd.hull && hullOn ? pd.hullTris : 0));
         }

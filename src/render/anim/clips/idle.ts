@@ -8,11 +8,11 @@
  *  weight      on the right foot ─────────── on the left foot ───────────
  */
 import { wobble, wrap01 } from '../curves';
-import { applyArmFK, applyArmIK, holdSet } from '../holds';
+import { applyArmFK, applyArmIK, holdsOf } from '../holds';
 import { rigData } from '../rigdata';
 import { Rig } from '../rig';
 import { BONE, type AnimClip, type ClipContext, type PoseFrame, type RigInput } from '../types';
-import { gear, plantFoot, stanceZ } from './common';
+import { gear, plantFoot, rdOf, stanceZ } from './common';
 
 const rigs = new WeakMap<RigInput, Rig>();
 /** Scratch rig per RigInput for hold baking (holds are cached per rig input). */
@@ -38,7 +38,7 @@ export const idleClip: AnimClip = {
   notifies: [],
   cancel: [[0, 1]],
   sample(ctx: ClipContext, phase: number, out: PoseFrame): void {
-    const d = rigData(ctx.rig);
+    const d = rdOf(ctx);
     const u = d.legUnit;
     const ph = wrap01(phase);
     const TAU = Math.PI * 2;
@@ -69,7 +69,7 @@ export const idleClip: AnimClip = {
     r[BONE.ARM_L * 3] = 0.1;
     r[BONE.ARM_L * 3 + 2] = 0.05 + 0.02 * breath;
     r[BONE.FORE_L * 3 + 2] = 0.3;
-    const hs = holdSet(scratchRig(ctx.rig));
+    const hs = holdsOf(d);
     const h = hs.idle;
     if (h.r) {
       // a tool resting on the floor is IK-planted (it must not sink with the breath)

@@ -55,6 +55,8 @@ export interface RigData {
   readonly seedA: number;
   readonly seedB: number;
   readonly seedC: number;
+  /** Per-rig caches filled lazily by the clips (hold set, last gait geometry). */
+  cache: { holds?: unknown; gaitV: number; gaitFlavour: number; gaitP?: unknown; gaitG?: unknown };
 }
 
 const cache = new WeakMap<RigInput, RigData>();
@@ -123,5 +125,6 @@ function buildRigData(rig: RigInput): RigData {
     seedA: hash2f(s, 11, 0x5eed),
     seedB: hash2f(s, 23, 0x5eed),
     seedC: hash2f(s, 37, 0x5eed),
+    cache: { gaitV: Number.NaN, gaitFlavour: -1 },
   };
 }

@@ -93,7 +93,7 @@ describe('cycles: seams and determinism', () => {
       r.solve(a);
       let m = 0;
       for (let b = 0; b < BONE_COUNT; b++) for (let c = 12; c < 15; c++) m = Math.max(m, Math.abs(r.W[b * 16 + c]! - p0[b * 16 + c]!));
-      expect(m, id).toBeLessThan(0.01);
+      expect(m, `seam of ${id}`).toBeLessThan(0.01);
     }
     expect(seamJump(rig).max).toBeLessThan(0.01);
   });

@@ -56,7 +56,7 @@ describe('dig: timing from the concept card', () => {
 });
 
 describe('dig in the state machine', () => {
-  const run = (role: (typeof ROLES)[number], seconds: number, work = WORK.DIG) => {
+  const run = (role: (typeof ROLES)[number], seconds: number, work: number = WORK.DIG) => {
     const a = new Animator(makeRig(role), { viewYawDeg: 40 });
     const inp = baseInput(0.5, -1);
     inp.sim = SIM.WORK;

@@ -71,6 +71,9 @@ export interface ToneParams {
    *  Keeps the garments at most ~L* 48 on screen in the core of a pool, the face up to ~68 (art bible §0). */
   knee: number;
   faceKnee: number;
+  /** Desaturation of the figure's own colours except the social accent and the lamp (0..1): beards, skin, wood and
+   *  leather stay under C* 30 on screen, so the accent is the one saturated spot (concept card §2, 70/20/10). */
+  baseDesat: number;
 }
 
 export const DEFAULT_TONE: ToneParams = {
@@ -91,6 +94,7 @@ export const DEFAULT_TONE: ToneParams = {
   faceLift: 0,
   knee: 0,
   faceKnee: 0,
+  baseDesat: 0,
 };
 
 /** Parse tone overrides from URL-like pairs: tone.shadeDL=-12&tone.ambK=0.6 (numbers; key/core as a,b[,c]). */
@@ -226,6 +230,7 @@ uniform float uSelfLight;
 uniform vec4 uFig; // ambient gain, light gain, light cap, light-hue desaturation (figure vs ground)
 uniform float uFaceLift; // face, hands and the accent keep this share of the props' light ("the bright eye")
 uniform vec2 uKnee; // soft knee of the light on garments / on face, hands and accent
+uniform float uBaseDesat; // desaturation of the figure's colours except the accent and the lamp
 varying vec3 vLamp;
 flat varying float vSlot;
 varying vec3 vColor;
@@ -301,8 +306,8 @@ void main() {
   L = max(L - ownLamp(vPos, N) * (1.0 - uSelfLight), vec3(0.0));
   float l = max(max(L.r, L.g), L.b);
   vec3 hue = desatC(L / max(l, 1e-3), max(uLightDesat, uFig.w));
-  vec3 base = desatC(vColor, uDesat);
   int slot = int(vSlot + 0.5);
+  vec3 base = desatC(vColor, (slot == 6 || vEmi > 0.5) ? uDesat : max(uDesat, uBaseDesat));
   float lift = (slot == 4 || slot == 6) ? uFaceLift : 0.0; // SLOT.SKIN, SLOT.ACCENT
   float lbF = lightBands(min(l, mix(uFig.z, 1.8, lift)), uBands, uBandSoft);
   vec3 E = uAmbCool * uDwarfAmb * mix(uFig.x, 1.0, lift) + hue * lbF * uPropLight * mix(uFig.y, 1.0, lift);
@@ -389,6 +394,7 @@ export interface DwarfUniforms {
   uFig: THREE.IUniform<THREE.Vector4>;
   uFaceLift: THREE.IUniform<number>;
   uKnee: THREE.IUniform<THREE.Vector2>;
+  uBaseDesat: THREE.IUniform<number>;
 }
 
 export function dwarfUniforms(style: Uniforms, tone: ToneParams = DEFAULT_TONE): DwarfUniforms {
@@ -407,6 +413,7 @@ export function dwarfUniforms(style: Uniforms, tone: ToneParams = DEFAULT_TONE):
     uFig: { value: new THREE.Vector4(tone.ambK, tone.lightK, tone.lightCap, tone.figDesat) },
     uFaceLift: { value: tone.faceLift },
     uKnee: { value: new THREE.Vector2(tone.knee, tone.faceKnee) },
+    uBaseDesat: { value: tone.baseDesat },
   };
 }
 
@@ -421,6 +428,7 @@ export function setTone(d: DwarfUniforms, t: ToneParams): void {
   d.uFig.value.set(t.ambK, t.lightK, t.lightCap, t.figDesat);
   d.uFaceLift.value = t.faceLift;
   d.uKnee.value.set(t.knee, t.faceKnee);
+  d.uBaseDesat.value = t.baseDesat;
 }
 
 /** Fill material; `side` only matters with MIRROR_SPLIT (FrontSide for facing +1, BackSide for −1). */

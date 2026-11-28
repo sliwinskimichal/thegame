@@ -12,6 +12,7 @@ import { latheTechnique } from './techniques/lathe';
 import { outlineTechnique } from './techniques/outline';
 import { papercutTechnique } from './techniques/papercut';
 import { primitivesTechnique } from './techniques/primitives';
+import { sdfTechnique } from './techniques/sdf';
 
 interface VariantDef {
   id: string;
@@ -104,6 +105,15 @@ export const VARIANT_DEFS: readonly VariantDef[] = [
     proportions: P.A,
     viewYawDeg: 40,
     impl: () => primitivesTechnique('parts'),
+  },
+  {
+    id: 'd08-glina',
+    namePl: 'Glina',
+    descPl: 'Jedna gładka skóra z prymitywów SDF (gładkie minimum) metodą surface nets, w łańcuchach ciała (tułów, głowa z brodą, ręce, nogi), wagi 2 kości w stawach; drobne detale i narzędzia twarde jak d01.',
+    technique: 'sdf',
+    proportions: P.A,
+    viewYawDeg: 40,
+    impl: () => sdfTechnique(),
   },
   {
     id: 'd09-beczka',

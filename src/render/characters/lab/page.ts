@@ -21,7 +21,7 @@ import { LightField } from '../../../world/lightfield';
 import { createIllustratedWith, I08_DRAWING, illParams, LIGHT_VARIANTS, STYLE_ILLUSTRATED_V1, type IllParams } from '../../../lab/styles/illustrated';
 import type { StyleContext, StyleInstance } from '../../../lab/style';
 import { CHARACTER_SCALE, LAB_FRAME, refHeightTiles, ZOOMS } from '../direction';
-import { DWARF_VARIANTS, makeSpec } from '../model/index';
+import { canonicalSpec, DWARF_VARIANTS, makeSpec } from '../model/index';
 import {
   cameraDistance,
   ROLE,
@@ -175,7 +175,9 @@ export function startDwarfLab(): void {
     if (!v) throw new Error(`[dwarves] nieznany wariant "${id}"`);
     variant = v;
     const spec = specOf(v);
-    templates = [ROLE.MINER, ROLE.CARPENTER, ROLE.PORTER, ROLE.SMITH].map((r) => v.build(spec(11 + r, r, SOCIAL.FREE_MINER, v.proportions)));
+    // one geometry per (variant, role, LOD), built from the model team's canonical spec (contract v2 §5)
+    const fixture = FIXTURE_VARIANTS.includes(v);
+    templates = [ROLE.MINER, ROLE.CARPENTER, ROLE.PORTER, ROLE.SMITH].map((r) => v.build(fixture ? spec(11 + r, r, SOCIAL.FREE_MINER, v.proportions) : canonicalSpec(r, v.proportions)));
     crowd.dispose();
     scene.remove(crowd.group);
     crowd = makeCrowd();

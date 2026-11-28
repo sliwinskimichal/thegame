@@ -42,12 +42,12 @@ class RestAnim implements DwarfAnimator {
 
 const roles: RoleId[] = [ROLE.MINER, ROLE.CARPENTER, ROLE.PORTER, ROLE.SMITH];
 const templates = (mode: 'welded' | 'parts') => roles.map((r) => buildFixture('t', fixtureSpec(1 + r, r, SOCIAL.FREE_MINER), mode));
-function members(models: DwarfModel[], n: number, x0 = 0): CrowdMemberEx[] {
+function members(models: DwarfModel[], n: number, x0 = 0, y0 = 0): CrowdMemberEx[] {
   return Array.from({ length: n }, (_, k) => {
     const t = models[k % 4]!;
     const spec = fixtureSpec(100 + k, t.spec.role, SOCIAL.CROWN);
     const model = { ...t, spec, rig: { ...t.rig, seed: 100 + k } };
-    return { model, anim: new RestAnim(model.rig).place(x0 + (k % 20) * 1.5, -Math.floor(k / 20) * 3, k % 3 ? 1 : -1), visible: true };
+    return { model, anim: new RestAnim(model.rig).place(x0 + (k % 20) * 1.5, y0 - Math.floor(k / 20) * 3, k % 3 ? 1 : -1), visible: true };
   });
 }
 function camera(z = 18): THREE.PerspectiveCamera {
@@ -153,7 +153,7 @@ describe('crowd renderer', () => {
   });
   it('picks LOD from the distance and culls off-screen dwarves', () => {
     const r = new CrowdRenderer({ style: neutralStyleUniforms(960, 540) });
-    const ms = members(templates('welded'), 4, 14 - 2);
+    const ms = members(templates('welded'), 4, 14 - 2, -12.6); // in front of the camera (frame centre 14, -12)
     r.sync(ms, camera(5.6), 540);
     expect(ms.every((m) => r.lodOf(m.anim) === 0)).toBe(true);
     r.sync(ms, camera(17.5), 540);

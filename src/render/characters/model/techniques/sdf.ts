@@ -30,7 +30,7 @@ const CHAINS: readonly (readonly number[])[] = [
 ];
 
 /** Grid cell (model units) per chain: finer for the head (face, beard), coarser for the trunk and limbs. */
-const CELL = [0.05, 0.034, 0.038, 0.038, 0.04, 0.04];
+const CELL = [0.06, 0.038, 0.044, 0.044, 0.047, 0.047];
 /** Smooth-union radius per chain. */
 const BLEND = [0.05, 0.03, 0.035, 0.035, 0.03, 0.03];
 /** Width of the two-bone weight ramp (distance gap). */

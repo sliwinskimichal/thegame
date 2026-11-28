@@ -221,7 +221,10 @@ describe('state machine basics', () => {
   });
 });
 
-describe('benchmark', () => {
+// Opt-in (like NAV_BENCH): ANIM_BENCH=1 npx vitest run tests/anim/rig/locomotion.test.ts -t benchmark
+// Timing is noisy on a shared machine and Vitest's transform doubles the cost of hot cross-module calls,
+// so the benchmark bundles the code like the game build and times it in a clean Node process.
+describe.runIf(!!process.env.ANIM_BENCH)('benchmark', () => {
   it('update + IK + FK of 200 dwarves <= 1.5 ms per frame (Node, production bundle)', () => {
     // bundle the benchmark entry like the game build does and run it in a clean Node process
     const dir = mkdtempSync(join(tmpdir(), 'w2-bench-'));

@@ -159,8 +159,8 @@ function miner(f: Frame): RoleGear {
     {
       name: 'plume',
       bone: BONE.HEAD,
-      shape: { k: 'ellipsoid', rx: 0.08, ry: 0.028, rz: 0.034 },
-      t: [hx - 0.135 * k, f.crownY + 0.022, 0],
+      shape: { k: 'ellipsoid', rx: 0.1, ry: 0.032, rz: 0.04 },
+      t: [hx - 0.15 * k, f.crownY + 0.022, 0],
       r: [0, 0, -0.62],
       slot: SLOT.ACCENT,
       minLod: 1,
@@ -299,7 +299,7 @@ function carpenter(f: Frame): RoleGear {
   parts.push(
     idp('headgear', { name: 'hood.spike1', bone: BONE.HEAD, shape: { k: 'frustum', r0: 0.07 * k, r1: 0.042 * k, h: l1 + 0.02 }, t: [b1[0] + (d1[0] * l1) / 2, b1[1] + (d1[1] * l1) / 2, 0], r: [0, 0, a1], s: [1, 1, 0.9], slot: SLOT.CLOTH, minLod: 1, lod1: { seg: 4, cap: CAP_BOTTOM } }),
     idp('headgear', { name: 'hood.spike2', bone: BONE.HEAD, shape: { k: 'frustum', r0: 0.044 * k, r1: 0.01, h: l2 + 0.015 }, t: [b2[0] + (d2[0] * l2) / 2, b2[1] + (d2[1] * l2) / 2, 0], r: [0, 0, a2], s: [1, 1, 0.9], slot: SLOT.CLOTH, minLod: 1, lod1: { seg: 4, cap: 0 } }),
-    { name: 'tassel', bone: BONE.HEAD, shape: { k: 'ellipsoid', rx: 0.034, ry: 0.05, rz: 0.034 }, t: [tip[0] - 0.01, tip[1] - 0.03, 0], slot: SLOT.ACCENT, minLod: 1, lod1: { seg: 3, rings: 2 } },
+    { name: 'tassel', bone: BONE.HEAD, shape: { k: 'ellipsoid', rx: 0.042, ry: 0.06, rz: 0.042 }, t: [tip[0] - 0.01, tip[1] - 0.03, 0], slot: SLOT.ACCENT, minLod: 1, lod1: { seg: 3, rings: 2 } },
   );
   // carpenter's broad axe: handle 0.55, wide bearded blade, bright edge
   const F = J(f, BONE.TOOL_R);
@@ -379,10 +379,10 @@ function porter(f: Frame): RoleGear {
       cap: 0,
       lod1: { seg: 6 },
     }),
-    { name: 'knot', bone: BONE.HEAD, shape: { k: 'ellipsoid', rx: 0.036, ry: 0.03, rz: 0.04 }, t: [hx - 0.178 * k, f.hy + 0.085 * k, 0], slot: SLOT.ACCENT, minLod: 1, lod1: { seg: 4, rings: 2 } },
+    { name: 'knot', bone: BONE.HEAD, shape: { k: 'ellipsoid', rx: 0.04, ry: 0.036, rz: 0.042 }, t: [hx - 0.15 * k, f.hy + 0.08 * k, 0.1 * k], slot: SLOT.ACCENT, minLod: 1, lod1: { seg: 4, rings: 2 } },
   );
-  for (const [i, z] of [-0.022, 0.022].entries()) {
-    parts.push({ name: `knot.end${i}`, bone: BONE.HEAD, shape: { k: 'capsule', r: 0.013, len: 0.1 }, t: [hx - 0.2 * k, f.hy + 0.03 * k, z], r: [z * 8, 0, 0.5 + i * 0.25], slot: SLOT.ACCENT, minLod: 0 });
+  for (const [i, z] of [0.08, 0.125].entries()) {
+    parts.push({ name: `knot.end${i}`, bone: BONE.HEAD, shape: { k: 'capsule', r: 0.015, len: 0.12 }, t: [hx - 0.18 * k, f.hy + 0.02 * k, z * k], r: [0, 0, 0.45 + i * 0.3], slot: SLOT.ACCENT, minLod: i === 0 ? 1 : 0, lod1: { shape: { k: 'frustum', r0: 0, r1: 0.02, h: 0.12 }, seg: 3 } });
   }
   // pack frame (nosidło) 0.5 × 0.7 reaching above the shoulders, basket, straps
   const fx = -0.275;
@@ -488,7 +488,7 @@ function smith(f: Frame): RoleGear {
   }
   parts.push(
     { name: 'goggle.bridge', bone: BONE.HEAD, shape: { k: 'box', w: 0.04 * k, h: 0.014, d: 0.016 }, t: [hx + 0.168 * k, base + 0.03 * k, 0], slot: SLOT.FIXED, color: FIXED_COLORS.iron, minLod: 0 },
-    { name: 'feather', bone: BONE.HEAD, shape: { k: 'ellipsoid', rx: 0.02, ry: 0.095, rz: 0.01 }, t: [hx - 0.15 * k, base + 0.08 * k, 0.15 * k], r: [-0.35, 0, 1.15], slot: SLOT.ACCENT, minLod: 1, lod1: { seg: 3, rings: 2 } },
+    { name: 'feather', bone: BONE.HEAD, shape: { k: 'ellipsoid', rx: 0.026, ry: 0.12, rz: 0.012 }, t: [hx - 0.15 * k, base + 0.08 * k, 0.15 * k], r: [-0.35, 0, 1.15], slot: SLOT.ACCENT, minLod: 1, lod1: { seg: 3, rings: 2 } },
   );
   // hammer (right) and tongs (left)
   const F = J(f, BONE.TOOL_R);

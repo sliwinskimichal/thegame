@@ -214,7 +214,7 @@ export function startDwarfLab(): void {
     try {
       m.anim.pose(d.clip, d.phase, inputFor(d));
     } catch (e) {
-      const msg = `pose(${d.clip}, ${d.phase.toFixed(3)}): ${(e as Error).message}`;
+      const msg = `pose(${d.clip}): ${(e as Error).message}`;
       if (!poseErrors.includes(msg)) {
         poseErrors.push(msg);
         console.warn(`[dwarves] ${msg} — zastępczo idle`);

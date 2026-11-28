@@ -112,6 +112,14 @@ describe('dwarf contract: lab', () => {
     } finally {
       CHARACTER_SCALE.worldPerModel = keep;
     }
+    // the pixel target itself can be overridden for the scale study (getter follows it)
+    const px = ZOOMS.grod.dwarfPx;
+    try {
+      ZOOMS.grod.dwarfPx = 100;
+      expect(ZOOMS.grod.pxPerTile * refHeightTiles()).toBeCloseTo(100);
+    } finally {
+      ZOOMS.grod.dwarfPx = px;
+    }
   });
 
   it('budgets and shots', () => {

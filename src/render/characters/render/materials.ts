@@ -53,6 +53,8 @@ export interface ToneParams {
   lightK: number;
   lightCap: number;
   figDesat: number;
+  /** Share of the props' light the face, hands and the accent keep (the bright "eye" of the dark figure). */
+  faceLift: number;
 }
 
 export const DEFAULT_TONE: ToneParams = {
@@ -70,6 +72,7 @@ export const DEFAULT_TONE: ToneParams = {
   lightK: 1,
   lightCap: 1.8,
   figDesat: 0,
+  faceLift: 0,
 };
 
 /** Parse tone overrides from URL-like pairs: tone.shadeDL=-12&tone.ambK=0.6 (numbers; key/core as a,b[,c]). */
@@ -162,11 +165,13 @@ varying vec3 vPos;
 varying float vEmi;
 varying vec3 vInst; // mirror sign, lamp on, seed
 varying vec3 vLamp;
+flat varying float vSlot;
 void main() {
   vec3 wp;
   vec3 wn;
   skin(position, normal, wp, wn);
   vLamp = aLamp;
+  vSlot = aSlot;
   float nl = length(wn);
   vNormal = nl > 1e-6 ? wn / nl : vec3(0.0, 0.0, 1.0);
   vPos = wp;
@@ -201,7 +206,9 @@ uniform vec2 uCore;
 uniform float uFlicker;
 uniform float uSelfLight;
 uniform vec4 uFig; // ambient gain, light gain, light cap, light-hue desaturation (figure vs ground)
+uniform float uFaceLift; // face, hands and the accent keep this share of the props' light ("the bright eye")
 varying vec3 vLamp;
+flat varying float vSlot;
 varying vec3 vColor;
 varying vec3 vNormal;
 varying vec3 vPos;
@@ -274,9 +281,11 @@ void main() {
   L = max(L - ownLamp(vPos, N) * (1.0 - uSelfLight), vec3(0.0));
   float l = max(max(L.r, L.g), L.b);
   vec3 hue = desatC(L / max(l, 1e-3), max(uLightDesat, uFig.w));
-  float lb = lightBands(min(l, uFig.z), uBands, uBandSoft);
   vec3 base = desatC(vColor, uDesat);
-  vec3 col = base * (uAmbCool * uDwarfAmb * uFig.x + hue * lb * uPropLight * uFig.y);
+  int slot = int(vSlot + 0.5);
+  float lift = (slot == 4 || slot == 6) ? uFaceLift : 0.0; // SLOT.SKIN, SLOT.ACCENT
+  float lbF = lightBands(min(l, mix(uFig.z, 1.8, lift)), uBands, uBandSoft);
+  vec3 col = base * (uAmbCool * uDwarfAmb * mix(uFig.x, 1.0, lift) + hue * lbF * uPropLight * mix(uFig.y, 1.0, lift));
   // flat tones: the side toward the light is lighter, the other side drops toward the ambient
   vec3 ld = lightDirection(vPos);
   float amt = smoothstep(0.02, 0.3, length(ld));
@@ -354,6 +363,7 @@ export interface DwarfUniforms {
   uFlicker: THREE.IUniform<number>;
   uSelfLight: THREE.IUniform<number>;
   uFig: THREE.IUniform<THREE.Vector4>;
+  uFaceLift: THREE.IUniform<number>;
 }
 
 export function dwarfUniforms(style: Uniforms, tone: ToneParams = DEFAULT_TONE): DwarfUniforms {
@@ -370,6 +380,7 @@ export function dwarfUniforms(style: Uniforms, tone: ToneParams = DEFAULT_TONE):
     uFlicker: { value: tone.flicker },
     uSelfLight: { value: tone.selfLight },
     uFig: { value: new THREE.Vector4(tone.ambK, tone.lightK, tone.lightCap, tone.figDesat) },
+    uFaceLift: { value: tone.faceLift },
   };
 }
 
@@ -382,6 +393,7 @@ export function setTone(d: DwarfUniforms, t: ToneParams): void {
   d.uFlicker.value = t.flicker;
   d.uSelfLight.value = t.selfLight;
   d.uFig.value.set(t.ambK, t.lightK, t.lightCap, t.figDesat);
+  d.uFaceLift.value = t.faceLift;
 }
 
 /** Fill material; `side` only matters with MIRROR_SPLIT (FrontSide for facing +1, BackSide for −1). */

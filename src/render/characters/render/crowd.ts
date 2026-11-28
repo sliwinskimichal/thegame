@@ -346,6 +346,7 @@ export class CrowdRenderer implements DwarfCrowdRenderer {
           const g = new THREE.BufferGeometry();
           for (const [name, a] of Object.entries(src.attributes)) g.setAttribute(name, a);
           ensureColor(src, g);
+          if (!src.getAttribute('aSlot')) g.setAttribute('aSlot', new THREE.BufferAttribute(new Float32Array(src.getAttribute('position')!.count).fill(pm.slot), 1));
           g.setIndex(src.index);
           g.setAttribute('aInst', inst);
           g.setAttribute('aTint', tint);

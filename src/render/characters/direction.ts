@@ -241,8 +241,9 @@ function zoomDef(id: ZoomDef['id'], namePl: string, dwarfPx: number, lod: ZoomDe
     lod,
     hullPx,
     innerPx,
+    // reads this.dwarfPx so a lab experiment may override the pixel target at start-up (scale study)
     get pxPerTile() {
-      return dwarfPx / refHeightTiles();
+      return this.dwarfPx / refHeightTiles();
     },
   };
 }

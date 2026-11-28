@@ -74,6 +74,16 @@ Czytelność i wydajność opierają się na metrykach; wow, atmosfera, spójno�
 (Izba, Gród, Okolica, paski ruchu) z uzasadnieniem w tabeli ocen. Odrzucenie z urzędu: chibi (głowa > ⅓
 wzrostu bez nakrycia), rola nieczytelna z sylwetki przy 75 px, podobieństwo do postaci z referencji lub innej gry.
 
+## 5a. Przebieg prac zespołu
+
+- **E1 (2026-11-28)** — odbiór: `docs/team/dwarf-team/E1-REVIEW.md`. Działają: 11 wariantów × 4 role × 3 LOD,
+  rig z IK i lokomocją bez poślizgu (0%), stanowisko z 11 ujęciami (26 s na wariant), 200 krasnoludów w 8 wywołaniach
+  rysowania. Do poprawy przed turniejem: odpowiedź materiału postaci na światło L12 (akcent C\* > 30 w 67–88%
+  wypełnienia, strój za jasny), światło stanowiska za jasne, obrys rwany w L12, broda „deska”, kitka i kaganek jak
+  rogi, żetony LOD2 bez szerokiej podstawy, trzymanie kilofa i topora.
+- **Reguła ruchu (z E1)**: przy lokomocji miednica i nogi w profilu wzdłuż ruchu (stopy bez dryfu), tułów, broda
+  i głowa skręcone ku kamerze o yaw wariantu; w spoczynku i przy pracy całe ciało pod yaw wariantu.
+
 ## 6. Wyniki
 
 *(po E3: tabela metryk, tabela ocen, plansze `docs/variants/04-dwarf/`, finaliści)*
